@@ -1,2 +1,1 @@
-# fyp
-JavaScript Framework for Actor-Based Programming
+# JavaScript Framework for Actor-Based Programming
