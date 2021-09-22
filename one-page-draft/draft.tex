@@ -12,9 +12,9 @@
 \setlength{\parskip}{7pt}
 \begin{document}
 \maketitle
-This project aims to provide a JavaScript framework for designing systems using the actor-based model. This will allow developers to simplify code that will be running concurrently in separate processes to build distributed parallel systems.
+This project aims to provide a JavaScript framework for designing systems using the actor-based model. This will allow developers to simplify code that will be running concurrently in potentially separate processes to build distributed and parallel systems.
 
-Actors are units of computation which may perform three kinds of operations in response to incoming messages\cite{agha_1986}. They may send messages to other actors, decide how to handle the next message or create a finite set of new actors. Actors maintain an isolated state which may be changed in response to incoming messages. Governed by their limited behaviour, actors communicate with each other to build a distributed system.
+Actors are units of computation which may perform three kinds of operations in response to incoming messages\cite{agha_1986}. They may send messages to other actors, decide how to handle the next message, or create a finite set of new actors. Actors maintain an isolated state which may be changed in response to incoming messages. Governed by their limited behaviour, actors communicate with each other to build a distributed system.
 
 The framework will provide functions which will enable the programmer to easily set up actors and allow communication between them. Such functions will allow the programmer to create, terminate, and send messages to actors. Alternate functions will be provided to accommodate for more specific behaviour, such as deciding whether the actor is stateful or stateless. The programmer can also choose whether the function used to send a message blocks until a response is received. Internally the framework will handle communication between actors as well as the isolation of actor states, encapsulating actor logic which is irrelevant to the programmer. 
 
