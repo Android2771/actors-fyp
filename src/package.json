@@ -1,0 +1,14 @@
+{
+  "name": "actors",
+  "version": "1.0.0",
+  "description": "The project aims to engineer a JavaScript framework for building actor-based systems whichwill  use  the  web  as  its  global  distributed  platform.   The  performance  and  usability  of  theartifact will then be analysed through empirical measurement",
+  "main": "actors.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.4.3"
+  }
+}
