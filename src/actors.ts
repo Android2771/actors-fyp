@@ -21,8 +21,7 @@ interface ActorCallback{
 //Actor object interface
 interface Actor{
     state: object,
-    mailbox: object[],
-    behaviour: ActorCallback
+    mailbox: object[]
 }
 
 let actors : any = {}
@@ -36,12 +35,13 @@ let actors : any = {}
  */
 export function spawn(name: string, state: object, behaviour: ActorCallback) : Actor{
     //Populate the context with the new actor with an empty mailbox and return the actor
-    let actor : Actor = {state, mailbox: [], behaviour};
+    let actor : Actor = {state, mailbox: []};
     actors[name] = actor;
-    console.log(actors);
 
     messageEmitter.on(name, () => {
-        console.log(`Handling message for ${name}!`);
+        let message = actor.mailbox.shift();
+        if(message !== undefined)
+            behaviour(actor.state, message)
     });
 
     return actor;
@@ -53,6 +53,7 @@ export function spawn(name: string, state: object, behaviour: ActorCallback) : A
  */
 export function terminate(name: string){
     //Remove the actor from the context, delete the actor object from memory
+    messageEmitter.removeAllListeners(name);
     delete actors[name];
 };
 
