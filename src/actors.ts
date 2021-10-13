@@ -24,7 +24,11 @@ interface Actor{
     mailbox: object[]
 }
 
-let actors : any = {}
+interface Actors {
+    [key: string]: Actor
+ }
+
+let actors : Actors = {}
 
 /**
  * Spawns an actor.
