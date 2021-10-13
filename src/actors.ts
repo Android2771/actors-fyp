@@ -1,3 +1,6 @@
+import EventEmitter from 'events';
+class MessageEmitter extends EventEmitter {}
+const messageEmitter = new MessageEmitter();
 //STORE CONTEXT LOCALLY
 //Actor behaviour callback function interface
 
@@ -17,13 +20,12 @@ interface ActorCallback{
 
 //Actor object interface
 interface Actor{
-    readonly name: string,
     state: object,
     mailbox: object[],
     behaviour: ActorCallback
 }
 
-let context : Actor[] = [];
+let actors : any = {}
 
 /**
  * Spawns an actor.
@@ -34,14 +36,24 @@ let context : Actor[] = [];
  */
 export function spawn(name: string, state: object, behaviour: ActorCallback) : Actor{
     //Populate the context with the new actor with an empty mailbox and return the actor
+    let actor : Actor = {state, mailbox: [], behaviour};
+    actors[name] = actor;
+    console.log(actors);
+
+    messageEmitter.on(name, () => {
+        console.log(`Handling message for ${name}!`);
+    });
+
+    return actor;
 };
 
 /**
  * Terminates an actor.
  * @param actor The actor to terminate
  */
-export function terminate(actor: Actor){
+export function terminate(name: string){
     //Remove the actor from the context, delete the actor object from memory
+    delete actors[name];
 };
 
 /**
@@ -49,9 +61,12 @@ export function terminate(actor: Actor){
  * @param actor The actor to send the message to
  * @param message The message object to send to an actor
  */
-export async function send(actor: Actor, message: object) : Promise<void>{
+export function send(name: string, message: object) : void{
     /*Push the message object to the recipient actor's mailbox.
     * This function needs to be asynchronous. How do we make it that the recipient actor 
     * has its mailbox populated with a guarantee that it will eventually execute?
     */
+
+    actors[name].mailbox.push(message);
+    messageEmitter.emit(name);
 };
