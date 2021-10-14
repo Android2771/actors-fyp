@@ -3,7 +3,7 @@ import {spawn, terminate, send} from './actors.js'
 //Actor which replies
 const ping = spawn('ping', {}, (state, message) => {
     console.log("ping!")
-    send(message.sender, {sender: pong})
+    send(message.sender, {sender: ping})
 });
 
 const pong = spawn('pong', {i: 0}, (state, message) => {
