@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+const hash = require('object-hash');
 class MessageEmitter extends EventEmitter {}
 const messageEmitter = new MessageEmitter();
 //STORE CONTEXT LOCALLY
@@ -20,15 +21,10 @@ interface ActorCallback{
 
 //Actor object interface
 interface Actor{
+    name: string,
     state: object,
     mailbox: object[]
 }
-
-interface Actors {
-    [key: string]: Actor
- }
-
-let actors : Actors = {}
 
 /**
  * Spawns an actor.
@@ -39,8 +35,9 @@ let actors : Actors = {}
  */
 export function spawn(name: string, state: object, behaviour: ActorCallback) : Actor{
     //Populate the context with the new actor with an empty mailbox and return the actor
-    let actor : Actor = {state, mailbox: []};
-    actors[name] = actor;
+    const actor : Actor = {name, state, mailbox: []};
+    console.log(hash(actor));
+    console.log(JSON.stringify(actor))
 
     messageEmitter.on(name, () => {
         let message = actor.mailbox.shift();
@@ -55,10 +52,9 @@ export function spawn(name: string, state: object, behaviour: ActorCallback) : A
  * Terminates an actor.
  * @param actor The actor to terminate
  */
-export function terminate(name: string){
+export function terminate(actor: Actor){
     //Remove the actor from the context, delete the actor object from memory
-    messageEmitter.removeAllListeners(name);
-    delete actors[name];
+    messageEmitter.removeAllListeners(actor.name);
 };
 
 /**
@@ -66,12 +62,11 @@ export function terminate(name: string){
  * @param actor The actor to send the message to
  * @param message The message object to send to an actor
  */
-export function send(name: string, message: object) : void{
+export function send(actor: Actor, message: object) : void{
     /*Push the message object to the recipient actor's mailbox.
     * This function needs to be asynchronous. How do we make it that the recipient actor 
     * has its mailbox populated with a guarantee that it will eventually execute?
     */
-
-    actors[name].mailbox.push(message);
-    messageEmitter.emit(name);
+    actor.mailbox.push(message);
+    messageEmitter.emit(actor.name);
 };
