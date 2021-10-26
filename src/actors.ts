@@ -36,7 +36,7 @@ interface Actor{
 export function spawn(name: string, state: object, behaviour: ActorCallback) : Actor{
     //Populate the context with the new actor with an empty mailbox and return the actor
     const actor : Actor = {name, state, mailbox: []};
-    console.log(hash(actor));
+    // console.log(hash(actor));
 
     messageEmitter.on(name, () => {
         let message = actor.mailbox.shift();
