@@ -1,7 +1,6 @@
 import EventEmitter from 'events';
 class MessageEmitter extends EventEmitter {}
 const messageEmitter = new MessageEmitter();
-import hash from 'object-hash';
 //STORE CONTEXT LOCALLY
 //Actor behaviour callback function interface
 
@@ -36,7 +35,6 @@ interface Actor{
 export function spawn(name: string, state: object, behaviour: ActorCallback) : Actor{
     //Populate the context with the new actor with an empty mailbox and return the actor
     const actor : Actor = {name, state, mailbox: []};
-    // console.log(hash(actor));
 
     messageEmitter.on(name, () => {
         let message = actor.mailbox.shift();
