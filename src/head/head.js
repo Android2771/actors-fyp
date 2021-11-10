@@ -1,24 +1,22 @@
 #!/usr/bin/env node
 var WebSocketServer = require('websocket').server;
 var http = require('http');
+const { exec } = require("child_process");
+var locations = require('./locations.json');
+const spawnable = require('./spawnable.js')
 
 var server = http.createServer(function(request, response) {
     console.log((new Date()) + ' Received request for ' + request.url);
     response.writeHead(404);
     response.end();
 });
-const port = '8081'
+const port = '8080'
 server.listen(port, function() {
     console.log((new Date()) + ` Server is listening on port ${port}`);
 });
 
 wsServer = new WebSocketServer({
     httpServer: server,
-    // You should not use autoAcceptConnections for production
-    // applications, as it defeats all standard cross-origin protection
-    // facilities built into the protocol and the browser.  You should
-    // *always* verify the connection's origin and decide whether or not
-    // to accept it.
     autoAcceptConnections: false
 });
 
@@ -35,15 +33,28 @@ wsServer.on('request', function(request) {
       return;
     }
     
-    var connection = request.accept('echo-protocol', request.origin);
+    let connection = request.accept('actor-client', request.origin);
     console.log((new Date()) + ' Connection accepted.');
-    connection.on('message', function(message) {
-        if (message.type === 'utf8') {
-            console.log('Received Message: ' + message.utf8Data);
-            connection.sendUTF(message.utf8Data);
-        }
+
+    connection.on('message', message => {
+        
     });
-    connection.on('close', function(reasonCode, description) {
+
+    connection.on('close', (reasonCode, description) => {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
     });
 });
+
+//Set up environments for all nodes in locations.json
+locations.forEach(location => {
+    exec(`cp -r client/ ${location}`)
+    exec(`node ${location}/client.js &`)
+})
+
+//Tear down environments for all nodes on exit
+process.on('SIGINT', code => {
+    locations.forEach(location => {
+        exec(`rm -rf ${location}/`)
+    })
+    process.exit(0)
+})
