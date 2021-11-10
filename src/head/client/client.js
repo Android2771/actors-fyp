@@ -17,7 +17,7 @@ client.on('connect', connection => {
 
     //Instructions to spawn an actor
     connection.on('message', message => {
-        
+        console.log(message)
     });
 });
 

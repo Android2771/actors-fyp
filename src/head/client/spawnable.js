@@ -1,4 +1,4 @@
-const {spawn, terminate, send} = require('../actors.js');
+const {spawn, terminate, send} = require('../../actors.js');
 
 //Actor which replies
 module.exports = {

@@ -1,9 +1,12 @@
 #!/usr/bin/env node
-var WebSocketServer = require('websocket').server;
-var http = require('http');
+const WebSocketServer = require('websocket').server;
+const http = require('http');
 const { exec } = require("child_process");
-var locations = require('./locations.json');
-const spawnable = require('./spawnable.js')
+const locations = require('./locations.json');
+const spawnable = require('./client/spawnable.js')
+const EventEmitter = require('events');
+class MessageEmitter extends EventEmitter {}
+const messageEmitter = new MessageEmitter();
 
 var server = http.createServer(function(request, response) {
     console.log((new Date()) + ' Received request for ' + request.url);
@@ -25,6 +28,8 @@ function originIsAllowed(origin) {
   return true;
 }
 
+let connections = []
+
 wsServer.on('request', function(request) {
     if (!originIsAllowed(request.origin)) {
       // Make sure we only accept requests from an allowed origin
@@ -34,7 +39,11 @@ wsServer.on('request', function(request) {
     }
     
     let connection = request.accept('actor-client', request.origin);
+    connections.push(connection)
+    
     console.log((new Date()) + ' Connection accepted.');
+    if(connections.length == locations.length)
+        messageEmitter.emit('setup-done')
 
     connection.on('message', message => {
         
@@ -58,3 +67,8 @@ process.on('SIGINT', code => {
     })
     process.exit(0)
 })
+
+//Once all connections are made, 
+messageEmitter.once('setup-done', () => {
+    //Put master code here
+});
