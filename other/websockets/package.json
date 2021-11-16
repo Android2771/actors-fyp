@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "websocket": "^1.0.34"
+  },
+  "dependencies": {
+    "ws": "^8.2.3"
   }
 }
