@@ -1,25 +1,21 @@
 #!/usr/bin/env node
 const WebSocketServer = require('ws');
 const wss = new WebSocketServer.Server({ port: 8080 });
-const http = require('http');
 const { exec } = require("child_process");
 const nodes = require('./nodes.json');
-const spawnable = require('./node/spawnable.js')
 const fs = require('fs');
-const EventEmitter = require('events');
-class MessageEmitter extends EventEmitter {}
-const messageEmitter = new MessageEmitter();
 
-wss.on('connection', ws => {
+wss.on('connection', (ws, req) => {
+    const nodeName = req.url.split('id=')[1]
     ws.on('message', message => {
-      console.log('received: %s', message);
+      console.log(`Node ${nodeName}: ${message}`);
     });
   });
 
 //Set up environments for all nodes in nodes.json
 for(const i in nodes){
     exec(`cp -r node/ ${i}/`, () => {
-        fs.appendFileSync(`${i}/node.json`, JSON.stringify(nodes[i]), err => console.log(err)); 
+        fs.appendFileSync(`${i}/node.json`, JSON.stringify({[i]: nodes[i]}), err => console.log(err)); 
         exec(`node ${i}/client.js &`)
     })    
 }

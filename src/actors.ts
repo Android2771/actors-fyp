@@ -4,6 +4,9 @@ const messageEmitter = new MessageEmitter();
 //STORE CONTEXT LOCALLY
 //Actor behaviour callback function interface
 
+//Set counter to uniquely name actors
+let i : number = 0
+
 /**
  * state: The current state of the actor
  * message: The message the actor will process
@@ -33,8 +36,9 @@ module.exports = {
      * @param behaviour The behaviour of the actor in response to a message
      * @returns The spawned actor
      */
-    spawn : (name: string, state: object, behaviour: ActorCallback) : Actor => {
+    spawn : (state: object, behaviour: ActorCallback) : Actor => {
         //Populate the context with the new actor with an empty mailbox and return the actor
+        const name : string = (i++).toString();
         const actor : Actor = {name, state, mailbox: []};
 
         messageEmitter.on(name, () => {
