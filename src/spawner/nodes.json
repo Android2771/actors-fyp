@@ -1,17 +1,18 @@
 {
     "0": {
         "spawn": [
-            "ping"
+            {
+                "name": "ping",
+                "state": {}
+            }
         ]
     },
     "1": {
         "spawn": [
-            "pong"
-        ]
-    },
-    "2": {
-        "spawn": [
-            "peng"
+            {
+                "name": "pong",
+                "state": {}
+            }
         ]
     }
 }

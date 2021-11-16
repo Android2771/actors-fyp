@@ -15,7 +15,7 @@ wss.on('connection', (ws, req) => {
 //Set up environments for all nodes in nodes.json
 for(const i in nodes){
     exec(`cp -r node/ ${i}/`, () => {
-        fs.appendFileSync(`${i}/node.json`, JSON.stringify({[i]: nodes[i]}), err => console.log(err)); 
+        fs.appendFileSync(`${i}/node.json`, JSON.stringify({'name': i, 'behaviour': nodes[i]}), err => console.log(err)); 
         exec(`node ${i}/client.js &`)
     })    
 }
