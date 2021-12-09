@@ -1,0 +1,109 @@
+\documentclass[12pt]{report}
+\usepackage[left=2.5cm,right=2.5cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{float}
+\author{Andrew Buhagiar}
+\title{Progress Report - JavaScript Framework for Actor-Based Programming}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\renewcommand*\thesection{\arabic{section}}
+\renewcommand{\thesubsection}{\thesection\alph{subsection}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{7pt}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={break, case, catch, continue, debugger, default, delete, do, else, false, finally, for, function, if, in, instanceof, new, null, return, switch, this, throw, true, try, typeof, let, const, void, while, with, class, export, boolean, throw, implements, import, this},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  ndkeywords={},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  sensitive=true
+}
+
+\lstset{frame=tb,
+  language=JavaScript,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3,
+  numbers=left
+}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+%page for each section
+\section{Abstract}
+JavaScript is used in most modern browsers as well as standalone applications using Node.js. Despite JavaScript being the language of the web, it lacks an intuitive way to program in a concurrent and distributed fashion. This dissertation aims to engineer a JavaScript framework for building actor-based systems which will use the web as its global distributed platform, and explore the performance and scalability of applications built using this framework.
+\section{Introduction and Motivation}
+Actors are concurrent units of computation proposed by \cite{hewitt1973session}. Actors communicate with each other using messages which may be stored on the receiving actor's message queue\cite{43years}. Actors are event driven as they execute a certain behaviour when processing the next message in the queue. This behaviour may involve sending messages to other actors, changing the actor's behaviour as well as creating a finite set of new actors. Actors communicate with each other to constitute a distributed system. Actors are ideal for building message driven reactive systems~\cite{reactivemanifesto} which are scalable and fault tolerant. This model powers the telecommunications industry and is more recently used for implementing distributed systems in languages such as Scala Actors and Akka\cite{haller2012integration}.
+
+By providing a 
+\section{Background Research and Literature Review}
+% what are actor systems
+% challenges
+\section{Aims and Objectives}
+The framework will provide operations which will enable the programmer to easily set up actors and the communication between them. Such operations will allow the programmer to create, terminate, and send messages to actors. Internally the framework will handle the distributed communication between actors as well as the isolation of actor states. Such actors may be running locally or remotely on other devices. The framework will allow the programmer to use a facility such as WebSockets to pass messages through the web to communicate with the remote actors. The mode of communication will be tailored depending on the location of the two communicating actors to optimise the speed of message delivery. The framework will also handle the blocking and scheduling of actors during runtime, determining which actors will run at any point in time. Measures will be taken to ensure fairness between the running concurrent actors.
+
+Having implemented necessary features for the actor model framework, the focus may shift to explore more advanced features. For instance, the framework may allow actors to freeze and persist. The programmer could then respawn or replicate the persisted actor with the respective state and mailbox. The framework may also provide location transparency. This will allow programmers to treat actors in foreign devices in the same way as actors which are running locally, thus simplifying logic on distributed networks. It may be the case that a cluster of nodes will be spawned to perform local parallel computing. This will take advantage of the multiple cores that are usually present in computers and servers.
+\section{Proposed Solution}
+The figure below shows a basic prototype of an actor model framework implementation for a single Node.js application.
+\begin{figure}[H]
+  \begin{lstlisting}[gobble=2]
+    const EventEmitter = require('events');
+    class MessageEmitter extends EventEmitter {}
+    const messageEmitter = new MessageEmitter();
+    let i = 0;
+    module.exports = {
+        spawn: (state, behaviour) => {
+            const name = (i++).toString();
+            const actor = { name, state, mailbox: [] };
+            messageEmitter.on(name, () => {
+                let message = actor.mailbox.shift();
+                if (message !== undefined)
+                    behaviour(actor.state, message);
+            });
+            return actor;
+        },
+        terminate: (actor) => {
+            messageEmitter.removeAllListeners(actor.name);
+        },
+        send: (actor, message) => {
+            actor.mailbox.push(message);
+            messageEmitter.emit(actor.name);
+        }
+    };
+  \end{lstlisting}
+  \caption{Naive Single Thread Actor System}
+\end{figure}
+The implementation exploits the node event emitter system to use it for scheduling which actors will run their behaviour at a time. In this example, the behaviour of actors are defined as closures which will execute on the event of an incoming message.
+% your implementation
+\section{Evaluation Plan}
+% youre doing a scalability test for n actors, this is how you evaluate
+% overhead vs actual computation internally, one actor o
+%mention case study of actor system and benchmarking (graphs)
+%Gantt chart - implementation
+\section{Deliverables}
+\bibliographystyle{ieeetr}
+\bibliography{references}
+\end{document}

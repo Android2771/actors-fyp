@@ -1,0 +1,78 @@
+Akka was built on the reactive manifesto which is a signed public declaration of the important aspects of reactive systems
+@misc{reactivemanifesto,
+  title        = {The Reactive Manifesto},
+  howpublished = {\url{https://www.reactivemanifesto.org/}},
+  note = {Published: 2014-09-16, Accessed: 2021-09-30}
+}
+
+One of the first papers concretising the actor model for AI. Mostly mathematical and not very practical
+@techreport{agha1985actors,
+  title={Actors: A model of concurrent computation in distributed systems.},
+  author={Agha, Gul A},
+  year={1985},
+  institution={Massachusetts Inst of Tech Cambridge Artificial Intelligence Lab}
+}
+
+@inproceedings{hewitt1973session,
+  title={Session 8 formalisms for artificial intelligence a universal modular actor formalism for artificial intelligence},
+  author={Hewitt, Carl and Bishop, Peter and Steiger, Richard},
+  booktitle={Advance Papers of the Conference},
+  volume={3},
+  pages={235},
+  year={1973},
+  organization={Stanford Research Institute Menlo Park, CA}
+}
+
+A paper describing the efforts of porting the JVM Akka to JS. 
+This project was built on scala-js-actor and is written to mimic JVM Akka code
+@inproceedings{stivan2015akka,
+  title={Akka. js: towards a portable actor runtime environment},
+  author={Stivan, Gianluca and Peruffo, Andrea and Haller, Philipp},
+  booktitle={Proceedings of the 5th International Workshop on Programming Based on Actors, Agents, and Decentralized Control},
+  pages={57--64},
+  year={2015}
+}
+
+An article proposing that all physically possible computation can be directly implemented using actors
+Talks about how actors should be built. Embracing inconsistency and failure and performing on a best effort basis.
+@article{hewitt2010actor,
+  title={Actor model of computation: scalable robust information systems},
+  author={Hewitt, Carl},
+  journal={arXiv preprint arXiv:1008.1459},
+  year={2010}
+}
+
+A very useful paper regarding the history of actors. 
+It attempts to informally classify attributes that make up an actor system with respect to message processing, reception, state changes and actors per execution environment
+@inproceedings{43years,
+  title={43 years of actors: A taxonomy of actor models and their key properties},
+  author={De Koster, Joeri and Van Cutsem, Tom and De Meuter, Wolfgang},
+  booktitle={Proceedings of the 6th International Workshop on Programming Based on Actors, Agents, and Decentralized Control},
+  pages={31--40},
+  year={2016}
+}
+
+Paper comparing Scala Actors to Akka Actors, explaining the reason behind certain design decisions for these languages.
+It talks about how programmers interface with actors in the two implementations as well as some challenges which the designs face.
+It then talks about the sought after aspects of the actor runtime
+@incollection{haller2012integration,
+  title={On the integration of the actor model in mainstream technologies: the scala perspective},
+  author={Haller, Philipp},
+  booktitle={Proceedings of the 2nd edition on Programming systems, languages and applications based on actors, agents, and decentralized control abstractions},
+  pages={1--6},
+  year={2012}
+}
+
+Talks about  using JavaScript for high performance network programs
+@article{highperformance,
+  title={Node. js: Using JavaScript to build high-performance network programs},
+  author={Tilkov, Stefan and Vinoski, Steve},
+  journal={IEEE Internet Computing},
+  volume={14},
+  number={6},
+  pages={80--83},
+  year={2010},
+  publisher={IEEE}
+}
+
+Look into ECMAScript concurrency features, generators, await
