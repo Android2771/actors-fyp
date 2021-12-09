@@ -56,7 +56,7 @@
 \section{Abstract}
 JavaScript is used in most modern browsers as well as standalone applications using Node.js. Despite JavaScript being the language of the web, it lacks an intuitive way to program in a concurrent and distributed fashion. This dissertation aims to engineer a JavaScript framework for building actor-based systems which will use the web as its global distributed platform, and explore the performance and scalability of applications built using this framework.
 \section{Introduction and Motivation}
-Actors are concurrent units of computation proposed by \cite{hewitt1973session}. Actors communicate with each other using messages which may be stored on the receiving actor's message queue\cite{43years}. Actors are event driven as they execute a certain behaviour when processing the next message in the queue. This behaviour may involve sending messages to other actors, changing the actor's behaviour as well as creating a finite set of new actors. Actors communicate with each other to constitute a distributed system. Actors are ideal for building message driven reactive systems~\cite{reactivemanifesto} which are scalable and fault tolerant. This model powers the telecommunications industry and is more recently used for implementing distributed systems in languages such as Scala Actors and Akka\cite{haller2012integration}.
+Actors are concurrent units of computation proposed by \cite{hewitt1973session}. Actors communicate with each other using messages which may be stored on the receiving actor's message queue~\cite{43years}. Actors are event driven as they execute a certain behaviour when processing the next message in the queue. This behaviour may involve sending messages to other actors, changing the actor's behaviour as well as creating a finite set of new actors. Actors communicate with each other to constitute a distributed system. Actors are ideal for building message driven reactive systems~\cite{reactivemanifesto} which are scalable and fault tolerant. This model powers the telecommunications industry and is more recently used for implementing distributed systems in languages such as Scala Actors and Akka~\cite{haller2012integration}.
 
 By providing a 
 \section{Background Research and Literature Review}
@@ -66,6 +66,7 @@ By providing a
 The framework will provide operations which will enable the programmer to easily set up actors and the communication between them. Such operations will allow the programmer to create, terminate, and send messages to actors. Internally the framework will handle the distributed communication between actors as well as the isolation of actor states. Such actors may be running locally or remotely on other devices. The framework will allow the programmer to use a facility such as WebSockets to pass messages through the web to communicate with the remote actors. The mode of communication will be tailored depending on the location of the two communicating actors to optimise the speed of message delivery. The framework will also handle the blocking and scheduling of actors during runtime, determining which actors will run at any point in time. Measures will be taken to ensure fairness between the running concurrent actors.
 
 Having implemented necessary features for the actor model framework, the focus may shift to explore more advanced features. For instance, the framework may allow actors to freeze and persist. The programmer could then respawn or replicate the persisted actor with the respective state and mailbox. The framework may also provide location transparency. This will allow programmers to treat actors in foreign devices in the same way as actors which are running locally, thus simplifying logic on distributed networks. It may be the case that a cluster of nodes will be spawned to perform local parallel computing. This will take advantage of the multiple cores that are usually present in computers and servers.
+
 \section{Proposed Solution}
 The figure below shows a basic prototype of an actor model framework implementation for a single Node.js application.
 \begin{figure}[H]
@@ -96,8 +97,11 @@ The figure below shows a basic prototype of an actor model framework implementat
   \end{lstlisting}
   \caption{Naive Single Thread Actor System}
 \end{figure}
-The implementation exploits the node event emitter system to use it for scheduling which actors will run their behaviour at a time. In this example, the behaviour of actors are defined as closures which will execute on the event of an incoming message.
-% your implementation
+The implementation exploits the Node.js event emitter system~\cite{nodeevents} to use it for scheduling which actors will run their behaviour at a time.
+
+This example exposes the fundamental functions to spawn actors and send messages to actors. Inspired by Akka~\cite{stivan2015akka}, when spawning an actor a reference to it is returned which can then be used to send messages to this actor. Sending messages involves pushing onto the actor's mailbox and emitting the event that a message has arrived for the actor. It is then up to Node.js to schedule when the event is handled and the message is processed through the defined behaviour closure.
+
+This implementation can be extended to provide for concurrent and distributed systems over different Node.js applications or WebWorkers running on potentially distributed systems. The solution is not trivial as communication links must be established between actors on a distributed platform and different implementations might be required for different environments. Other features to explore and test is covered in the next section
 \section{Evaluation Plan}
 % youre doing a scalability test for n actors, this is how you evaluate
 % overhead vs actual computation internally, one actor o
