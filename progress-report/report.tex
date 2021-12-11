@@ -1,4 +1,4 @@
-\documentclass{report}
+\documentclass[12pt]{report}
 \usepackage{blindtext}
 \usepackage{multicol}
 \usepackage[left=2.5cm,right=2.5cm,top=2cm,bottom=2cm]{geometry}
@@ -53,6 +53,7 @@
 \maketitle
 \tableofcontents
 \newpage
+% \begin{multicols}{2}[]
 %page for each section
 \section{Abstract}
 JavaScript is used in most modern browsers as well as standalone applications using Node.js. While JavaScript is arguably the language of the web, it lacks an intuitive way to program in a concurrent and distributed fashion. This dissertation aims to engineer a JavaScript framework for building actor-based systems which will use the web as its global distributed platform. Using this framework, the performance and scalability of applications built using this framework is explored. The dissertation will also look into the use cases of using the actor model on JavaScript.
@@ -74,7 +75,7 @@ Thanks to user contributions, a number of NPM packages are available to bring th
 
 A notable project called \textbf{Akka.js}~\cite{stivan2015akka} allows developers to cross-compile Akka to JavaScript browsers and server-side runtimes. This framework allows developers to build distributed applications through separate browsers using WebRTC. It also incentivises developers to only have to be knowledgeable with Scala to deploy applications on both the browser and the server.
 
-A project which is more similar to the aims of this dissertation is called \textbf{Spiders.js}~\cite{spidersjs}. 
+A project which is more similar to the aims of this dissertation is called \textbf{Spiders.js}~\cite{spidersjs}. While Akka.js focused on the original actor model~\cite{agha1985actors} and the active objects model (an object-oriented focused actor model), Spiders.js focuses on the Communicating Event-loops model which differs in a number of ways. The paper identifies the problem of different API's being used for web workers and child processes, both of which inspired by the actor model for constructing parallel systems. The project is focused on defining a single actor model API despite if it's a client or server-side application. The paper benchmarks the usage of Spiders.js against JavaScript native web workers as well as the actor creation overhead for both. The results are in favour of using web workers for such tasks.
 \section{Aims and Objectives}
 The framework will provide operations which will enable the programmer to easily set up actors and the communication between them. Such operations will allow the programmer to create, terminate, and send messages to actors. Internally the framework will handle the distributed communication between actors as well as the isolation of actor states. Such actors may be running locally or remotely on other devices. The framework will allow the programmer to use a facility such as WebSockets to pass messages through the web to communicate with the remote actors. The mode of communication will be tailored depending on the location of the two communicating actors to optimise the speed of message delivery. The framework will also handle the blocking and scheduling of actors during runtime, determining which actors will run at any point in time. Measures will be taken to ensure fairness between the running concurrent actors.
 
@@ -123,5 +124,6 @@ This implementation can be extended to provide for concurrent and distributed sy
 Several experiments will be carried out to empirically measure the response times of the actors under varying computational load to assess the system’s scalability. The time and space complexity and generated network traffic will also be analysed to measure the footprint the framework has on the devices it is running on. Moreover, a case study will be done to perform a qualitative comparison between JavaScript code using the actor model to plain JavaScript. The experiments will add to the existing evidence of the practicality of implementing the actor model framework in JavaScript. The experiments will also assess the system's performance and scalability through quantitative analysis. Finally, through the qualitative case study the usability of the actor model will be shown when using JavaScript on the web.
 \section{Deliverables}
 \bibliographystyle{ieeetr}
-\bibliography{references}
+\bibliography{references}  
+% \end{multicols}
 \end{document}
