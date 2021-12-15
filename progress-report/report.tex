@@ -1,4 +1,4 @@
-\documentclass[12pt]{report}
+\documentclass[12pt]{article}
 \usepackage{blindtext}
 \usepackage{multicol}
 \usepackage[left=2.5cm,right=2.5cm,top=2cm,bottom=2cm]{geometry}
@@ -54,9 +54,9 @@
 \maketitle
 \tableofcontents
 \listoffigures
+\thispagestyle{empty}
 \newpage
-% \begin{multicols}{2}[]
-%page for each section
+\pagenumbering{arabic} 
 \section{Abstract}
 JavaScript is used in most modern browsers as well as standalone applications using server-side runtimes. While JavaScript is arguably the language of the web, it lacks an intuitive way to program in a concurrent and distributed fashion. This dissertation aims to engineer a JavaScript framework for building actor-based systems which will use the web as its global distributed platform. Using this framework, the performance and scalability of applications is empirically analysed through several benchmarks. The dissertation will also look into the use cases of the actor model on JavaScript.
 \section{Introduction and Motivation}
@@ -79,9 +79,13 @@ A project which is more similar to the aims of this dissertation is called \text
 \section{Aims and Objectives}
 The framework will provide operations which will enable the developer to easily set up actors and the communication between them. Such operations will allow the developer to create, terminate, and send messages to actors. Internally the framework will handle the distributed communication between actors as well as the isolation of actor states. Such actors may be running locally or remotely on other devices. The framework will allow the developer to use a facility such as WebSockets to pass messages through the web to communicate with the remote actors. The mode of communication will be tailored depending on the location of the two communicating actors to optimise the speed of message delivery. The framework will also handle the blocking and scheduling of actors during runtime, determining which actors will run at any point in time. Measures will be taken to ensure fairness between the running concurrent actors.
 
-Having implemented necessary features for the actor model framework, the focus may shift to explore more advanced features. For instance, the framework may allow actors to freeze and persist. The developer could then respawn or replicate the persisted actor with the respective state and mailbox. The framework may also provide location transparency. This will allow developers to treat actors in foreign devices in the same way as actors which are running locally, thus simplifying logic on distributed networks. It may be the case that a cluster of nodes will be spawned to perform local parallel computing. This will take advantage of the multiple cores that are usually present in computers and servers.
+Having implemented necessary features for the actor model framework, the focus will shift to explore one or more advanced features. For instance, the framework may allow actors to freeze and persist. The developer could then respawn or replicate the persisted actor with the respective state and mailbox. The framework may also provide location transparency. This will allow developers to treat actors in foreign devices in the same way as actors which are running locally, thus simplifying logic on distributed networks. It may be the case that a cluster of nodes will be spawned to perform local parallel computing. This will take advantage of the multiple cores that are usually present in computers and servers.
 \section{Proposed Solution}
-The figure below shows a naive basic prototype of an actor model framework implementation for a single Node.js application.
+So far work has been done on developing a single thread actor model framework on Node.js which resulted in a simple implementation consisting of 23 lines. This snippet is included as a figure in the next page. The implementation exploits the Node.js event emitter system~\cite{nodeevents} to schedule which actors will run their behaviour at a time.
+
+The code exposes the fundamental functions to spawn actors and send messages to actors. Inspired by Akka~\cite{stivan2015akka}, when spawning an actor a reference to it is returned which can then be used to send messages to this actor. Sending messages involves pushing onto the actor's mailbox and emitting the event that a message has arrived for the actor. It is then up to the Node.js event emitter system to schedule when the event is handled and the message is processed through the defined behaviour closure.
+
+The dissertation will focus on extending or reworking this code to provide for concurrent and distributed systems over different applications running on potentially distributed systems. The solution is not trivial as communication links must be established between actors on a distributed platform and adaptive implementations might be required for different environments such as Node.js or Web Workers.
 \begin{figure}[H]
   \begin{lstlisting}[gobble=2]
     const EventEmitter = require('events');
@@ -110,12 +114,6 @@ The figure below shows a naive basic prototype of an actor model framework imple
   \end{lstlisting}
   \caption{Naive Single Thread Actor System}
 \end{figure}
-The implementation exploits the Node.js event emitter system~\cite{nodeevents} to use it for scheduling which actors will run their behaviour at a time.
-
-This example exposes the fundamental functions to spawn actors and send messages to actors. Inspired by Akka~\cite{stivan2015akka}, when spawning an actor a reference to it is returned which can then be used to send messages to this actor. Sending messages involves pushing onto the actor's mailbox and emitting the event that a message has arrived for the actor. It is then up to Node.js to schedule when the event is handled and the message is processed through the defined behaviour closure.
-
-This implementation can be extended or reworked to provide for concurrent and distributed systems over different Node.js applications or WebWorkers running on potentially distributed systems. The solution is not trivial as communication links must be established between actors on a distributed platform and adaptive implementations might be required for different environments. Other features to explore and test is covered in the next section
-\newpage
 \section{Evaluation Plan}
 The figure below is the Gantt chart of how work will be distributed over the second semester.
 \begin{figure}[H]
@@ -128,5 +126,4 @@ Several experiments will be carried out to empirically measure the response time
 The deliverables of this project will be included in a GitHub repository containing the implementation of the project (see \url{https://github.com/Android2771/fyp}). The repository will also include applications or configurations to benchmark the system as well as the \LaTeX~file for the Final Year Project documentation. The Final Year Report will be provided separately as per the provided schedule requirements.
 \bibliographystyle{ieeetr}
 \bibliography{references}  
-% \end{multicols}
 \end{document}
