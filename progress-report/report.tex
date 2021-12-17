@@ -8,7 +8,7 @@
 \usepackage{listings}
 \usepackage{graphicx}
 \usepackage{float}
-\author{Andrew Buhagiar}
+\author{Andrew Buhagiar\\Supervisor: Prof. Kevin Vella}
 \title{Progress Report - JavaScript Framework for Actor-Based Programming}
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -81,7 +81,7 @@ The framework will provide operations which will enable the developer to easily 
 
 Having implemented necessary features for the actor model framework, the focus will shift to explore one or more advanced features. For instance, the framework may allow actors to freeze and persist. The developer could then respawn or replicate the persisted actor with the respective state and mailbox. The framework may also provide location transparency. This will allow developers to treat actors in foreign devices in the same way as actors which are running locally, thus simplifying logic on distributed networks. It may be the case that a cluster of nodes will be spawned to perform local parallel computing. This will take advantage of the multiple cores that are usually present in computers and servers.
 \section{Proposed Solution}
-So far work has been done on developing a single thread actor model framework on Node.js which resulted in a simple implementation consisting of 23 lines. This snippet is included as a figure in the next page. The implementation exploits the Node.js event emitter system~\cite{nodeevents} to schedule which actors will run their behaviour at a time.
+So far, work has been done in this dissertation on developing a single thread actor model framework using Node.js from scratch. This resulted in a simple implementation consisting of 23 lines. This snippet is included as a figure in the next page. The implementation exploits the Node.js event emitter system~\cite{nodeevents} to schedule which actors will run their behaviour at a time.
 
 The code exposes the fundamental functions to spawn actors and send messages to actors. Inspired by Akka~\cite{stivan2015akka}, when spawning an actor a reference to it is returned which can then be used to send messages to this actor. Sending messages involves pushing onto the actor's mailbox and emitting the event that a message has arrived for the actor. It is then up to the Node.js event emitter system to schedule when the event is handled and the message is processed through the defined behaviour closure.
 
