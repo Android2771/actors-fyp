@@ -5,7 +5,7 @@ The project aims to engineer a JavaScript framework for building actor-based sys
 * Allow developer to create, terminate and send messages to actors
 * Handle distributed communication between actors
 * Location transparency, allowing the developer to treat remote actors in the same way as local actors
-* Remote spawning allowing developers to create worker/slave nodes
+* Remote spawning allowing developers to create coordinator/worker nodes
 
 ## Limitations
 * The number of nodes are fixed where each node has the addresses of other nodes

@@ -7,6 +7,8 @@ const messageEmitter = new MessageEmitter();
 //Set counter to uniquely name actors
 let i : number = 0
 
+let actors : {[key: string]: Actor} = {};
+
 /**
  * state: The current state of the actor
  * message: The message the actor will process
@@ -24,8 +26,13 @@ interface ActorCallback{
 //Actor object interface
 interface Actor{
     name: string,
+    ws: any,
     state: object,
     mailbox: object[]
+}
+
+const getActor = (name: string) : Actor => {
+    return actors.name;
 }
 
 module.exports = {
@@ -36,17 +43,34 @@ module.exports = {
      * @param behaviour The behaviour of the actor in response to a message
      * @returns The spawned actor
      */
-    spawn : (state: object, behaviour: ActorCallback) : Actor => {
+    spawn : (state: object, behaviour: ActorCallback | string, actorName : string = "") : Actor => {
         //Populate the context with the new actor with an empty mailbox and return the actor
-        const name : string = (i++).toString();
-        const actor : Actor = {name, state, mailbox: []};
+        const name : string = actorName ? actorName : (i++).toString();
+
+        if(getActor(name))
+            return {name: '', ws: null, state: {}, mailbox: []};
+
+        const actor : Actor = {name, ws: null, state, mailbox: []};
 
         messageEmitter.on(name, () => {
             let message = actor.mailbox.shift();
             if(message !== undefined)
-                behaviour(actor.state, message)
+                if(typeof behaviour === "string")
+                    eval(`(${behaviour})(${JSON.stringify(actor.state)}, ${JSON.stringify(message)})`)
+                else
+                    behaviour(actor.state, message)
+            
         });
 
+        actors['name'] = actor;
+
+        return actor;
+    },
+
+    remoteSpawn : (name: string, ws: any, state: object, behaviour: ActorCallback) : Actor => {
+        const actor : Actor = {name, ws, state, mailbox: []}
+
+        ws.send(JSON.stringify({name, behaviour: behaviour.toString().replace(/ |\n/g,''), state}))
         return actor;
     },
 
@@ -69,7 +93,12 @@ module.exports = {
         * This function needs to be asynchronous. How do we make it that the recipient actor 
         * has its mailbox populated with a guarantee that it will eventually execute?
         */
-        actor.mailbox.push(message);
-        messageEmitter.emit(actor.name);
-    }
+        if(actor.ws !== null){
+            actor.ws.send(JSON.stringify({name: actor.name, message}))    
+        }else{
+            actor.mailbox.push(message);
+            messageEmitter.emit(actor.name);        
+        }
+    },
+    getActor
 }
