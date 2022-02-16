@@ -2,7 +2,7 @@ const { spawn, remoteSpawn, terminate, send, getActor } = require('../../src/act
 const WebSocket = require('ws');
 const { performance } = require('perf_hooks');
 
-coordinator = spawn({ready: 0, primeNumbers: 0, workers: [0,1], primeNumbersToCompute: 100000, times: [], maxLoops: 10}, (state, message) => {
+coordinator = spawn({ready: 0, primeNumbers: 0, workers: [0,1,2,3,4,5,6], workSplit: [0, .35, .55, .7, .8, .9, .95, 1], primeNumbersToCompute: 1000000, times: [], maxLoops: 10}, (state, message) => {
     if(message.start){
         state.startTime = performance.now();  
         state.workers.forEach(item => {
@@ -33,10 +33,11 @@ coordinator = spawn({ready: 0, primeNumbers: 0, workers: [0,1], primeNumbersToCo
         
                     state.coordinator.ws = message.from;
                     send(state.coordinator, {worker: state.item, primeNumbers});
+                    console.log("Done!")
                 });
             
-                send(workerActor, {primeFrom: parseInt((item/state.workers.length)*state.primeNumbersToCompute)+1, 
-                    primeTo: parseInt(((item+1)/state.workers.length)*state.primeNumbersToCompute)})
+                send(workerActor, {primeFrom: parseInt(state.workSplit[item]*state.primeNumbersToCompute)+1, 
+                    primeTo: parseInt(state.workSplit[item+1]*state.primeNumbersToCompute)})
             });
             
             worker.on('message', message => {
@@ -54,16 +55,20 @@ coordinator = spawn({ready: 0, primeNumbers: 0, workers: [0,1], primeNumbersToCo
         state.ready++;
         state.primeNumbers += message.primeNumbers.length;
         if(state.ready === state.workers.length){
-            const time = performance.now() - state.startTime
-            console.log(`Retrieved ${state.primeNumbers} prime numbers in ${time}ms`)
+            const time = performance.now() - state.startTime;
             state.times.push(time)
+
+            state.ready = 0;
+            state.primeNumbers = 0;
 
             if(state.times.length < state.maxLoops){
                 send(coordinator, {start: 1});
-                state.ready = 0;
-                state.primeNumbers = 0;
             }else{
-                console.log(`Average time over ${state.maxLoops} executions is ${state.times.reduce((a, b) => (a+b)) / state.times.length}`);
+                console.log(`Average time over ${state.maxLoops} executions with ${state.workers.length} workers is ${state.times.reduce((a, b) => (a+b)) / state.times.length}ms`);
+                state.workers.pop()
+                state.times = []
+                if(state.workers.length > 0)
+                    send(coordinator, {start: 1});
             }
         }
     }
