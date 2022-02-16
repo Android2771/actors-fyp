@@ -1,4 +1,4 @@
-const { spawn, remoteSpawn, terminate, send, getActor } = require('../src/actors.js');
+const { spawn, remoteSpawn, terminate, send, getActor } = require('../../src/actors.js');
 const WebSocket = require('ws');
 const worker = new WebSocket('ws://localhost:8081');
 
