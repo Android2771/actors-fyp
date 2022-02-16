@@ -43,7 +43,17 @@ module.exports = {
      * @param behaviour The behaviour of the actor in response to a message
      * @returns The spawned actor
      */
-    spawn : (state: object, behaviour: ActorCallback | string, actorName : string = "") : Actor => {
+    spawn : (state: object, behaviour: any, actorName : string = "") : Actor => {        
+        const cleanedBehaviour = (typeof behaviour === "string") ?
+            behaviour = Function(
+                'exports',
+                'require',
+                'module',
+                '__filename',
+                '__dirname',
+                'return ' + behaviour)
+                (exports,require,module,__filename,__dirname) : behaviour;
+        
         //Populate the context with the new actor with an empty mailbox and return the actor
         const name : string = actorName ? actorName : (i++).toString();
 
@@ -55,11 +65,7 @@ module.exports = {
         messageEmitter.on(name, () => {
             let message = actor.mailbox.shift();
             if(message !== undefined){
-                if(typeof behaviour === "string"){
-                    eval(`(${behaviour})(${JSON.stringify(actor.state)}, ${JSON.stringify(message)})`)
-                }else{
-                    behaviour(actor.state, message)
-                }
+                cleanedBehaviour(actor.state, message);
             }
         });
 
@@ -68,8 +74,7 @@ module.exports = {
         return actor;
     },
 
-    remoteSpawn : (name: string, wsLink: any, state: object, behaviour: ActorCallback) : Actor => {
-        const ws = new WebSocket(wsLink);
+    remoteSpawn : (name: string, ws: any, state: object, behaviour: ActorCallback) : Actor => {
         const actor : Actor = {name, ws, state, mailbox: []}
         const payload = JSON.stringify({name, behaviour: behaviour.toString().trim().replace(/\n/g,''), state})
         ws.send(payload)

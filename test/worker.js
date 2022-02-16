@@ -9,7 +9,7 @@ wss.on('connection', ws => {
             spawn(messageJson.state, messageJson.behaviour, messageJson.name)
         }else{
             const referredActor = getActor(messageJson.name)
-            send(referredActor, messageJson.message)
+            send(referredActor, {from: ws, ...messageJson.message})
         }
     });
 });
