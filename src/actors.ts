@@ -54,12 +54,13 @@ module.exports = {
 
         messageEmitter.on(name, () => {
             let message = actor.mailbox.shift();
-            if(message !== undefined)
-                if(typeof behaviour === "string")
+            if(message !== undefined){
+                if(typeof behaviour === "string"){
                     eval(`(${behaviour})(${JSON.stringify(actor.state)}, ${JSON.stringify(message)})`)
-                else
+                }else{
                     behaviour(actor.state, message)
-            
+                }
+            }
         });
 
         actors['name'] = actor;
@@ -67,10 +68,11 @@ module.exports = {
         return actor;
     },
 
-    remoteSpawn : (name: string, ws: any, state: object, behaviour: ActorCallback) : Actor => {
+    remoteSpawn : (name: string, wsLink: any, state: object, behaviour: ActorCallback) : Actor => {
+        const ws = new WebSocket(wsLink);
         const actor : Actor = {name, ws, state, mailbox: []}
-
-        ws.send(JSON.stringify({name, behaviour: behaviour.toString().replace(/ |\n/g,''), state}))
+        const payload = JSON.stringify({name, behaviour: behaviour.toString().trim().replace(/\n/g,''), state})
+        ws.send(payload)
         return actor;
     },
 

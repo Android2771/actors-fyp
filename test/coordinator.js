@@ -1,24 +1,27 @@
-const { spawn, remoteSpawn, terminate, send } = require('../src/actors.js');
+const { spawn, remoteSpawn, terminate, send, getActor } = require('../src/actors.js');
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 8080 });
-let worker;
+const worker = new WebSocket('ws://localhost:8081');
 
-wss.on('connection', ws => {
-    worker = new WebSocket('ws://localhost:8081');
-    worker.on('open', () => {
-        const actor = remoteSpawn("test", worker, {}, () => {
-            console.log("yo")
-        });
+ping = spawn({}, (state, behaviour) => {
+    console.log("ping")
+}, "ping")
 
-        send(actor, {message: "yo"})
+worker.on('open', () => {
+    const actor = remoteSpawn("test", worker, {}, (state, message) => { 
+        const WebSocket = require('ws');
+        let coordinator = new WebSocket('ws://localhost:8080');
+
+        coordinator.on('open', () => {                       
+            coordinator.send("testing")
+        })
     });
 
+    send(actor, {message: "ping"})
+});
+
+wss.on('connection', ws => {
     ws.on('message', message => {
-        messageJson = JSON.parse(message.toString())
-        if("behaviour" in messageJson){
-            console.log("Remote spawn received!")
-        }else{
-            console.log("Message received!")
-        }
+        console.log(message.toString())
     });
 });
