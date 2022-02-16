@@ -2,7 +2,7 @@ const { spawn, remoteSpawn, terminate, send, getActor } = require('../../src/act
 const WebSocket = require('ws');
 const { performance } = require('perf_hooks');
 
-coordinator = spawn({ready: 0, primeNumbers: 0, workers: [0,1,2,3,4,5,6], workSplit: [0, .4, .55, .65, .75, .85, .93, 1], primeNumbersToCompute: 1000000, times: [], maxLoops: 10}, (state, message) => {
+coordinator = spawn({ready: 0, primeNumbers: 0, workers: [0,1,2,3,4,5], primeNumbersToCompute: 1000000, times: [], maxLoops: 10}, (state, message) => {
     if(message.start){
         state.startTime = performance.now();  
         state.workers.forEach(item => {
@@ -20,7 +20,7 @@ coordinator = spawn({ready: 0, primeNumbers: 0, workers: [0,1,2,3,4,5,6], workSp
                             continue;
         
                         let isPrime = true;
-                        for (let j = 2; j < i; j++) {
+                        for (let j = 2; j < message.primeTo; j++) {
                             if (i % j === 0) {
                                 isPrime = false;
                                 break;
@@ -36,8 +36,8 @@ coordinator = spawn({ready: 0, primeNumbers: 0, workers: [0,1,2,3,4,5,6], workSp
                     console.log("Done!")
                 });
             
-                send(workerActor, {primeFrom: parseInt(state.workSplit[item]*state.primeNumbersToCompute)+1, 
-                    primeTo: parseInt(state.workSplit[item+1]*state.primeNumbersToCompute)})
+                send(workerActor, {primeFrom: parseInt((item/state.workers.length)*state.primeNumbersToCompute)+1, 
+                    primeTo: parseInt(((item+1)/state.workers.length)*state.primeNumbersToCompute)})
             });
             
             worker.on('message', message => {
