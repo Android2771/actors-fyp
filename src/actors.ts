@@ -57,10 +57,10 @@ module.exports = {
         //Populate the context with the new actor with an empty mailbox and return the actor
         const name : string = actorName ? actorName : (i++).toString();
 
-        if(getActor(name))
-            return {name: '', ws: null, state: {}, mailbox: []};
-
         const actor : Actor = {name, ws: null, state, mailbox: []};
+
+        if(getActor(name))
+            return actor;
 
         messageEmitter.on(name, () => {
             let message = actor.mailbox.shift();

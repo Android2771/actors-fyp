@@ -1,6 +1,6 @@
 const { spawn, remoteSpawn, terminate, send, getActor} = require('../../src/actors.js');
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 8081 });
+const wss = new WebSocket.Server({ port: process.argv.slice(2)[0] });
 
 wss.on('connection', ws => {
     ws.on('message', message => {

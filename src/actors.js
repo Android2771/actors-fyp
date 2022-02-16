@@ -13,9 +13,9 @@ module.exports = {
         const cleanedBehaviour = (typeof behaviour === "string") ?
             behaviour = Function('exports', 'require', 'module', '__filename', '__dirname', 'return ' + behaviour)(exports, require, module, __filename, __dirname) : behaviour;
         const name = actorName ? actorName : (i++).toString();
-        if (getActor(name))
-            return { name: '', ws: null, state: {}, mailbox: [] };
         const actor = { name, ws: null, state, mailbox: [] };
+        if (getActor(name))
+            return actor;
         messageEmitter.on(name, () => {
             let message = actor.mailbox.shift();
             if (message !== undefined) {

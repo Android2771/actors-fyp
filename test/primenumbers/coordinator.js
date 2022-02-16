@@ -1,17 +1,31 @@
 const { spawn, remoteSpawn, terminate, send, getActor } = require('../../src/actors.js');
 const WebSocket = require('ws');
+const { performance } = require('perf_hooks');
 
-const workers = ['1'];
+const workers = [0];
+const primeNumbersToCompute = 100000
 
-coordinator = spawn({}, (state, message) => {
-    console.log(message)
+coordinator = spawn({ready: 0, primeNumbers: 0}, (state, message) => {
+    if(message.start === 1){
+        state.startTime = performance.now();    
+        return;
+    }
+
+    state[message.worker] = message.primeNumbers
+    state.ready++;
+    state.primeNumbers += message.primeNumbers.length;
+    if(state.ready === workers.length){
+        state.endTime = performance.now()
+        console.log(`Retrieved ${state.primeNumbers} prime numbers in ${state.endTime - state.startTime}ms`)
+    }
 }, "coordinator");
 
 workers.forEach(item => {
-    const worker = new WebSocket('ws://localhost:808' + item);
+    const worker = new WebSocket('ws://localhost:808' + (item+1).toString());
 
     worker.on('open', () => {
-        workerActor = remoteSpawn("worker", worker, {coordinator}, (state, message) => { 
+        workerActor = remoteSpawn("worker", worker, {coordinator, item}, (state, message) => {
+            console.log(`Processing ${message.primeFrom} to ${message.primeTo}`);
             const {send} = require('../src/actors.js');
 
             primeNumbers = [];
@@ -33,10 +47,11 @@ workers.forEach(item => {
             }
 
             state.coordinator.ws = message.from;
-            send(state.coordinator, {primeNumbers});
+            send(state.coordinator, {worker: state.item, primeNumbers});
         });
     
-        send(workerActor, {primeFrom: 1, primeTo: 100})
+        send(workerActor, {primeFrom: parseInt((item/workers.length)*primeNumbersToCompute)+1, 
+            primeTo: parseInt(((item+1)/workers.length)*primeNumbersToCompute)})
     });
     
     worker.on('message', message => {
