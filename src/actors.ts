@@ -32,22 +32,24 @@ interface Actor{
     mailbox: object[]
 }
 
-const init = (url :  string) : WebSocket => {
+const init = (url :  string) : Promise<object> => {
     network = new ActorWebSocket(url);
 
     //Handle incoming messages
-    network.on('message', (message : Buffer) => {
-        const messageJson = JSON.parse(message.toString())
-        console.log(messageJson)
-        if (messageJson.header === "SPAWN") {
-            spawn(messageJson.state, messageJson.behaviour)
-        }else if(messageJson.header === "MESSAGE"){
-            const referredActor = getActor(messageJson.name)
-            send(referredActor, messageJson.message)
-        }
-    });
-
-    return network;
+    return new Promise(resolve => {
+        network.on('message', (message : Buffer) => {
+            const messageJson = JSON.parse(message.toString())
+            console.log(messageJson)
+            if(messageJson.header === "READY"){
+                resolve(messageJson);
+            }else if (messageJson.header === "SPAWN") {
+                spawn(messageJson.state, messageJson.behaviour)
+            }else if(messageJson.header === "MESSAGE"){
+                const referredActor = getActor(messageJson.name)
+                send(referredActor, messageJson.message)
+            }
+        });
+    })
 }
 
 /**
@@ -101,7 +103,8 @@ const send = (actor: Actor, message: object) : void => {
         actor.mailbox.push(message);
         messageEmitter.emit(actor.name);  
     }else{      
-        //HANDLE REMOTE SEND  
+        const payload = JSON.stringify({name: actor.name, to: actor.node, message})
+        network.send(payload)
     }
 }
 

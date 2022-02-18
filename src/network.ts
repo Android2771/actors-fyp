@@ -6,11 +6,13 @@ const connectionAddresses : {[address: string] : number[]} = {};
 const expectedConnections : number = parseInt(process.argv.slice(2)[0]);
 
 wss.on('connection', (ws : any, req: any) => {
-    connections.push(ws);
 
     //Get address and assign socket number
     const address : string = req.socket.remoteAddress;
     const sockNo = connections.length;
+
+    connections.push(ws);
+    console.log(`Accepted ${connections.length}`)
 
     //Append connection number to addresses dictionary
     if(connectionAddresses[address])
@@ -20,9 +22,9 @@ wss.on('connection', (ws : any, req: any) => {
 
     //If all connections done, send ready header to release barrier
     if(connections.length === expectedConnections){
-        connections.forEach(connection => {
-            connection.send(JSON.stringify({"header": "READY", connectionAddresses}));
-        });
+        for(let i = 0; i < connections.length; i++){
+            connections[i].send(JSON.stringify({"header": "READY", connectionAddresses, yourSocketNumber: i+1}))
+        }
     }
 
     //Forward message to respective connection
@@ -32,8 +34,7 @@ wss.on('connection', (ws : any, req: any) => {
         if(!("to" in messageJson && "message" in messageJson)){
             ws.send(JSON.stringify({"header": "ERROR", message: "Invalid message"}))
         }else{
-            const toSend = messageJson.message;
-            connections[messageJson.to].send(JSON.stringify({"header": "MESSAGE", message: toSend}));
+            connections[messageJson.to - 1].send(JSON.stringify({"header": "MESSAGE", ...messageJson}));
         }
     });
 });
