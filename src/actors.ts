@@ -1,14 +1,14 @@
-export {}
 const EventEmitter = require('events');
 class MessageEmitter extends EventEmitter {}
 const messageEmitter = new MessageEmitter();
-const WebSocket = require('ws')
+const ActorWebSocket = require('ws')
 
 //Set counter to uniquely name actors
 let i : number = 0
 
 const actors : {[key: string]: Actor} = {};
 
+let network : any;
 
 /**
  * state: The current state of the actor
@@ -27,9 +27,27 @@ interface ActorCallback{
 //Actor object interface
 interface Actor{
     name: string,
-    ws: any,
+    node: number,
     state: object,
     mailbox: object[]
+}
+
+const init = (url :  string) : WebSocket => {
+    network = new ActorWebSocket(url);
+
+    //Handle incoming messages
+    network.on('message', (message : Buffer) => {
+        const messageJson = JSON.parse(message.toString())
+        console.log(messageJson)
+        if (messageJson.header === "SPAWN") {
+            spawn(messageJson.state, messageJson.behaviour)
+        }else if(messageJson.header === "MESSAGE"){
+            const referredActor = getActor(messageJson.name)
+            send(referredActor, messageJson.message)
+        }
+    });
+
+    return network;
 }
 
 /**
@@ -39,7 +57,7 @@ interface Actor{
  * @param behaviour The behaviour of the actor in response to a message
  * @returns The spawned actor
  */
-const spawn = (state: object, behaviour: any, actorName : string = "") : Actor => {        
+const spawn = (state: object, behaviour: any) : Actor => {        
     const cleanedBehaviour = (typeof behaviour === "string") ?
         behaviour = Function(
             'exports',
@@ -51,12 +69,8 @@ const spawn = (state: object, behaviour: any, actorName : string = "") : Actor =
             (exports,require,module,__filename,__dirname) : behaviour;
     
     //Populate the context with the new actor with an empty mailbox and return the actor
-    const name : string = actorName ? actorName : (i++).toString();
-
-    const actor : Actor = {name, ws: null, state, mailbox: []};
-
-    if(getActor(name))
-        return actor;
+    const name : string = (i++).toString();
+    const actor : Actor = {name, node: 0, state, mailbox: []};
 
     messageEmitter.on(name, () => {
         let message = actor.mailbox.shift();
@@ -70,10 +84,10 @@ const spawn = (state: object, behaviour: any, actorName : string = "") : Actor =
     return actor;
 }
 
-const remoteSpawn = (name: string, ws: any, state: object, behaviour: ActorCallback) : Actor => {
-    const actor : Actor = {name, ws, state, mailbox: []}
-    const payload = JSON.stringify({name, behaviour: behaviour.toString().trim().replace(/\n/g,''), state})
-    ws.send(payload)
+const remoteSpawn = (node: number, state: object, behaviour: ActorCallback) : Actor => {
+    const actor : Actor = {name: "1", node, state, mailbox: []}
+    const payload = JSON.stringify({name: "1", behaviour: behaviour.toString().trim().replace(/\n/g,''), state})
+    network.send(payload);
     return actor;
 }
 
@@ -83,11 +97,11 @@ const remoteSpawn = (name: string, ws: any, state: object, behaviour: ActorCallb
  * @param message The message object to send to an actor
  */
 const send = (actor: Actor, message: object) : void => {
-    if(actor.ws !== null){
-        actor.ws.send(JSON.stringify({name: actor.name, message}))    
-    }else{
+    if(actor.node === 0){
         actor.mailbox.push(message);
-        messageEmitter.emit(actor.name);        
+        messageEmitter.emit(actor.name);  
+    }else{      
+        //HANDLE REMOTE SEND  
     }
 }
 
@@ -99,8 +113,13 @@ const terminate = (actor: Actor) => {
     messageEmitter.removeAllListeners(actor.name);
 }
 
+/**
+ * 
+ * @param name Actor name
+ * @returns Actor by that name
+ */
 const getActor = (name: string) : Actor => {
     return actors.name;
 }
 
-module.exports = {spawn, remoteSpawn, terminate, send, getActor}
+module.exports = {init, spawn, remoteSpawn, terminate, send, getActor}

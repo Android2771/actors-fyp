@@ -1,12 +1,13 @@
-export {}
-const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 8080 });
+const NetworkWebSocket = require('ws');
+const wss = new NetworkWebSocket.Server({ port: 8080 });
 
 const connections : WebSocket[] = [];
 const connectionAddresses : {[address: string] : number[]} = {};
 const expectedConnections : number = parseInt(process.argv.slice(2)[0]);
 
 wss.on('connection', (ws : any, req: any) => {
+    connections.push(ws);
+
     //Get address and assign socket number
     const address : string = req.socket.remoteAddress;
     const sockNo = connections.length;
@@ -16,8 +17,6 @@ wss.on('connection', (ws : any, req: any) => {
         connectionAddresses[address].push(sockNo);
     else
         connectionAddresses[address] = [sockNo];
-
-    connections.push(ws);
 
     //If all connections done, send ready header to release barrier
     if(connections.length === expectedConnections){
