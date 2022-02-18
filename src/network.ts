@@ -5,7 +5,7 @@ const connections : WebSocket[] = [];
 const connectionAddresses : {[address: string] : number[]} = {};
 const expectedConnections : number = parseInt(process.argv.slice(2)[0]);
 
-wss.on('connection', (ws : WebSocket, req: any) => {
+wss.on('connection', (ws : any, req: any) => {
     const address : string = req.socket.remoteAddress;
     const sockNo = connections.length;
 
@@ -18,7 +18,18 @@ wss.on('connection', (ws : WebSocket, req: any) => {
 
     if(connections.length === expectedConnections){
         connections.forEach(connection => {
-            connection.send(JSON.stringify(connectionAddresses));
+            connection.send(JSON.stringify({"header": "READY", connectionAddresses}));
         });
     }
+
+    ws.on('message', (message : Buffer) => {
+        const messageJson = JSON.parse(message.toString());
+
+        if(!("to" in messageJson && "message" in messageJson)){
+            ws.send(JSON.stringify({"header": "ERROR", message: "Invalid message"}))
+        }else{
+            const toSend = messageJson.message;
+            connections[messageJson.to].send(JSON.stringify({"header": "MESSAGE", message: toSend}));
+        }
+    });
 });

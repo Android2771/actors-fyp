@@ -14,7 +14,17 @@ wss.on('connection', (ws, req) => {
     connections.push(ws);
     if (connections.length === expectedConnections) {
         connections.forEach(connection => {
-            connection.send(JSON.stringify(connectionAddresses));
+            connection.send(JSON.stringify({ "header": "READY", connectionAddresses }));
         });
     }
+    ws.on('message', (message) => {
+        const messageJson = JSON.parse(message.toString());
+        if (!("to" in messageJson && "message" in messageJson)) {
+            ws.send(JSON.stringify({ "header": "ERROR", message: "Invalid message" }));
+        }
+        else {
+            const toSend = messageJson.message;
+            connections[messageJson.to].send(JSON.stringify({ "header": "MESSAGE", message: toSend }));
+        }
+    });
 });
