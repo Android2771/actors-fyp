@@ -1,5 +1,6 @@
-const webSocket = require('ws');
-const wss = new webSocket.Server({ port: 8080 });
+export {}
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: 8080 });
 
 const connections : WebSocket[] = [];
 const connectionAddresses : {[address: string] : number[]} = {};

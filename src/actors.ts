@@ -1,13 +1,14 @@
+export {}
 const EventEmitter = require('events');
 class MessageEmitter extends EventEmitter {}
 const messageEmitter = new MessageEmitter();
-//STORE CONTEXT LOCALLY
-//Actor behaviour callback function interface
+const WebSocket = require('ws')
 
 //Set counter to uniquely name actors
 let i : number = 0
 
-let actors : {[key: string]: Actor} = {};
+const actors : {[key: string]: Actor} = {};
+
 
 /**
  * state: The current state of the actor
@@ -82,10 +83,6 @@ const remoteSpawn = (name: string, ws: any, state: object, behaviour: ActorCallb
  * @param message The message object to send to an actor
  */
 const send = (actor: Actor, message: object) : void => {
-    /*Push the message object to the recipient actor's mailbox.
-    * This function needs to be asynchronous. How do we make it that the recipient actor 
-    * has its mailbox populated with a guarantee that it will eventually execute?
-    */
     if(actor.ws !== null){
         actor.ws.send(JSON.stringify({name: actor.name, message}))    
     }else{
@@ -95,11 +92,10 @@ const send = (actor: Actor, message: object) : void => {
 }
 
 /**
- * Terminates an actor.
+ * Terminates an actor. Removes the actor from the context, delete the actor object from memory
  * @param actor The actor to terminate
  */
 const terminate = (actor: Actor) => {
-    //Remove the actor from the context, delete the actor object from memory
     messageEmitter.removeAllListeners(actor.name);
 }
 
