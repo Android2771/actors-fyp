@@ -1,4 +1,4 @@
-const { init, spawn, remoteSpawn, terminate, send, getActor } = require('../../src/actors.js');
+const { init, spawn, spawnRemote, terminate, send, getActor } = require('../../src/actors.js');
 
 spawn({}, () => {
     console.log("beep!")

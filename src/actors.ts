@@ -71,7 +71,7 @@ const spawn = (state: object, behaviour: any) : Actor => {
             (exports,require,module,__filename,__dirname) : behaviour;
     
     //Populate the context with the new actor with an empty mailbox and return the actor
-    const name : string = (localActorId++).toString();
+    const name : string = (++localActorId).toString();
     const actor : Actor = {name, node: 0, state, mailbox: []};
 
     messageEmitter.on(name, () => {
@@ -81,13 +81,13 @@ const spawn = (state: object, behaviour: any) : Actor => {
         }
     });
 
-    actors['name'] = actor;
+    actors[name] = actor;
 
     return actor;
 }
 
-const remoteSpawn = (node: number, state: object, behaviour: ActorCallback) : Actor => {
-    const actor : Actor = {name: (remoteActorId++).toString(), node, state, mailbox: []}
+const spawnRemote = (node: number, state: object, behaviour: ActorCallback) : Actor => {
+    const actor : Actor = {name: (++remoteActorId).toString(), node, state, mailbox: []}
     const payload = JSON.stringify({header: "SPAWN", remoteActorId, behaviour: behaviour.toString().trim().replace(/\n/g,''), state})
     network.send(payload);
     return actor;
@@ -122,7 +122,7 @@ const terminate = (actor: Actor) => {
  * @returns Actor by that name
  */
 const getActor = (name: string) : Actor => {
-    return actors.name;
+    return actors[name];
 }
 
-module.exports = {init, spawn, remoteSpawn, terminate, send, getActor}
+module.exports = {init, spawn, spawnRemote, terminate, send, getActor}
