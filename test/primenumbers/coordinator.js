@@ -2,7 +2,7 @@ const { spawn, remoteSpawn, terminate, send, getActor } = require('../../src/act
 const WebSocket = require('ws');
 const { performance } = require('perf_hooks');
 
-coordinator = spawn({ready: 0, primeNumbers: 0, workers: [0,1,2,3,4,5], primeNumbersToCompute: 1000000, times: [], maxLoops: 10}, (state, message) => {
+coordinator = spawn({ready: 0, primeNumbers: 0, workers: [0,1,2], primeNumbersToCompute: 100000, times: [], maxLoops: 10}, (state, message) => {
     if(message.start){
         state.startTime = performance.now();  
         state.workers.forEach(item => {
