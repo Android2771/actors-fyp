@@ -4,7 +4,8 @@ const messageEmitter = new MessageEmitter();
 const ActorWebSocket = require('ws')
 
 //Set counter to uniquely name actors
-let i : number = 0
+let localActorId : number = 0
+let remoteActorId : number = 0
 
 const actors : {[key: string]: Actor} = {};
 
@@ -39,7 +40,6 @@ const init = (url :  string) : Promise<object> => {
     return new Promise(resolve => {
         network.on('message', (message : Buffer) => {
             const messageJson = JSON.parse(message.toString())
-            console.log(messageJson)
             if(messageJson.header === "READY"){
                 resolve(messageJson);
             }else if (messageJson.header === "SPAWN") {
@@ -71,7 +71,7 @@ const spawn = (state: object, behaviour: any) : Actor => {
             (exports,require,module,__filename,__dirname) : behaviour;
     
     //Populate the context with the new actor with an empty mailbox and return the actor
-    const name : string = (i++).toString();
+    const name : string = (localActorId++).toString();
     const actor : Actor = {name, node: 0, state, mailbox: []};
 
     messageEmitter.on(name, () => {
@@ -87,8 +87,8 @@ const spawn = (state: object, behaviour: any) : Actor => {
 }
 
 const remoteSpawn = (node: number, state: object, behaviour: ActorCallback) : Actor => {
-    const actor : Actor = {name: "1", node, state, mailbox: []}
-    const payload = JSON.stringify({name: "1", behaviour: behaviour.toString().trim().replace(/\n/g,''), state})
+    const actor : Actor = {name: (remoteActorId++).toString(), node, state, mailbox: []}
+    const payload = JSON.stringify({header: "SPAWN", remoteActorId, behaviour: behaviour.toString().trim().replace(/\n/g,''), state})
     network.send(payload);
     return actor;
 }
@@ -103,7 +103,7 @@ const send = (actor: Actor, message: object) : void => {
         actor.mailbox.push(message);
         messageEmitter.emit(actor.name);  
     }else{      
-        const payload = JSON.stringify({name: actor.name, to: actor.node, message})
+        const payload = JSON.stringify({header: "MESSAGE", name: actor.name, to: actor.node, message})
         network.send(payload)
     }
 }
