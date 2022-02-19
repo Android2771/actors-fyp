@@ -32,7 +32,7 @@ init('ws://localhost:8080').then(async data => {
     send(actor, {message: "test"})
 });
 ```
-The code above can be found inside the `test/pingpong` folder.
+Alternatively, the code above can be found inside the `test/pingpong` folder.
 ```bash
 cd test/pingpong
 node ping.js &
