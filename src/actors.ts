@@ -1,6 +1,7 @@
 const EventEmitter = require('events');
 class MessageEmitter extends EventEmitter {}
 const messageEmitter = new MessageEmitter();
+const spawnEmitter = new MessageEmitter();
 const ActorWebSocket = require('ws')
 
 //Set counter to uniquely name actors
@@ -8,6 +9,7 @@ let localActorId : number = 0
 let remoteActorId : number = 0
 
 const actors : {[key: string]: Actor} = {};
+const remoteActors : {[key: string] : string} = {};
 
 let network : any;
 
@@ -40,10 +42,16 @@ const init = (url :  string) : Promise<object> => {
     return new Promise(resolve => {
         network.on('message', (message : Buffer) => {
             const messageJson = JSON.parse(message.toString())
+            console.log(messageJson)
             if(messageJson.header === "READY"){
                 resolve(messageJson);
             }else if (messageJson.header === "SPAWN") {
                 spawn(messageJson.state, messageJson.behaviour)
+                const payload = {header: "SPAWNED", to: messageJson.from, actualActorId: localActorId, remoteActorId: messageJson.remoteActorId}
+                network.send(JSON.stringify(payload))
+            }else if (messageJson.header === "SPAWNED"){
+                remoteActors[messageJson.remoteActorId] = messageJson.actualActorId;
+                spawnEmitter.emit(messageJson.remoteActorId)
             }else if(messageJson.header === "MESSAGE"){
                 const referredActor = getActor(messageJson.name)
                 send(referredActor, messageJson.message)
@@ -86,11 +94,21 @@ const spawn = (state: object, behaviour: any) : Actor => {
     return actor;
 }
 
-const spawnRemote = (node: number, state: object, behaviour: ActorCallback) : Actor => {
-    const actor : Actor = {name: (++remoteActorId).toString(), node, state, mailbox: []}
-    const payload = JSON.stringify({header: "SPAWN", remoteActorId, behaviour: behaviour.toString().trim().replace(/\n/g,''), state})
-    network.send(payload);
-    return actor;
+const spawnRemote = (node: number, state: object, behaviour: ActorCallback, timeout: number) : Promise<Actor> => {
+    return new Promise((resolve, reject) => {
+        const actor : Actor = {name: (++remoteActorId).toString(), node, state, mailbox: []}
+        const payload = JSON.stringify({header: "SPAWN", to: node, remoteActorId, behaviour: behaviour.toString().trim().replace(/\n/g,''), state})
+        network.send(payload);
+        spawnEmitter.on(remoteActorId, () => {
+            if(remoteActors[remoteActorId]){
+                actor.name = remoteActors[remoteActorId];
+                delete remoteActors[remoteActorId]
+                resolve(actor)
+            }
+        });
+
+        setTimeout(() => reject(actor), timeout);
+    })
 }
 
 /**
