@@ -15,6 +15,8 @@ The project aims to engineer a JavaScript framework for building actor-based sys
 ### Starting the network
 ```bash
 cd src
+npm i
+tsc
 node network.js <NUMBER_OF_NODES>
 ```
 ### Connecting to the network using the actor framework
