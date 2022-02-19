@@ -10,3 +10,31 @@ The project aims to engineer a JavaScript framework for building actor-based sys
 ## Limitations
 * The number of nodes are fixed where each node has the addresses of other nodes
 * References to actors can either be communicated as an object or retrieved through remote spawning
+
+## Example
+### Starting the network
+```bash
+cd src
+node network.js <NUMBER_OF_NODES>
+```
+### Connecting to the network using the actor framework
+On one node, use the following code to establish the first connected node
+```js
+const { init, spawn, spawnRemote, terminate, send, getActor } = require('../../src/actors.js');
+init('ws://localhost:8080')
+```
+On another node, use the following code to establish the second connection, and remotely spawn and send a message to the first connected node
+### Sending a message to a remotely spawned node
+```js
+const { init, spawn, spawnRemote, terminate, send, getActor} = require('../../src/actors.js');
+init('ws://localhost:8080').then(async data => {
+    const actor = await spawnRemote(1, {}, (state, message) => {console.log(message.message)}, 5000)
+    send(actor, {message: "test"})
+});
+```
+The code above can be found inside the `test/pingpong` folder.
+```bash
+cd test/pingpong
+node ping.js &
+node pong.js &
+```
