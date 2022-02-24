@@ -113,12 +113,14 @@ const spawnRemote = (node: number, state: object, behaviour: ActorCallback, time
         const actor: Actor = { name: (++remoteActorId).toString(), node, state, mailbox: [] }
         const payload = JSON.stringify({ header: "SPAWN", to: node, remoteActorId, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state })
         network.send(payload);
-        spawnEmitter.on(remoteActorId, () => {
-            if (remoteActors[remoteActorId]) {
-                actor.name = remoteActors[remoteActorId];
-                delete remoteActors[remoteActorId]
-                resolve(actor)
-            }
+        spawnEmitter.once(remoteActorId, () => {
+            setImmediate(() => {
+                if (remoteActors[remoteActorId]) {
+                    actor.name = remoteActors[remoteActorId];
+                    delete remoteActors[remoteActorId]
+                    resolve(actor)
+                }
+            });
         });
 
         setTimeout(() => reject(), timeout);
