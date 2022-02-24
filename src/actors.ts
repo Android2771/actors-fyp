@@ -87,10 +87,12 @@ const spawn = (state: object, behaviour: any): Actor => {
     const actor: Actor = { name, node: 0, state, mailbox: [] };
 
     messageEmitter.on(name, () => {
-        let message = actor.mailbox.shift();
-        if (message !== undefined) {
-            cleanedBehaviour(actor.state, message);
-        }
+        setImmediate(() => {
+            let message = actor.mailbox.shift();
+            if (message !== undefined) {
+                cleanedBehaviour(actor.state, message);
+            }
+        })
     });
 
     actors[name] = actor;
