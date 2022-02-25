@@ -2,26 +2,28 @@
 
 const { init, spawn, spawnRemote, terminate, send, getActor } = require('../src/actors.js');
 
-const N = 1000000
-const rounds = 5
+const N = 1000000   //Number of sends
+const rounds = 5    //Rounds of benchmark
 
-const ping = spawn({}, (state, message) => {
+const pong = spawn({}, (state, message, self) => {
+    if(!(message.val-1 < 0))
+        send(message.sender, {val: message.val-1, sender: self});
+});
+
+const ping = spawn({}, (state, message, self) => {
+    if(message.benchmarker)
+        state.benchmarker = message.benchmarker
     if(message.val-1 < 0){
-        send(benchmark, {message: "end"})
+        send(state.benchmarker, {message: "end"})
     }else{
-        send(pong, {val: message.val-1});
+        send(message.sender, {val: message.val-1, sender: self});
     }
 });
 
-const pong = spawn({}, (state, message) => {
-    if(!(message.val-1 < 0))
-        send(ping, {val: message.val-1});
-});
-
-const benchmarker = spawn({rounds, times: []}, (state, message) => {
+const benchmarker = spawn({rounds, times: [], ping, pong}, (state, message, self) => {
     if(message.message === "start"){
         state.start = new Date();
-        send(ping, {val: N});
+        send(state.ping, {val: N, sender: state.pong, benchmarker: self});
     }else if(message.message === "end"){
         state.end = new Date()
         const time = state.end.getTime() - state.start.getTime()
@@ -32,7 +34,7 @@ const benchmarker = spawn({rounds, times: []}, (state, message) => {
             const avg = state.times.reduce((a,b) => (a+b)) / state.times.length;
             console.log(`Average time: ${avg}ms`);
         }else{
-            send(benchmark, {message: "start"});
+            send(self, {message: "start"});
         }
     }
 });

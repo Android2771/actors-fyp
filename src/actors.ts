@@ -31,7 +31,7 @@ interface ActorCallback {
 interface Actor {
     name: string,
     node: number,
-    state: object,
+    state: {[key: string]: any},
     mailbox: object[]
 }
 
@@ -71,7 +71,7 @@ const init = (url: string): Promise<object> => {
  * @param behaviour The behaviour of the actor in response to a message
  * @returns The spawned actor
  */
-const spawn = (state: object, behaviour: any): Actor => {
+const spawn = (state: object, behaviour: ActorCallback | string): Actor => {
     const cleanedBehaviour = (typeof behaviour === "string") ?
         behaviour = Function(
             'exports',
@@ -85,12 +85,13 @@ const spawn = (state: object, behaviour: any): Actor => {
     //Populate the context with the new actor with an empty mailbox and return the actor
     const name: string = (++localActorId).toString();
     const actor: Actor = { name, node: 0, state, mailbox: [] };
+    actor.state['self'] = actor;
 
     messageEmitter.on(name, () => {
         setImmediate(() => {
             let message = actor.mailbox.shift();
             if (message !== undefined) {
-                cleanedBehaviour(actor.state, message);
+                cleanedBehaviour(actor.state, message, actor);
             }
         })
     });
