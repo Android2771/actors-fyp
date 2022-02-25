@@ -5,10 +5,12 @@ const spawnEmitter = new MessageEmitter();
 const ActorWebSocket = require('ws');
 
 //Set counter to uniquely name actors
+let localActorId : number = 0
 let remoteActorId: number = 0
 
 const actors: { [key: string]: Actor } = {};
 const remoteActors: { [key: string]: string } = {};
+const deletedActorIds : string[] = []
 
 let network: any;
 
@@ -82,12 +84,8 @@ const spawn = (state: object, behaviour: ActorCallback | string): Actor => {
             (exports, require, module, __filename, __dirname) : behaviour;
 
     //Populate the context with the new actor with an empty mailbox and return the actor
-    
-    let name = ''
-    do{
-        name = Math.random().toString()
-    }while(actors[name])
 
+    const name : any = (deletedActorIds[0] === undefined) ? (localActorId++).toString() : deletedActorIds.pop()
     const actor: Actor = { name, node: 0, state, mailbox: [] };
     actor.state['self'] = actor;
 
@@ -154,6 +152,7 @@ const send = (actor: Actor, message: object): void => {
 const terminate = (actor: Actor) => {
     messageEmitter.removeAllListeners(actor.name);
     delete actors[actor.name]
+    deletedActorIds.push(actor.name)
 }
 
 /**
