@@ -2,10 +2,9 @@ const EventEmitter = require('events');
 class MessageEmitter extends EventEmitter { }
 const messageEmitter = new MessageEmitter();
 const spawnEmitter = new MessageEmitter();
-const ActorWebSocket = require('ws')
+const ActorWebSocket = require('ws');
 
 //Set counter to uniquely name actors
-let localActorId: number = 0
 let remoteActorId: number = 0
 
 const actors: { [key: string]: Actor } = {};
@@ -47,8 +46,8 @@ const init = (url: string): Promise<object> => {
                 resolve(messageJson);
             } else if (messageJson.header === "SPAWN") {
                 //The spawn message is received when a spawn request is sent
-                spawn(messageJson.state, messageJson.behaviour)
-                const payload = { header: "SPAWNED", to: messageJson.from, actualActorId: localActorId, remoteActorId: messageJson.remoteActorId }
+                const actor = spawn(messageJson.state, messageJson.behaviour)
+                const payload = { header: "SPAWNED", to: messageJson.from, actualActorId: actor.name, remoteActorId: messageJson.remoteActorId }
                 network.send(JSON.stringify(payload))
             } else if (messageJson.header === "SPAWNED") {
                 //The spawned message is received as an acknowledgement by the remote node
@@ -83,7 +82,12 @@ const spawn = (state: object, behaviour: ActorCallback | string): Actor => {
             (exports, require, module, __filename, __dirname) : behaviour;
 
     //Populate the context with the new actor with an empty mailbox and return the actor
-    const name: string = (++localActorId).toString();
+    
+    let name = ''
+    do{
+        name = Math.random().toString()
+    }while(actors[name])
+
     const actor: Actor = { name, node: 0, state, mailbox: [] };
     actor.state['self'] = actor;
 
@@ -149,6 +153,7 @@ const send = (actor: Actor, message: object): void => {
  */
 const terminate = (actor: Actor) => {
     messageEmitter.removeAllListeners(actor.name);
+    delete actors[actor.name]
 }
 
 /**

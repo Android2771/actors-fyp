@@ -2,7 +2,7 @@
 const { init, spawn, spawnRemote, terminate, send, getActor } = require('../../src/actors.js');
 
 const N = 1000000;   //Number of sends
-const rounds = 5;    //Rounds of benchmark
+const rounds = 100;    //Rounds of benchmark
 
 const pong = spawn({}, (state, message, self) => {
     if(!(message.val-1 < 0))
