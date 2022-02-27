@@ -1,32 +1,34 @@
 //Tests message delivery overhead
-const { init, spawn, spawnRemote, terminate, send, getActor } = require('../../src/actors.js');
+const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.js');
 
 const N = 100000;  //Successive messages to be sent
-const rounds = 5;   //Rounds
+const rounds = 10;   //Rounds
 
-const counter = spawn({i: 0}, (state, message, self) => {
+const counterBehaviour = (state, message, self) => {
     switch(message.header){
         case "increment":
             state.i++;
         break;
         case "query":
-            send(message.sender, {header: "query", counter: state.i});
-            state.i = 0;
+            send(message.sender, {header: "end", counter: state.i});
+            terminate(self)
         break;
     }
-});
+};
 
-const producer = spawn({rounds, times: [], counter}, (state, message, self) => {
+const producer = spawn({rounds, times: []}, (state, message, self) => {
     switch(message.header){
         case "start":
+            state.counter = spawn({i: 0}, counterBehaviour)
             state.start = new Date();
             for(let i = 0; i < N; i++){
                 send(state.counter, {header: "increment"});
             }
             send(state.counter, {header: "query", sender: self});
         break;
-        case "query":
+        case "end":
             state.end = new Date()
+            terminate(state.counter)
             const time = state.end.getTime() - state.start.getTime()
             console.log(`Finished in ${time}ms`);
             state.times.push(time)

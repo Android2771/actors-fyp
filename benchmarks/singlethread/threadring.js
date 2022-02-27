@@ -1,21 +1,33 @@
 //Tests message sending and context switching bewteen actors
-const { init, spawn, spawnRemote, terminate, send, getActor } = require('../../src/actors.js');
+const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.js');
 
 const N = 10;       //Connected actors
 const H = 1000000;  //Number of hops
-const rounds = 5;   //Rounds
+const rounds = 10;   //Rounds
 
-//Spawn actors
-const actors = []
+const actorBehaviour = (state, message, self) => {
+    if(message.val-1 < 0){
+        send(state.benchmarker, {header: "end"})
+    }else{
+        send(state.actors[(state.i+1)%N], {val: message.val-1});
+    }
+};
 
-const benchmarker = spawn({rounds, times: [], actors}, (state, message, self) => {
+const benchmarker = spawn({rounds, times: [], actors: []}, (state, message, self) => {
     switch(message.header){
         case "start":
+            for(let i = 0; i < N; i++){
+                const actor = spawn({actors: state.actors, i, benchmarker}, actorBehaviour);            
+                state.actors.push(actor);
+            }
             state.start = new Date();
-            send(actors[0], {val: H});
+            send(state.actors[0], {val: H});
         break;
         case "end":
             state.end = new Date()
+            for(let i = 0; i < N; i++)
+                terminate(state.actors.pop());
+            
             const time = state.end.getTime() - state.start.getTime()
             console.log(`Finished in ${time}ms`);
             state.times.push(time)
@@ -29,17 +41,5 @@ const benchmarker = spawn({rounds, times: [], actors}, (state, message, self) =>
         break;
     }
 });
-
-for(let i = 0; i < N; i++){
-    const actor = spawn({actors, i, benchmarker}, (state, message, self) => {
-        if(message.val-1 < 0){
-            send(state.benchmarker, {header: "end"})
-        }else{
-            send(state.actors[(state.i+1)%N], {val: message.val-1});
-        }
-    });
-
-    actors.push(actor);
-}
 
 send(benchmarker, {header: "start"})

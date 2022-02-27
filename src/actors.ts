@@ -44,8 +44,8 @@ const init = (url: string): Promise<object> => {
                 resolve(messageJson);
             } else if (messageJson.header === "SPAWN") {
                 //The spawn message is received when a spawn request is sent
-                const actor = spawn(messageJson.state, messageJson.behaviour)
-                const payload = { header: "SPAWNED", to: messageJson.from, actualActorId: actor.name, remoteActorId: messageJson.remoteActorId }
+                const name = spawn(messageJson.state, messageJson.behaviour)
+                const payload = { header: "SPAWNED", to: messageJson.from, actualActorId: name, remoteActorId: messageJson.remoteActorId }
                 network.send(JSON.stringify(payload))
             } else if (messageJson.header === "SPAWNED") {
                 //The spawned message is received as an acknowledgement by the remote node
@@ -54,8 +54,7 @@ const init = (url: string): Promise<object> => {
                 spawnEmitter.emit(messageJson.remoteActorId)
             } else if (messageJson.header === "MESSAGE") {
                 //A message addressed to a node that needs to be locally forwarded
-                const referredActor = getActor(messageJson.name)
-                send(referredActor, messageJson.message)
+                send(messageJson.name, messageJson.message)
             }
         });
     })
@@ -68,7 +67,7 @@ const init = (url: string): Promise<object> => {
  * @param behaviour The behaviour of the actor in response to a message
  * @returns The spawned actor
  */
-const spawn = (state: object, behaviour: ActorCallback | string): Actor => {
+const spawn = (state: object, behaviour: ActorCallback | string): string => {
     const cleanedBehaviour = (typeof behaviour === "string") ?
         behaviour = Function(
             'exports',
@@ -86,7 +85,7 @@ const spawn = (state: object, behaviour: ActorCallback | string): Actor => {
     actor.state['self'] = actor;
 
     messageEmitter.on(name, () => {
-        setImmediate(() => {
+        process.nextTick(() => {
             let message = actor.mailbox.shift();
             if (message !== undefined) {
                 cleanedBehaviour(actor.state, message, actor);
@@ -96,7 +95,7 @@ const spawn = (state: object, behaviour: ActorCallback | string): Actor => {
 
     actors[name] = actor;
 
-    return actor;
+    return name;
 }
 
 /**
@@ -107,18 +106,18 @@ const spawn = (state: object, behaviour: ActorCallback | string): Actor => {
  * @param timeout How long to wait for the actor to spawn
  * @returns A promise with the resolved actor
  */
-const spawnRemote = (node: number, state: object, behaviour: ActorCallback, timeout: number): Promise<Actor> => {
+const spawnRemote = (node: number, state: object, behaviour: ActorCallback, timeout: number): Promise<string> => {
     return new Promise((resolve, reject) => {
         const name = uuidv4()
         const actor: Actor = { name, node, state, mailbox: [] }
         const payload = JSON.stringify({ header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state })
         network.send(payload);
         spawnEmitter.once(name, () => {
-            setImmediate(() => {
+            process.nextTick(() => {
                 if (remoteActors[name]) {
                     actor.name = remoteActors[name];
                     delete remoteActors[name]
-                    resolve(actor)
+                    resolve(actor.name)
                 }
             });
         });
@@ -132,32 +131,32 @@ const spawnRemote = (node: number, state: object, behaviour: ActorCallback, time
  * @param actor The actor to send the message to
  * @param message The message object to send to an actor
  */
-const send = (actor: Actor, message: object): void => {
-    if (actor.node === 0) {
-        actor.mailbox.push(message);
-        messageEmitter.emit(actor.name);
-    } else {
-        const payload = JSON.stringify({ header: "MESSAGE", name: actor.name, to: actor.node, message })
-        network.send(payload)
+const send = (name: string, message: object): void => {
+    const actor = actors[name];
+    if(actor){
+        if (actor.node === 0) {
+            actor.mailbox.push(message);
+            messageEmitter.emit(actor.name);
+        } else {
+            const payload = JSON.stringify({ header: "MESSAGE", name: actor.name, to: actor.node, message })
+            network.send(payload)
+        }
     }
 }
 
 /**
  * Terminates an actor. Removes the actor from the context, delete the actor object from memory
  * @param actor The actor to terminate
+ * @param force True to immediately stop the actor, false to let it process remaining messages and terminate safely
  */
-const terminate = (actor: Actor) => {
-    messageEmitter.removeAllListeners(actor.name);
-    delete actors[actor.name]
+const terminate = (name: string, force: boolean) => {
+    const actor = actors[name];
+    if(actor){
+        messageEmitter.removeAllListeners(actor.name);
+        if(force)
+            actor.mailbox = []
+        delete actors[actor.name]
+    }
 }
 
-/**
- * 
- * @param name Actor name
- * @returns Actor by that name
- */
-const getActor = (name: string): Actor => {
-    return actors[name];
-}
-
-module.exports = { init, spawn, spawnRemote, terminate, send, getActor }
+module.exports = { init, spawn, spawnRemote, terminate, send }

@@ -22,7 +22,7 @@ node network.js <NUMBER_OF_NODES>
 ### Connecting to the network using the actor framework
 On one node, use the following code to establish the first connected node
 ```js
-const { init, spawn, spawnRemote, terminate, send, getActor } = require('../../src/actors.js');
+const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.js');
 init('ws://localhost:8080')
 ```
 ### Sending a message to a remotely spawned node
