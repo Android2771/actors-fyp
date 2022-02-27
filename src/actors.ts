@@ -3,14 +3,10 @@ class MessageEmitter extends EventEmitter { }
 const messageEmitter = new MessageEmitter();
 const spawnEmitter = new MessageEmitter();
 const ActorWebSocket = require('ws');
-
-//Set counter to uniquely name actors
-let localActorId : number = 0
-let remoteActorId: number = 0
+const {v4: uuidv4} = require("uuid")
 
 const actors: { [key: string]: Actor } = {};
 const remoteActors: { [key: string]: string } = {};
-const deletedActorIds : string[] = []
 
 let network: any;
 
@@ -85,7 +81,7 @@ const spawn = (state: object, behaviour: ActorCallback | string): Actor => {
 
     //Populate the context with the new actor with an empty mailbox and return the actor
 
-    const name : any = (deletedActorIds[0] === undefined) ? (localActorId++).toString() : deletedActorIds.pop()
+    const name : string = uuidv4();
     const actor: Actor = { name, node: 0, state, mailbox: [] };
     actor.state['self'] = actor;
 
@@ -113,14 +109,15 @@ const spawn = (state: object, behaviour: ActorCallback | string): Actor => {
  */
 const spawnRemote = (node: number, state: object, behaviour: ActorCallback, timeout: number): Promise<Actor> => {
     return new Promise((resolve, reject) => {
-        const actor: Actor = { name: (++remoteActorId).toString(), node, state, mailbox: [] }
-        const payload = JSON.stringify({ header: "SPAWN", to: node, remoteActorId, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state })
+        const name = uuidv4()
+        const actor: Actor = { name, node, state, mailbox: [] }
+        const payload = JSON.stringify({ header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state })
         network.send(payload);
-        spawnEmitter.once(remoteActorId, () => {
+        spawnEmitter.once(name, () => {
             setImmediate(() => {
-                if (remoteActors[remoteActorId]) {
-                    actor.name = remoteActors[remoteActorId];
-                    delete remoteActors[remoteActorId]
+                if (remoteActors[name]) {
+                    actor.name = remoteActors[name];
+                    delete remoteActors[name]
                     resolve(actor)
                 }
             });
@@ -152,7 +149,6 @@ const send = (actor: Actor, message: object): void => {
 const terminate = (actor: Actor) => {
     messageEmitter.removeAllListeners(actor.name);
     delete actors[actor.name]
-    deletedActorIds.push(actor.name)
 }
 
 /**

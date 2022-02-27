@@ -16,6 +16,7 @@
   "dependencies": {
     "@types/ws": "^8.2.2",
     "object-hash": "^3.0.0",
+    "uuid": "^8.3.2",
     "ws": "^8.5.0"
   }
 }

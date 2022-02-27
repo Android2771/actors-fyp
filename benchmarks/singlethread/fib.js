@@ -1,5 +1,5 @@
 // Tests incremental actor creation and destruction
-const { init, spawn, spawnRemote, terminate, send, getActor } = require('../../src/actors.js');
+const { init, spawn, spawnRemote, terminate, send, getActor, setId } = require('../../src/actors.js');
 
 const N = 30;    //fibonnachi index
 const rounds = 10;
@@ -43,7 +43,7 @@ const benchmarker = spawn({received: 0, times: [], rounds}, (state, message, sel
                 const avg = state.times.reduce((a,b) => (a+b)) / state.times.length;
                 console.log(`Average time: ${avg}ms`);
             }else{
-                state.received = 0
+                state.received = 0;
                 send(self, {value: N});
             }
     }
