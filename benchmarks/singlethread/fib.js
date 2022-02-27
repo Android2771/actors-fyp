@@ -1,7 +1,8 @@
 // Tests incremental actor creation and destruction
 const { init, spawn, spawnRemote, terminate, send, getActor } = require('../../src/actors.js');
 
-const N = 5;    //fibonnachi index
+const N = 30;    //fibonnachi index
+const rounds = 10;
 
 const behaviour = (state, message, self) => {
     state.received++;
@@ -17,6 +18,7 @@ const behaviour = (state, message, self) => {
         break;
         case 2: //First value received from child
             state.buffer = message.value;
+        break;
         case 3: //Second value received from child
             send(state.parent, {value: state.buffer + message.value});
             terminate(self)
@@ -24,14 +26,26 @@ const behaviour = (state, message, self) => {
     }
 }
 
-const benchmarker = spawn({received: 0}, (state, message, self) => {
+const benchmarker = spawn({received: 0, times: [], rounds}, (state, message, self) => {
     state.received++;
     switch(state.received){
         case 1:
+            state.start = new Date();
             send(spawn({parent: self, received: 0}, behaviour), {value: message.value});
         break;
         case 2:
-            console.log(message.value)
+            state.end = new Date();
+            const time = state.end.getTime() - state.start.getTime()
+            console.log(`Finished calculating fib(${N}) = ${message.value} in ${time}ms`);
+            state.times.push(time)
+            state.rounds--;
+            if(state.rounds === 0){
+                const avg = state.times.reduce((a,b) => (a+b)) / state.times.length;
+                console.log(`Average time: ${avg}ms`);
+            }else{
+                state.received = 0
+                send(self, {value: N});
+            }
     }
 })
 
