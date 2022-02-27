@@ -20,11 +20,11 @@ const producer = spawn({rounds, times: []}, (state, message, self) => {
     switch(message.header){
         case "start":
             state.counter = spawn({i: 0}, counterBehaviour)
-            state.start = new Date();
             for(let i = 0; i < N; i++){
                 send(state.counter, {header: "increment"});
             }
             send(state.counter, {header: "query", sender: self});
+            state.start = new Date();
         break;
         case "end":
             state.end = new Date()

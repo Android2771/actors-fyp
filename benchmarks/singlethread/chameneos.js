@@ -1,7 +1,7 @@
 // Tests contention on mailbox (many to one)
 const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.js');
 
-const N = 10;  //Number of meetings
+const N = 100000;  //Number of meetings
 const C = 10;      //Number of chameneos
 const rounds = 10
 
