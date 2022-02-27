@@ -37,9 +37,13 @@ const benchmarker = spawn({rounds, times: [], actors: []}, (state, message, self
             for(let i = 0; i < N; i++){
                 const actor = spawn({actors: state.actors, sink: state.sink, toSend: P}, actorBehaviour);
                 state.actors.push(actor);
-                send(actor, {header: "start"})
             }
+
             state.start = new Date();  
+            
+            state.actors.forEach(item => {
+                send(item, {header: "start"})
+            })
         break;
         case "end":
             state.end = new Date()

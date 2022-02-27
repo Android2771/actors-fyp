@@ -8,9 +8,7 @@ const rounds = 10;
 const benchmarker = spawn({rounds, times: [], actors: [], messagesToSend: N*K}, (state, message, self) => {
 
     switch(message.header){
-        case "start":
-            state.start = new Date();           
-
+        case "start":         
             for(let i = 0; i < K-1; i++){
                 state.actors.push(spawn({i: 0, N}, (state, message, self) => {
                     if(++state.i >= N)
@@ -26,6 +24,7 @@ const benchmarker = spawn({rounds, times: [], actors: [], messagesToSend: N*K}, 
                 }
             }));
 
+            state.start = new Date(); 
             for(let i = 0; i < state.messagesToSend; i++)
                 send(state.actors[i % K], {sender: self})            
         break;

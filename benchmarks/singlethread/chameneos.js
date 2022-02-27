@@ -43,15 +43,19 @@ const chameneosBehaviour = (state, message, self) => {
 const benchmarker = spawn({rounds, times: [], chameneosList: []}, (state, message, self) => {
     switch(message.header){
         case "start":   
-            state.start = new Date();    
             state.mall = spawn({chameneosRequest: undefined, matchesLeft: N}, mallBehaviour);
             send(state.mall, {benchmarker: self})   
 
             for(let i = 0; i < C; i++){
                 const chameneos = spawn({mall: state.mall}, chameneosBehaviour)
                 state.chameneosList.push(chameneos);       
-                send(chameneos, {header: "send"})     
             }
+
+            state.start = new Date();    
+            
+            state.chameneosList.forEach(item => {                
+                send(item, {header: "send"})     
+            })
         break;
         case "end":
             state.end = new Date();
