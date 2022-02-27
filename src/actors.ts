@@ -88,7 +88,7 @@ const spawn = (state: object, behaviour: ActorCallback | string): string => {
         process.nextTick(() => {
             let message = actor.mailbox.shift();
             if (message !== undefined) {
-                cleanedBehaviour(actor.state, message, actor);
+                cleanedBehaviour(actor.state, message, actor.name);
             }
         })
     });
