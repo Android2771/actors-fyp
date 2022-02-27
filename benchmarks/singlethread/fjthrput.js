@@ -3,7 +3,7 @@ const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.j
 
 const N = 20000;  //total messages to send to each actor
 const K = 10;       //total number of actors to spawn
-const rounds = 10;
+const rounds = process.argv.slice(2)[0];
 
 const benchmarker = spawn({rounds, times: [], actors: [], messagesToSend: N*K}, (state, message, self) => {
 

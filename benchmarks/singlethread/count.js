@@ -2,7 +2,7 @@
 const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.js');
 
 const N = 100000;  //Successive messages to be sent
-const rounds = 10;   //Rounds
+const rounds = process.argv.slice(2)[0];   //Rounds
 
 const counterBehaviour = (state, message, self) => {
     switch(message.header){

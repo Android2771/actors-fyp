@@ -3,7 +3,7 @@ const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.j
 
 const N = 10;       //Connected actors
 const H = 1000000;  //Number of hops
-const rounds = 10;   //Rounds
+const rounds = process.argv.slice(2)[0];   //Rounds
 
 const actorBehaviour = (state, message, self) => {
     if(message.val-1 < 0){

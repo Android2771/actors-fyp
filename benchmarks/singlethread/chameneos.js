@@ -3,7 +3,7 @@ const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.j
 
 const N = 100000;  //Number of meetings
 const C = 10;      //Number of chameneos
-const rounds = 10
+const rounds = process.argv.slice(2)[0]
 
 const mallBehaviour = (state, message, self) => {    
     if(message.benchmarker)

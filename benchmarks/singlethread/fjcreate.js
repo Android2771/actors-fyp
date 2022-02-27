@@ -2,7 +2,7 @@
 const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.js');
 
 const N = 1000000;  //Number of actors to spawn
-const rounds = 100;
+const rounds = process.argv.slice(2)[0]0;
 
 const benchmarker = spawn({rounds, times: []}, (state, message, self) => {
         switch(message.header){

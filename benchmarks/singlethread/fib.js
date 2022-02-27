@@ -2,7 +2,7 @@
 const { init, spawn, spawnRemote, terminate, send, getActor, setId } = require('../../src/actors.js');
 
 const N = 30;    //fibonnachi index
-const rounds = 10;
+const rounds = process.argv.slice(2)[0];
 
 const behaviour = (state, message, self) => {
     state.received++;

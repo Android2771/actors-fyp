@@ -3,7 +3,7 @@ const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.j
 
 const N = 10;   //Number of actors
 const P = 30000;   //Number of pings
-const rounds = 10;
+const rounds = process.argv.slice(2)[0];
 
 const sinkBehaviour = (state, message, self) => {
     if(state.received < N-1){
