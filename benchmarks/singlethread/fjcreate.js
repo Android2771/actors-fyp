@@ -1,5 +1,6 @@
 // Tests ahead of time actor creation and destruction
-const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.js');
+import actors from '../../src/actors.js';
+const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 1000000;  //Number of actors to spawn
 const rounds = process.argv.slice(2)[0]0;

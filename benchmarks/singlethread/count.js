@@ -1,5 +1,6 @@
 //Tests message delivery overhead
-const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.js');
+import actors from '../../src/actors.js';
+const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 100000;  //Successive messages to be sent
 const rounds = process.argv.slice(2)[0];   //Rounds

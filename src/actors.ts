@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 class MessageEmitter extends EventEmitter { }
 const messageEmitter = new MessageEmitter();
 const spawnEmitter = new MessageEmitter();
-import ActorWebSocket from 'ws';
+import ws from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 
 const actors: { [key: string]: Actor } = {};
@@ -33,7 +33,7 @@ interface Actor {
 }
 
 const init = (url: string): Promise<object> => {
-    network = new ActorWebSocket(url);
+    network = new ws(url);
 
     //Handle incoming messages
     return new Promise(resolve => {
