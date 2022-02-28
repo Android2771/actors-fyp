@@ -1,9 +1,9 @@
-const EventEmitter = require('events');
+import EventEmitter from 'events';
 class MessageEmitter extends EventEmitter { }
 const messageEmitter = new MessageEmitter();
 const spawnEmitter = new MessageEmitter();
-const ActorWebSocket = require('ws');
-const {v4: uuidv4} = require("uuid")
+import ActorWebSocket from 'ws';
+import { v4 as uuidv4 } from 'uuid';
 
 const actors: { [key: string]: Actor } = {};
 const remoteActors: { [key: string]: string } = {};
@@ -79,17 +79,20 @@ const spawn = (state: object, behaviour: ActorCallback | string): string => {
             (exports, require, module, __filename, __dirname) : behaviour;
 
     //Populate the context with the new actor with an empty mailbox and return the actor
+    //Generate unique name
+    let name : string
+    do
+        name = uuidv4()
+    while(actors[name])
 
-    const name : string = uuidv4();
     const actor: Actor = { name, node: 0, state, mailbox: [] };
     actor.state['self'] = actor;
 
     messageEmitter.on(name, () => {
         process.nextTick(() => {
             let message = actor.mailbox.shift();
-            if (message !== undefined) {
-                cleanedBehaviour(actor.state, message, actor.name);
-            }
+            if (message !== undefined) 
+                cleanedBehaviour(actor.state, message, actor.name);            
         })
     });
 
@@ -159,4 +162,4 @@ const terminate = (name: string, force: boolean) => {
     }
 }
 
-module.exports = { init, spawn, spawnRemote, terminate, send }
+export default { init, spawn, spawnRemote, terminate, send }
