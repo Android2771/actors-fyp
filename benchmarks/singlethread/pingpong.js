@@ -1,5 +1,6 @@
 //Tests message passing overhead
-const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.js');
+import actors from '../../src/actors.js';
+const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10000000;   //Number of sends
 const rounds = process.argv.slice(2)[0];    //Rounds of benchmark

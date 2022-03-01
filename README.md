@@ -22,13 +22,15 @@ node network.js <NUMBER_OF_NODES>
 ### Connecting to the network using the actor framework
 On one node, use the following code to establish the first connected node
 ```js
-const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.js');
+import actors from './src/actors.js';
+const { init, spawn, spawnRemote, terminate, send} = actors
 init('ws://localhost:8080')
 ```
 ### Sending a message to a remotely spawned node
 On another node, use the following code to establish the second connection, and remotely spawn and send a message to the first connected node
 ```js
-const { init, spawn, spawnRemote, terminate, send, getActor} = require('../../src/actors.js');
+import actors from './src/actors.js';
+const { init, spawn, spawnRemote, terminate, send} = actors;
 init('ws://localhost:8080').then(async data => {
     const actor = await spawnRemote(1, {}, (state, message) => {console.log(message.message)}, 5000)
     send(actor, {message: "test"})

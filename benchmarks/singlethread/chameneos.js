@@ -1,5 +1,6 @@
 // Tests contention on mailbox (many to one)
-const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.js');
+import actors from '../../src/actors.js';
+const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 100000;  //Number of meetings
 const C = 10;      //Number of chameneos

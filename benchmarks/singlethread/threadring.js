@@ -1,5 +1,6 @@
 //Tests message sending and context switching bewteen actors
-const { init, spawn, spawnRemote, terminate, send} = require('../../src/actors.js');
+import actors from '../../src/actors.js';
+const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10;       //Connected actors
 const H = 1000000;  //Number of hops
