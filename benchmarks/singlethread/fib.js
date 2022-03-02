@@ -1,5 +1,6 @@
 // Tests incremental actor creation and destruction
-const { init, spawn, spawnRemote, terminate, send, getActor, setId } = require('../../src/actors.js');
+import actors from '../../src/actors.js';
+const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 30;    //fibonnachi index
 const rounds = process.argv.slice(2)[0];
