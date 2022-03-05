@@ -50,6 +50,9 @@ class MessageEmitter {
 const messageEmitter = new MessageEmitter();
 const spawnEmitter = new MessageEmitter();
 
+//Adapted from https://stackoverflow.com/questions/7931182/reliably-detect-if-the-script-is-executing-in-a-web-worker
+const isWorker = () => typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope
+
 const messageHandler = (messageJson) => {
     switch (messageJson.header) {
         case "SPAWN":
@@ -67,7 +70,7 @@ const messageHandler = (messageJson) => {
     }
 };
 
-export const init = (url, timeout, numWorkers = 1) => {
+export const init = (url, timeout = 0x7fffffff, numWorkers = 1, workerFile) => {
     network = new WebSocket(url);
     return new Promise((resolve, reject) => {
         setTimeout(reject, timeout);
@@ -76,10 +79,36 @@ export const init = (url, timeout, numWorkers = 1) => {
             switch (messageJson.header) {
                 case "ACK":
                     let exchanged = false;
-
+                    
+                    if (!isWorker()) {
+                        for (let i = 0; i < numWorkers - 1; i++) {
+                            const worker = new Worker(workerFile, {type: "module"});
+                            worker.onmessage = (message) => {
+                                if (exchanged)
+                                    messageHandler(message);
+                                else {
+                                    workers[message] = worker;
+                                    worker.postMessage(messageJson.sockNo);
+                                    exchanged = true;
+                                }
+                            };
+                        }
+                    } else {
+                        onmessage = message => {
+                            if (exchanged)
+                                messageHandler(message);
+                            else {
+                                workers[message] = 0;
+                                exchanged = true;
+                            }
+                        };
+                    }
                     break;
                 case "READY":
-
+                    if(isWorker()){
+                        console.log("hi")
+                        postMessage(messageJson.yourSocketNumber)
+                    }         
                     resolve(messageJson);
                     break;
                 default:
@@ -138,7 +167,10 @@ export const send = (name, message) => {
         else {
             const payload = { header: "MESSAGE", name: actor.name, to: actor.node, message };
             if (workers[actor.node])
-                workers[actor.node].send(payload);
+                if(isWorker())
+                    postMessage(payload)
+                else
+                    workers[actor.node].postMessage(payload);
             else
                 network.send(JSON.stringify(payload));
         }
