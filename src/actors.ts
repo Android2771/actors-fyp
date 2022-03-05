@@ -72,7 +72,6 @@ const init = (url: string, timeout: number, numWorkers: number = 1): Promise<obj
                         for (let i = 0; i < numWorkers - 1; i++) {
                             const worker = cluster.fork()
                             worker.on('message', (message: number) => {
-                                console.log("beep!")
                                 if(exchanged)
                                     messageHandler(message)
                                 else{
