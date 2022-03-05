@@ -13,7 +13,7 @@ wss.on('connection', (ws: any, req: any) => {
     //Get address and assign socket number
     const address: string = req.socket.remoteAddress;
     const sockNo = connections.length;
-    ws.send({"header": "ACK", sockNo})
+    ws.send(JSON.stringify({"header": "ACK", sockNo}))
 
     //Append connection number to addresses dictionary
     if (connectionAddresses[address])
