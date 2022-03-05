@@ -392,6 +392,7 @@ TSWLatexianTemp*
 *.pdf
 
 src/*.js
+other/
 
 # REVTeX puts footnotes in the bibliography by default, unless the nofootinbib
 # option is specified. Footnotes are the stored in a file with suffix Notes.bib.

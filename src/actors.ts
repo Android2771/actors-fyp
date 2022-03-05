@@ -4,6 +4,7 @@ const messageEmitter = new MessageEmitter();
 const spawnEmitter = new MessageEmitter();
 import ws from 'ws';
 import { v4 as uuidv4 } from 'uuid';
+import cluster from 'cluster';
 
 const actors: { [key: string]: Actor } = {};
 const remoteActors: { [key: string]: string } = {};
@@ -28,15 +29,23 @@ interface ActorCallback {
 interface Actor {
     name: string,
     node: number,
-    state: {[key: string]: any},
+    state: { [key: string]: any },
     mailbox: object[]
 }
 
-const init = (url: string): Promise<object> => {
+const init = (url: string, timeout: number, workers: number = 1): Promise<object> => {
+    if (workers && cluster.isPrimary) {
+        // Fork workers
+        for (let i = 0; i < workers - 1; i++) {
+            cluster.fork();
+        }
+    }
+
     network = new ws(url);
 
     //Handle incoming messages
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
+        setTimeout(reject, timeout);
         network.on('message', (message: Buffer) => {
             const messageJson = JSON.parse(message.toString())
             if (messageJson.header === "READY") {
@@ -67,23 +76,16 @@ const init = (url: string): Promise<object> => {
  * @param behaviour The behaviour of the actor in response to a message
  * @returns The spawned actor
  */
-const spawn = (state: object, behaviour: ActorCallback | string): string => {
+const spawn = (state: object, behaviour: ActorCallback | string | Function): string => {
     const cleanedBehaviour = (typeof behaviour === "string") ?
-        behaviour = Function(
-            'exports',
-            'require',
-            'module',
-            '__filename',
-            '__dirname',
-            'return ' + behaviour)
-            (exports, require, module, __filename, __dirname) : behaviour;
+        behaviour = Function('return ' + behaviour)() : behaviour;
 
     //Populate the context with the new actor with an empty mailbox and return the actor
     //Generate unique name
-    let name : string
+    let name: string
     do
         name = uuidv4()
-    while(actors[name])
+    while (actors[name])
 
     const actor: Actor = { name, node: 0, state, mailbox: [] };
     actor.state['self'] = actor;
@@ -91,8 +93,8 @@ const spawn = (state: object, behaviour: ActorCallback | string): string => {
     messageEmitter.on(name, () => {
         process.nextTick(() => {
             let message = actor.mailbox.shift();
-            if (message !== undefined) 
-                cleanedBehaviour(actor.state, message, actor.name);            
+            if (message !== undefined)
+                cleanedBehaviour(actor.state, message, actor.name);
         })
     });
 
@@ -116,13 +118,12 @@ const spawnRemote = (node: number, state: object, behaviour: ActorCallback, time
         const payload = JSON.stringify({ header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state })
         network.send(payload);
         spawnEmitter.once(name, () => {
-            process.nextTick(() => {
-                if (remoteActors[name]) {
-                    actor.name = remoteActors[name];
-                    delete remoteActors[name]
-                    resolve(actor.name)
-                }
-            });
+            if (remoteActors[name]) {
+                actor.name = remoteActors[name];
+                actors[actor.name] = actor
+                delete remoteActors[name]
+                resolve(actor.name)
+            }
         });
 
         setTimeout(() => reject(), timeout);
@@ -136,7 +137,7 @@ const spawnRemote = (node: number, state: object, behaviour: ActorCallback, time
  */
 const send = (name: string, message: object): void => {
     const actor = actors[name];
-    if(actor){
+    if (actor) {
         if (actor.node === 0) {
             actor.mailbox.push(message);
             messageEmitter.emit(actor.name);
@@ -152,11 +153,11 @@ const send = (name: string, message: object): void => {
  * @param actor The actor to terminate
  * @param force True to immediately stop the actor, false to let it process remaining messages and terminate safely
  */
-const terminate = (name: string, force: boolean) => {
+const terminate = (name: string, force: boolean = false) => {
     const actor = actors[name];
-    if(actor){
+    if (actor) {
         messageEmitter.removeAllListeners(actor.name);
-        if(force)
+        if (force)
             actor.mailbox = []
         delete actors[actor.name]
     }

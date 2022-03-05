@@ -1,6 +1,6 @@
 export {}
-import ws from 'ws';
-const wss = new ws.Server({ port: 8080 });
+import {WebSocketServer} from 'ws';
+const wss = new WebSocketServer({ port: 8080 });
 
 const connections: any[] = [];
 const connectionAddresses: { [address: string]: number[] } = {};
