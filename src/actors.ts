@@ -83,7 +83,6 @@ const init = (url: string, timeout: number, numWorkers: number = 1): Promise<obj
                         }
                     } else {
                         process.on('message', (message: number) => {
-                            console.log("beep!")
                             if(exchanged)
                                 messageHandler(message)
                             else{
