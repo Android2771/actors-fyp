@@ -5,8 +5,10 @@ const spawnEmitter = new MessageEmitter();
 import ws from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 import cluster from 'cluster';
+import process from 'process';
 
 const actors: { [key: string]: Actor } = {};
+const workers: { [key: number]: any } = {};
 const remoteActors: { [key: string]: string } = {};
 
 let network: any;
@@ -33,14 +35,28 @@ interface Actor {
     mailbox: object[]
 }
 
-const init = (url: string, timeout: number, workers: number = 1): Promise<object> => {
-    if (workers && cluster.isPrimary) {
-        // Fork workers
-        for (let i = 0; i < workers - 1; i++) {
-            cluster.fork();
-        }
+const messageHandler = (messageJson: any) => {
+    switch (messageJson.header) {
+        case "SPAWN":
+            //The spawn message is received when a spawn request is sent
+            const name = spawn(messageJson.state, messageJson.behaviour)
+            const payload = { header: "SPAWNED", to: messageJson.from, actualActorId: name, remoteActorId: messageJson.remoteActorId }
+            network.send(JSON.stringify(payload))
+            break;
+        case "SPAWNED":
+            //The spawned message is received as an acknowledgement by the remote node
+            //The message includes the name of the remote node so that it can be uniquely identified
+            remoteActors[messageJson.remoteActorId] = messageJson.actualActorId;
+            spawnEmitter.emit(messageJson.remoteActorId)
+            break;
+        case "MESSAGE":
+            //A message addressed to a node that needs to be locally forwarded
+            send(messageJson.name, messageJson.message)
+            break;            
     }
+}
 
+const init = (url: string, timeout: number, numWorkers: number = 1): Promise<object> => {
     network = new ws(url);
 
     //Handle incoming messages
@@ -48,22 +64,45 @@ const init = (url: string, timeout: number, workers: number = 1): Promise<object
         setTimeout(reject, timeout);
         network.on('message', (message: Buffer) => {
             const messageJson = JSON.parse(message.toString())
-            if (messageJson.header === "READY") {
-                //The ready message is received by the network when all nodes connected
-                resolve(messageJson);
-            } else if (messageJson.header === "SPAWN") {
-                //The spawn message is received when a spawn request is sent
-                const name = spawn(messageJson.state, messageJson.behaviour)
-                const payload = { header: "SPAWNED", to: messageJson.from, actualActorId: name, remoteActorId: messageJson.remoteActorId }
-                network.send(JSON.stringify(payload))
-            } else if (messageJson.header === "SPAWNED") {
-                //The spawned message is received as an acknowledgement by the remote node
-                //The message includes the name of the remote node so that it can be uniquely identified
-                remoteActors[messageJson.remoteActorId] = messageJson.actualActorId;
-                spawnEmitter.emit(messageJson.remoteActorId)
-            } else if (messageJson.header === "MESSAGE") {
-                //A message addressed to a node that needs to be locally forwarded
-                send(messageJson.name, messageJson.message)
+            switch (messageJson.header) {
+                case "ACK":
+                    //The acknowledgement sent from the server when receiving a request
+                    let exchanged = false;
+                    if (cluster.isPrimary) {
+                        for (let i = 0; i < numWorkers - 1; i++) {
+                            const worker = cluster.fork()
+                            worker.on('message', (message: number) => {
+                                console.log("beep!")
+                                if(exchanged)
+                                    messageHandler(message)
+                                else{
+                                    workers[message] = worker;
+                                    worker.send(messageJson.sockNo)
+                                    exchanged = true;
+                                }
+                            })
+                        }
+                    } else {
+                        process.on('message', (message: number) => {
+                            console.log("beep!")
+                            if(exchanged)
+                                messageHandler(message)
+                            else{
+                                workers[message] = process;
+                                exchanged = true;
+                            }
+                        })
+                    }
+                    break;
+                case "READY":
+                    //The ready message is received by the network when all nodes connected
+                    if (cluster.isWorker)
+                        (<any>process).send(messageJson.yourSocketNumber)
+                    resolve(messageJson);
+                    break;
+                default:
+                    messageHandler(messageJson);
+                    break;
             }
         });
     })
@@ -142,8 +181,11 @@ const send = (name: string, message: object): void => {
             actor.mailbox.push(message);
             messageEmitter.emit(actor.name);
         } else {
-            const payload = JSON.stringify({ header: "MESSAGE", name: actor.name, to: actor.node, message })
-            network.send(payload)
+            const payload = { header: "MESSAGE", name: actor.name, to: actor.node, message }
+            if(workers[actor.node])
+                workers[actor.node].send(payload)
+            else
+                network.send(JSON.stringify(payload))
         }
     }
 }
