@@ -10,6 +10,46 @@ function uuidv4() {
     );
 }
 
+//Taken from https://betterprogramming.pub/how-to-create-your-own-event-emitter-in-javascript-fbd5db2447c4
+class MessageEmitter {
+    constructor() {
+        this._events = {};
+    }
+
+    on(name, listener) {
+        if (!this._events[name]) {
+            this._events[name] = [];
+        }
+
+        this._events[name].push(listener);
+    }
+
+    removeListener(name, listenerToRemove) {
+        if (!this._events[name]) {
+            throw new Error(`Can't remove a listener. Event "${name}" doesn't exits.`);
+        }
+
+        const filterListeners = (listener) => listener !== listenerToRemove;
+
+        this._events[name] = this._events[name].filter(filterListeners);
+    }
+
+    emit(name, data) {
+        if (!this._events[name]) {
+            throw new Error(`Can't emit an event. Event "${name}" doesn't exits.`);
+        }
+
+        const fireCallbacks = (callback) => {
+            callback(data);
+        };
+
+        this._events[name].forEach(fireCallbacks);
+    }
+}
+
+const messageEmitter = new MessageEmitter();
+const spawnEmitter = new MessageEmitter();
+
 const messageHandler = (messageJson) => {
     switch (messageJson.header) {
         case "SPAWN":
@@ -19,7 +59,7 @@ const messageHandler = (messageJson) => {
             break;
         case "SPAWNED":
             remoteActors[messageJson.remoteActorId] = messageJson.actualActorId;
-            document.dispatchEvent(new CustomEvent('spawn' + messageJson.remoteActorId, {}));
+            spawnEmitter.emit(messageJson.remoteActorId);
             break;
         case "MESSAGE":
             send(messageJson.name, messageJson.message);
@@ -36,10 +76,10 @@ export const init = (url, timeout, numWorkers = 1) => {
             switch (messageJson.header) {
                 case "ACK":
                     let exchanged = false;
-                    
+
                     break;
                 case "READY":
-                    
+
                     resolve(messageJson);
                     break;
                 default:
@@ -59,10 +99,12 @@ export const spawn = (state, behaviour) => {
     while (actors[name]);
     const actor = { name, node: 0, state, mailbox: [] };
     actor.state['self'] = actor;
-    document.addEventListener(name, () => {
-        let message = actor.mailbox.shift();
-        if (message !== undefined)
-            cleanedBehaviour(actor.state, message, actor.name);
+    messageEmitter.on(name, () => {
+        setTimeout(() => {
+            let message = actor.mailbox.shift();
+            if (message !== undefined)
+                cleanedBehaviour(actor.state, message, actor.name);
+        }, 0)
     });
     actors[name] = actor;
     return name;
@@ -74,7 +116,7 @@ export const spawnRemote = (node, state, behaviour, timeout) => {
         const actor = { name, node, state, mailbox: [] };
         const payload = JSON.stringify({ header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state });
         network.send(payload);
-        document.addEventListener('spawn' + name, () => {
+        spawnEmitter.on(name, () => {
             if (remoteActors[name]) {
                 actor.name = remoteActors[name];
                 actors[actor.name] = actor;
@@ -91,7 +133,7 @@ export const send = (name, message) => {
     if (actor) {
         if (actor.node === 0) {
             actor.mailbox.push(message);
-            document.dispatchEvent(new CustomEvent(actor.name, {}));
+            messageEmitter.emit(actor.name, {});
         }
         else {
             const payload = { header: "MESSAGE", name: actor.name, to: actor.node, message };
@@ -105,16 +147,11 @@ export const send = (name, message) => {
 export const terminate = (name, force = false) => {
     const actor = actors[name];
     if (actor) {
-        document.removeEventListener(actor.name);
+        messageEmitter.removeListener(actor.name);
         if (force)
             actor.mailbox = [];
         delete actors[actor.name];
     }
 };
-
-init('ws://localhost:8080', 5000).then(async () => {
-    const hi = await spawnRemote(2, {}, (state, message, self) => { console.log(message) }, 5000)
-    send(hi, { "header": "hi" })
-})
 
 export default { init, spawn, spawnRemote, terminate, send };
