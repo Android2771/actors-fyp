@@ -220,16 +220,17 @@ const send = (name: string, message: object): void => {
  * @param payload The payload to send
  */
 const forward = (payload: any): void => {
+    const modifiedPayload = { from: yourSocketNumber, ...payload}
     if (workers[payload.to] || payload.to === primary) {
         //If it is one of the neighbouring cluster nodes, forward it to the relevant node
         if (cluster.isPrimary) {
-            workers[payload.to].send({ from: yourSocketNumber, ...payload })
+            workers[payload.to].send(modifiedPayload)
         } else {
-            (<any>process).send({ from: yourSocketNumber, ...payload })
+            (<any>process).send(modifiedPayload)
         }
     } else
         //If recipient is not part of the cluster, send over the network
-        network.send(JSON.stringify({ from: yourSocketNumber, ...payload }))
+        network.send(JSON.stringify(modifiedPayload))
 }
 
 /**
