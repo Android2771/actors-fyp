@@ -5,7 +5,7 @@ const { init, spawn, spawnRemote, terminate, send} = actors
 const N = 1000000;  //Number of actors to spawn
 const rounds = process.argv.slice(2)[0];
 
-const benchmarker = spawn({rounds, times: []}, (state, message, self) => {
+const benchmarker = spawn({rounds}, (state, message, self) => {
         switch(message.header){
             case "start":
                 state.start = new Date();
@@ -24,8 +24,7 @@ const benchmarker = spawn({rounds, times: []}, (state, message, self) => {
                 state.end = new Date()
                 const time = state.end.getTime() - state.start.getTime()
                 console.log(time);
-                state.times.push(time)
-                state.rounds--;
+                    state.rounds--;
                 if(state.rounds === 0){
                     const avg = state.times.reduce((a,b) => (a+b)) / state.times.length;
                     console.log(`Average time: ${avg}ms`);

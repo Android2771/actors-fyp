@@ -18,7 +18,7 @@ const pingBehaviour = (state, message, self) => {
     }
 };
 
-const benchmarker = spawn({rounds, times: []}, (state, message, self) => {
+const benchmarker = spawn({rounds}, (state, message, self) => {
     switch(message.header){
         case "start":
             state.ping = spawn({benchmarker: self}, pingBehaviour);
@@ -32,7 +32,6 @@ const benchmarker = spawn({rounds, times: []}, (state, message, self) => {
             terminate(state.pong);
             const time = state.end.getTime() - state.start.getTime()
             console.log(time);
-            state.times.push(time)
             state.rounds--;
             if(state.rounds != 0)
                 send(self, {header: "start"})

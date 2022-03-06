@@ -1,4 +1,4 @@
-//Tests message delivery overhead
+1//Tests message delivery overhead
 import actors from '../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
@@ -17,7 +17,7 @@ const counterBehaviour = (state, message, self) => {
     }
 };
 
-const producer = spawn({rounds, times: []}, (state, message, self) => {
+const producer = spawn({rounds}, (state, message, self) => {
     switch(message.header){
         case "start":
             state.counter = spawn({i: 0}, counterBehaviour)
@@ -32,7 +32,6 @@ const producer = spawn({rounds, times: []}, (state, message, self) => {
             terminate(state.counter)
             const time = state.end.getTime() - state.start.getTime()
             console.log(time);
-            state.times.push(time)
             state.rounds--;
             if(state.rounds != 0)
                 send(self, {header: "start"})

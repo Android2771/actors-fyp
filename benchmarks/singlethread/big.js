@@ -31,7 +31,7 @@ const actorBehaviour = (state, message, self) => {
     }
 }
 
-const benchmarker = spawn({rounds, times: [], actors: []}, (state, message, self) => {
+const benchmarker = spawn({rounds, actors: []}, (state, message, self) => {
     switch(message.header){
         case "start":
             state.sink = spawn({received: 0, benchmarker}, sinkBehaviour)            
@@ -53,7 +53,6 @@ const benchmarker = spawn({rounds, times: [], actors: []}, (state, message, self
                 terminate(state.actors.pop())
             terminate(state.sink)
             console.log(time);
-            state.times.push(time)
             state.rounds--;
             if(state.rounds != 0)
                 send(self, {header: "start"})

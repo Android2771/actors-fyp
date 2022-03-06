@@ -14,7 +14,7 @@ const actorBehaviour = (state, message, self) => {
     }
 };
 
-const benchmarker = spawn({rounds, times: [], actors: []}, (state, message, self) => {
+const benchmarker = spawn({rounds, actors: []}, (state, message, self) => {
     switch(message.header){
         case "start":
             for(let i = 0; i < N; i++){
@@ -31,7 +31,6 @@ const benchmarker = spawn({rounds, times: [], actors: []}, (state, message, self
             
             const time = state.end.getTime() - state.start.getTime()
             console.log(time);
-            state.times.push(time)
             state.rounds--;
             if(state.rounds != 0)
                 send(self, {header: "start"})

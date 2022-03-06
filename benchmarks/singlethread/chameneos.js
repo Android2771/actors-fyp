@@ -41,7 +41,7 @@ const chameneosBehaviour = (state, message, self) => {
     }
 };
 
-const benchmarker = spawn({rounds, times: [], chameneosList: []}, (state, message, self) => {
+const benchmarker = spawn({rounds, chameneosList: []}, (state, message, self) => {
     switch(message.header){
         case "start":   
             state.mall = spawn({chameneosRequest: undefined, matchesLeft: N}, mallBehaviour);
@@ -64,7 +64,6 @@ const benchmarker = spawn({rounds, times: [], chameneosList: []}, (state, messag
                 terminate(state.chameneosList.pop())
             const time = state.end.getTime() - state.start.getTime()
             console.log(time);
-            state.times.push(time)
             state.rounds--;
             if(state.rounds != 0)
                 send(self, {header: "start"})

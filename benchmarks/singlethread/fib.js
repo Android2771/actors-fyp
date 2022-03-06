@@ -27,7 +27,7 @@ const behaviour = (state, message, self) => {
     }
 }
 
-const benchmarker = spawn({received: 0, times: [], rounds}, (state, message, self) => {
+const benchmarker = spawn({received: 0, rounds}, (state, message, self) => {
     state.received++;
     switch(state.received){
         case 1:
@@ -38,7 +38,6 @@ const benchmarker = spawn({received: 0, times: [], rounds}, (state, message, sel
             state.end = new Date();
             const time = state.end.getTime() - state.start.getTime()
             console.log(time);
-            state.times.push(time)
             state.rounds--;
             if(state.rounds != 0)
                 send(self, {value: N});
