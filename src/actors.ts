@@ -10,7 +10,7 @@ import process from 'process';
 const actors: { [key: string]: Actor } = {};
 let workers: { [key: number]: any } = {};
 let primary = 0;
-let yourSocketNumber = 0;
+let yourNetworkNumber = 0;
 const remoteActors: { [key: string]: string } = {};
 
 let network: any;
@@ -79,7 +79,7 @@ const init = (url: string, timeout: number, numWorkers: number = 0): Promise<obj
                             worker.on('message', (message: any) => {
                                 if (exchanged) {
                                     //Check if recipient of message is primary, if so handle
-                                    if (message.to === messageJson.yourSocketNumber)
+                                    if (message.to === messageJson.yourNetworkNumber)
                                         messageHandler(message)
                                     else {
                                         //Forward message to respective worker node
@@ -91,7 +91,7 @@ const init = (url: string, timeout: number, numWorkers: number = 0): Promise<obj
                                     workers[message] = worker;
                                     if (Object.keys(workers).length === numWorkers) {
                                         //When all workers are connected, send payload of neighbour cluster nodes
-                                        const payload = { primary: messageJson.yourSocketNumber, workers }
+                                        const payload = { primary: messageJson.yourNetworkNumber, workers }
                                         for (let id in workers)
                                             workers[id].send(payload)
 
@@ -116,10 +116,10 @@ const init = (url: string, timeout: number, numWorkers: number = 0): Promise<obj
                     }
                     break;
                 case "READY":
-                    yourSocketNumber = messageJson.yourSocketNumber;
+                    yourNetworkNumber = messageJson.yourNetworkNumber;
                     //The ready message is received by the network when all nodes connected
                     if (cluster.isWorker)
-                        (<any>process).send(messageJson.yourSocketNumber)
+                        (<any>process).send(messageJson.yourNetworkNumber)
 
                     if (numWorkers === 0)
                         resolve(messageJson);
@@ -220,7 +220,7 @@ const send = (name: string, message: object): void => {
  * @param payload The payload to send
  */
 const forward = (payload: any): void => {
-    const modifiedPayload = { from: yourSocketNumber, ...payload}
+    const modifiedPayload = { from: yourNetworkNumber, ...payload }
     if (workers[payload.to] || payload.to === primary) {
         //If it is one of the neighbouring cluster nodes, forward it to the relevant node
         if (cluster.isPrimary) {

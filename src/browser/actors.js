@@ -106,7 +106,7 @@ export const init = (url, timeout = 0x7fffffff, numWorkers = 0, workerFile) => {
                     break;
                 case "READY":
                     if(isWorker()){
-                        postMessage(messageJson.yourSocketNumber)
+                        postMessage(messageJson.yourNetworkNumber)
                     }         
                     resolve(messageJson);
                     break;

@@ -1,5 +1,5 @@
-export {}
-import {WebSocketServer} from 'ws';
+export { }
+import { WebSocketServer } from 'ws';
 const wss = new WebSocketServer({ port: 8080 });
 
 const connections: any[] = [];
@@ -13,7 +13,7 @@ wss.on('connection', (ws: any, req: any) => {
     //Get address and assign socket number
     const address: string = req.socket.remoteAddress;
     const sockNo = connections.length;
-    ws.send(JSON.stringify({"header": "ACK", yourSocketNumber: sockNo}))
+    ws.send(JSON.stringify({ "header": "ACK", yourNetworkNumber: sockNo }))
 
     //Append connection number to addresses dictionary
     if (connectionAddresses[address])
@@ -24,7 +24,7 @@ wss.on('connection', (ws: any, req: any) => {
     //If all connections done, send ready header to release barrier
     if (connections.length === expectedConnections) {
         for (let i = 0; i < connections.length; i++) {
-            connections[i].send(JSON.stringify({ "header": "READY", connectionAddresses, yourSocketNumber: i + 1 }))
+            connections[i].send(JSON.stringify({ "header": "READY", connectionAddresses, yourNetworkNumber: i + 1 }))
 
             //Forward message to respective connection
             connections[i].on('message', (message: Buffer) => {
