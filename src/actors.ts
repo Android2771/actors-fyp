@@ -81,9 +81,7 @@ const init = (url: string, timeout: number, numWorkers: number = 0): Promise<obj
                                         messageHandler(message)
                                     else{
                                         //Forward message to respective worker node
-                                        actors[message.name] = {name: message.name, node: message.to, state: {}, mailbox: []}
-                                        send(message.name, message.message)       
-                                        delete actors[message.name]                             
+                                        forward(message)                           
                                     }
                                 }
                                 else{
@@ -201,19 +199,23 @@ const send = (name: string, message: object): void => {
             messageEmitter.emit(actor.name);
         } else {
             //Create network payload
-            const payload = { header: "MESSAGE", name: actor.name, to: actor.node, message }
-
-            if(workers[actor.node] || actor.node === primary)
-                //If it is one of the neighbouring cluster nodes, forward it to the relevant node
-                if(primary === 0)
-                    workers[actor.node].send(payload)
-                else
-                    (<any>process).send(payload)
-            else
-                //If recipient is not part of the cluster, send over the network
-                network.send(JSON.stringify(payload))
+            const payload = { header: "MESSAGE", name: actor.name, to: actor.node, message }  
+            forward(payload);          
         }
     }
+}
+
+const forward = (payload: any): void => {
+    if(workers[payload.to] || payload.to === primary){
+        //If it is one of the neighbouring cluster nodes, forward it to the relevant node
+        if(cluster.isPrimary){
+            workers[payload.to].send(payload)
+        }else{
+            (<any>process).send(payload)
+        }
+    }else
+        //If recipient is not part of the cluster, send over the network
+        network.send(JSON.stringify(payload))
 }
 
 /**
