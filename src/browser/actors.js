@@ -70,7 +70,7 @@ const messageHandler = (messageJson) => {
     }
 };
 
-export const init = (url, timeout = 0x7fffffff, numWorkers = 1, workerFile) => {
+export const init = (url, timeout = 0x7fffffff, numWorkers = 0, workerFile) => {
     network = new WebSocket(url);
     return new Promise((resolve, reject) => {
         setTimeout(reject, timeout);
@@ -81,7 +81,7 @@ export const init = (url, timeout = 0x7fffffff, numWorkers = 1, workerFile) => {
                     let exchanged = false;
                     
                     if (!isWorker()) {
-                        for (let i = 0; i < numWorkers - 1; i++) {
+                        for (let i = 0; i < numWorkers; i++) {
                             const worker = new Worker(workerFile, {type: "module"});
                             worker.onmessage = (message) => {
                                 if (exchanged)

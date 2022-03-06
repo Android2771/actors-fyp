@@ -8,7 +8,8 @@ import cluster from 'cluster';
 import process from 'process';
 
 const actors: { [key: string]: Actor } = {};
-const workers: { [key: number]: any } = {};
+let workers: { [key: number]: any } = {};
+let primary = 0;
 const remoteActors: { [key: string]: string } = {};
 
 let network: any;
@@ -56,7 +57,7 @@ const messageHandler = (messageJson: any) => {
     }
 }
 
-const init = (url: string, timeout: number, numWorkers: number = 1): Promise<object> => {
+const init = (url: string, timeout: number, numWorkers: number = 0): Promise<object> => {
     network = new ws(url);
 
     //Handle incoming messages
@@ -69,24 +70,39 @@ const init = (url: string, timeout: number, numWorkers: number = 1): Promise<obj
                     //The acknowledgement sent from the server when receiving a request
                     let exchanged = false;
                     if (cluster.isPrimary) {
-                        for (let i = 0; i < numWorkers - 1; i++) {
+                        for (let i = 0; i < numWorkers; i++) {
                             const worker = cluster.fork()
-                            worker.on('message', (message: number) => {
-                                if(exchanged)
-                                    messageHandler(message)
+                            worker.on('message', (message: any) => {
+                                if(exchanged){
+                                    //Check if recipient is primary
+                                    if(message.to === messageJson.yourSocketNumber)
+                                        messageHandler(message)
+                                    else{
+                                        actors[message.name] = {name: message.name, node: message.to, state: {}, mailbox: []}
+                                        send(message.name, message.message)       
+                                        delete actors[message.name]                             
+                                    }
+                                }
                                 else{
                                     workers[message] = worker;
-                                    worker.send(messageJson.sockNo)
-                                    exchanged = true;
+                                    if(Object.keys(workers).length === numWorkers){
+                                        const payload = {primary: messageJson.yourSocketNumber, workers}
+                                        for(let id in workers){
+                                            workers[id].send(payload)
+                                        }
+
+                                        exchanged = true;
+                                    }
                                 }
                             })
                         }
                     } else {
-                        process.on('message', (message: number) => {
+                        process.on('message', (message: any) => {
                             if(exchanged)
                                 messageHandler(message)
                             else{
-                                workers[message] = process;
+                                primary = message.primary;
+                                workers = message.workers;
                                 exchanged = true;
                             }
                         })
@@ -180,8 +196,11 @@ const send = (name: string, message: object): void => {
             messageEmitter.emit(actor.name);
         } else {
             const payload = { header: "MESSAGE", name: actor.name, to: actor.node, message }
-            if(workers[actor.node])
-                workers[actor.node].send(payload)
+            if(workers[actor.node] || primary != 0)
+                if(primary === 0)
+                    workers[actor.node].send(payload)
+                else
+                    (<any>process).send(payload)
             else
                 network.send(JSON.stringify(payload))
         }

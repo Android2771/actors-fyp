@@ -29,6 +29,7 @@ wss.on('connection', (ws: any, req: any) => {
             //Forward message to respective connection
             connections[i].on('message', (message: Buffer) => {
                 const messageJson = JSON.parse(message.toString());
+                console.log(messageJson)
                 connections[messageJson.to - 1].send(JSON.stringify({ from: i + 1, ...messageJson }));
             });
         }
