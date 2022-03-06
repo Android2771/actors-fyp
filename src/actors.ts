@@ -10,6 +10,7 @@ import process from 'process';
 const actors: { [key: string]: Actor } = {};
 let workers: { [key: number]: any } = {};
 let primary = 0;
+let yourSocketNumber = 0;
 const remoteActors: { [key: string]: string } = {};
 
 let network: any;
@@ -42,7 +43,7 @@ const messageHandler = (messageJson: any) => {
             //The spawn message is received when a spawn request is sent
             const name = spawn(messageJson.state, messageJson.behaviour)
             const payload = { header: "SPAWNED", to: messageJson.from, actualActorId: name, remoteActorId: messageJson.remoteActorId }
-            network.send(JSON.stringify(payload))
+            forward(payload)
             break;
         case "SPAWNED":
             //The spawned message is received as an acknowledgement by the remote node
@@ -53,12 +54,13 @@ const messageHandler = (messageJson: any) => {
         case "MESSAGE":
             //A message addressed to a node that needs to be locally forwarded
             send(messageJson.name, messageJson.message)
-            break;            
+            break;
     }
 }
 
 const init = (url: string, timeout: number, numWorkers: number = 0): Promise<object> => {
     network = new ws(url);
+    let readyMessage: any;
 
     //Handle incoming messages
     return new Promise((resolve, reject) => {
@@ -69,52 +71,60 @@ const init = (url: string, timeout: number, numWorkers: number = 0): Promise<obj
                 case "ACK":
                     //The acknowledgement sent from the server when receiving a request
                     let exchanged = false;
-                    
+
                     //Primary node will fork workers
                     if (cluster.isPrimary) {
                         for (let i = 0; i < numWorkers; i++) {
                             const worker = cluster.fork()
                             worker.on('message', (message: any) => {
-                                if(exchanged){
+                                if (exchanged) {
                                     //Check if recipient of message is primary, if so handle
-                                    if(message.to === messageJson.yourSocketNumber)
+                                    if (message.to === messageJson.yourSocketNumber)
                                         messageHandler(message)
-                                    else{
+                                    else {
                                         //Forward message to respective worker node
-                                        forward(message)                           
+                                        forward(message)
                                     }
                                 }
-                                else{
+                                else {
                                     //Put worker object in array
                                     workers[message] = worker;
-                                    if(Object.keys(workers).length === numWorkers){
+                                    if (Object.keys(workers).length === numWorkers) {
                                         //When all workers are connected, send payload of neighbour cluster nodes
-                                        const payload = {primary: messageJson.yourSocketNumber, workers}
-                                        for(let id in workers)
-                                            workers[id].send(payload)                                        
+                                        const payload = { primary: messageJson.yourSocketNumber, workers }
+                                        for (let id in workers)
+                                            workers[id].send(payload)
 
                                         exchanged = true;
+                                        resolve(readyMessage)
                                     }
                                 }
                             })
                         }
                     } else {
                         process.on('message', (message: any) => {
-                            if(exchanged)
+                            if (exchanged)
                                 messageHandler(message)
-                            else{
+                            else {
                                 primary = message.primary;
                                 workers = message.workers;
+
                                 exchanged = true;
+                                resolve(readyMessage)
                             }
                         })
                     }
                     break;
                 case "READY":
+                    yourSocketNumber = messageJson.yourSocketNumber;
                     //The ready message is received by the network when all nodes connected
                     if (cluster.isWorker)
                         (<any>process).send(messageJson.yourSocketNumber)
-                    resolve(messageJson);
+
+                    if (numWorkers === 0)
+                        resolve(messageJson);
+                    else
+                        readyMessage = messageJson;
                     break;
                 default:
                     messageHandler(messageJson);
@@ -170,8 +180,8 @@ const spawnRemote = (node: number, state: object, behaviour: ActorCallback, time
     return new Promise((resolve, reject) => {
         const name = uuidv4()
         const actor: Actor = { name, node, state, mailbox: [] }
-        const payload = JSON.stringify({ header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state })
-        network.send(payload);
+        const payload = { header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state }
+        forward(payload);
         spawnEmitter.once(name, () => {
             if (remoteActors[name]) {
                 actor.name = remoteActors[name];
@@ -199,23 +209,27 @@ const send = (name: string, message: object): void => {
             messageEmitter.emit(actor.name);
         } else {
             //Create network payload
-            const payload = { header: "MESSAGE", name: actor.name, to: actor.node, message }  
-            forward(payload);          
+            const payload = { header: "MESSAGE", name: actor.name, to: actor.node, message }
+            forward(payload);
         }
     }
 }
 
+/**
+ * Forwards the payload using the optimal transport mechanism
+ * @param payload The payload to send
+ */
 const forward = (payload: any): void => {
-    if(workers[payload.to] || payload.to === primary){
+    if (workers[payload.to] || payload.to === primary) {
         //If it is one of the neighbouring cluster nodes, forward it to the relevant node
-        if(cluster.isPrimary){
-            workers[payload.to].send(payload)
-        }else{
-            (<any>process).send(payload)
+        if (cluster.isPrimary) {
+            workers[payload.to].send({ from: yourSocketNumber, ...payload })
+        } else {
+            (<any>process).send({ from: yourSocketNumber, ...payload })
         }
-    }else
+    } else
         //If recipient is not part of the cluster, send over the network
-        network.send(JSON.stringify(payload))
+        network.send(JSON.stringify({ from: yourSocketNumber, ...payload }))
 }
 
 /**
