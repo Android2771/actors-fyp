@@ -69,27 +69,31 @@ const init = (url: string, timeout: number, numWorkers: number = 0): Promise<obj
                 case "ACK":
                     //The acknowledgement sent from the server when receiving a request
                     let exchanged = false;
+                    
+                    //Primary node will fork workers
                     if (cluster.isPrimary) {
                         for (let i = 0; i < numWorkers; i++) {
                             const worker = cluster.fork()
                             worker.on('message', (message: any) => {
                                 if(exchanged){
-                                    //Check if recipient is primary
+                                    //Check if recipient of message is primary, if so handle
                                     if(message.to === messageJson.yourSocketNumber)
                                         messageHandler(message)
                                     else{
+                                        //Forward message to respective worker node
                                         actors[message.name] = {name: message.name, node: message.to, state: {}, mailbox: []}
                                         send(message.name, message.message)       
                                         delete actors[message.name]                             
                                     }
                                 }
                                 else{
+                                    //Put worker object in array
                                     workers[message] = worker;
                                     if(Object.keys(workers).length === numWorkers){
+                                        //When all workers are connected, send payload of neighbour cluster nodes
                                         const payload = {primary: messageJson.yourSocketNumber, workers}
-                                        for(let id in workers){
-                                            workers[id].send(payload)
-                                        }
+                                        for(let id in workers)
+                                            workers[id].send(payload)                                        
 
                                         exchanged = true;
                                     }
@@ -192,16 +196,21 @@ const send = (name: string, message: object): void => {
     const actor = actors[name];
     if (actor) {
         if (actor.node === 0) {
+            //Local send
             actor.mailbox.push(message);
             messageEmitter.emit(actor.name);
         } else {
+            //Create network payload
             const payload = { header: "MESSAGE", name: actor.name, to: actor.node, message }
+
             if(workers[actor.node] || primary != 0)
+                //If it is one of the neighbouring cluster nodes, forward it to the relevant node
                 if(primary === 0)
                     workers[actor.node].send(payload)
                 else
                     (<any>process).send(payload)
             else
+                //If recipient is not part of the cluster, send over the network
                 network.send(JSON.stringify(payload))
         }
     }
