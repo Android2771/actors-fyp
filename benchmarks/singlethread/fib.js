@@ -37,16 +37,11 @@ const benchmarker = spawn({received: 0, times: [], rounds}, (state, message, sel
         case 2:
             state.end = new Date();
             const time = state.end.getTime() - state.start.getTime()
-            console.log(`Finished calculating fib(${N}) = ${message.value} in ${time}ms`);
+            console.log(time);
             state.times.push(time)
             state.rounds--;
-            if(state.rounds === 0){
-                const avg = state.times.reduce((a,b) => (a+b)) / state.times.length;
-                console.log(`Average time: ${avg}ms`);
-            }else{
-                state.received = 0;
+            if(state.rounds != 0)
                 send(self, {value: N});
-            }
     }
 })
 

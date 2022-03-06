@@ -23,7 +23,7 @@ const benchmarker = spawn({rounds, times: []}, (state, message, self) => {
             case "end":
                 state.end = new Date()
                 const time = state.end.getTime() - state.start.getTime()
-                console.log(`Finished in ${time}ms`);
+                console.log(time);
                 state.times.push(time)
                 state.rounds--;
                 if(state.rounds === 0){
