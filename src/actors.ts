@@ -203,7 +203,7 @@ const send = (name: string, message: object): void => {
             //Create network payload
             const payload = { header: "MESSAGE", name: actor.name, to: actor.node, message }
 
-            if(workers[actor.node] || primary != 0)
+            if(workers[actor.node] || actor.node === primary)
                 //If it is one of the neighbouring cluster nodes, forward it to the relevant node
                 if(primary === 0)
                     workers[actor.node].send(payload)
