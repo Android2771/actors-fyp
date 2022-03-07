@@ -1,4 +1,5 @@
 // Tests contention on mailbox (many to many)
+import cluster from 'cluster';
 import actors from '../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send } = actors
 
@@ -9,11 +10,11 @@ const N = 1000;
 const wait = 0x7FFFFFFF
 init('ws://localhost:8080', wait, K).then(async ready => {
     if (ready.yourNetworkNumber === 1) {
-        const benchmarker = spawn({N, K, results: 0, acc: 0}, async (state, message, self) => {
-            if(message.header === "start"){
+        const benchmarker = spawn({N, K, results: 0, acc: 0, waiting: false}, async (state, message, self) => {
+            if(!state.waiting){
                 //Spawn worker actors
                 for(let i = 0; i < state.K; i++){
-                    const worker = await spawnRemote(i+2, {N: state.N}, (state, message, self) => {
+                    spawnRemote(i+2, {N: state.N}, (state, message, self) => {
                             const f = x => (1 / (x + 1)) * Math.sqrt(1 + Math.pow(Math.E, Math.sqrt(2 * x))) * Math.sin(Math.pow(x, 3) - 1);
                             const h = (message.b - message.a) / message.N;    
                             let s = f(message.a) + f(message.b);
@@ -22,13 +23,14 @@ init('ws://localhost:8080', wait, K).then(async ready => {
                                 s += 2 * f(message.a + j * h);
     
                             const output = (h/2) * s;
-                            send(message.from, {header: "output", output});
-                    });       
-                    
-                    //Load balance
-                    const a = parseInt((message.b-message.a) * (i/K)) + message.a;
-                    const b = parseInt((message.b-message.a) * ((i+1)/K)) + message.a;
-                    send(worker, {a, b, N, from: self});
+                            console.log("sent");
+                            send(message.from, {output});
+                    }).then(worker => {                    
+                        //Load balance
+                        const a = parseInt((message.b-message.a) * (i/K)) + message.a;
+                        const b = parseInt((message.b-message.a) * ((i+1)/K)) + message.a;
+                        send(worker, {a, b, N, from: self});
+                    })       
                 }
                 state.waiting = true
             }else{
@@ -40,6 +42,6 @@ init('ws://localhost:8080', wait, K).then(async ready => {
             }
         });
         
-        send(benchmarker, {header: "start", a: 0, b: K, N})
+        send(benchmarker, {a: 0, b: K, N})
     }
 })

@@ -161,7 +161,7 @@ const spawn = (state: object, behaviour: ActorCallback | string | Function): Act
         process.nextTick(() => {
             let message = actor.mailbox.shift();
             if (message !== undefined)
-                cleanedBehaviour(actor.state, message, {name: actor.name, node: actor.node, remote: false});
+                cleanedBehaviour(actor.state, message, {name: actor.name, node: actor.node});
         })
     });
 
