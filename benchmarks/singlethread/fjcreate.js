@@ -25,10 +25,7 @@ const benchmarker = spawn({rounds}, (state, message, self) => {
                 const time = state.end.getTime() - state.start.getTime()
                 console.log(time);
                     state.rounds--;
-                if(state.rounds === 0){
-                    const avg = state.times.reduce((a,b) => (a+b)) / state.times.length;
-                    console.log(`Average time: ${avg}ms`);
-                }else{
+                if(state.rounds != 0){
                     send(self, {header: "start"});
                 }
             break;

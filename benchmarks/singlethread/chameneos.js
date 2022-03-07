@@ -4,7 +4,7 @@ const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 100000;  //Number of meetings
 const C = 10;      //Number of chameneos
-const rounds = process.argv.slice(2)[0]
+const rounds = 1
 
 const mallBehaviour = (state, message, self) => {    
     if(message.benchmarker)

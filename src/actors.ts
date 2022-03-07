@@ -26,7 +26,7 @@ let network: any;
  * message object accordingly
  */
 interface ActorCallback {
-    (state: object, message: object): void
+    (state: object, message: object, self: ActorFacade): void
 }
 
 //Actor object interface
@@ -35,6 +35,12 @@ interface Actor {
     node: number,
     state: { [key: string]: any },
     mailbox: object[]
+}
+
+//Actor facade interface
+interface ActorFacade {
+    name: string,
+    node: number
 }
 
 const messageHandler = (messageJson: any) => {
@@ -53,12 +59,12 @@ const messageHandler = (messageJson: any) => {
             break;
         case "MESSAGE":
             //A message addressed to a node that needs to be locally forwarded
-            send(messageJson.name, messageJson.message)
+            send(messageJson.actor, messageJson.message)
             break;
     }
 }
 
-const init = (url: string, timeout: number, numWorkers: number = 0): Promise<object> => {
+const init = (url: string, timeout: number = 0x7fffffff, numWorkers: number = 0): Promise<object> => {
     network = new ws(url);
     let readyMessage: any;
 
@@ -141,31 +147,27 @@ const init = (url: string, timeout: number, numWorkers: number = 0): Promise<obj
  * @param behaviour The behaviour of the actor in response to a message
  * @returns The spawned actor
  */
-const spawn = (state: object, behaviour: ActorCallback | string | Function): string => {
+const spawn = (state: object, behaviour: ActorCallback | string | Function): ActorFacade => {
     const cleanedBehaviour = (typeof behaviour === "string") ?
-        behaviour = Function('return ' + behaviour)() : behaviour;
+        behaviour = Function('init', 'spawn', 'spawnRemote', 'terminate', 'send', 'return ' + behaviour)(init, spawn, spawnRemote, terminate, send) : behaviour;
 
     //Populate the context with the new actor with an empty mailbox and return the actor
     //Generate unique name
-    let name: string
-    do
-        name = uuidv4()
-    while (actors[name])
+    const name = uuidv4();
 
-    const actor: Actor = { name, node: 0, state, mailbox: [] };
-    actor.state['self'] = actor;
+    const actor: Actor = { name, node: yourNetworkNumber, state, mailbox: [] };
 
     messageEmitter.on(name, () => {
         process.nextTick(() => {
             let message = actor.mailbox.shift();
             if (message !== undefined)
-                cleanedBehaviour(actor.state, message, actor.name);
+                cleanedBehaviour(actor.state, message, {name: actor.name, node: actor.node, remote: false});
         })
     });
 
     actors[name] = actor;
 
-    return name;
+    return { name: actor.name, node: actor.node};
 }
 
 /**
@@ -176,7 +178,7 @@ const spawn = (state: object, behaviour: ActorCallback | string | Function): str
  * @param timeout How long to wait for the actor to spawn
  * @returns A promise with the resolved actor
  */
-const spawnRemote = (node: number, state: object, behaviour: ActorCallback, timeout: number): Promise<string> => {
+const spawnRemote = (node: number, state: object, behaviour: ActorCallback, timeout: number = 0x7fffffff): Promise<ActorFacade> => {
     return new Promise((resolve, reject) => {
         const name = uuidv4()
         const actor: Actor = { name, node, state, mailbox: [] }
@@ -184,10 +186,7 @@ const spawnRemote = (node: number, state: object, behaviour: ActorCallback, time
         forward(payload);
         spawnEmitter.once(name, () => {
             if (remoteActors[name]) {
-                actor.name = remoteActors[name];
-                actors[actor.name] = actor
-                delete remoteActors[name]
-                resolve(actor.name)
+                resolve({ name: actor.name, node})
             }
         });
 
@@ -200,18 +199,18 @@ const spawnRemote = (node: number, state: object, behaviour: ActorCallback, time
  * @param actor The actor to send the message to
  * @param message The message object to send to an actor
  */
-const send = (name: string, message: object): void => {
-    const actor = actors[name];
-    if (actor) {
-        if (actor.node === 0) {
-            //Local send
-            actor.mailbox.push(message);
+const send = (actor: ActorFacade, message: object): void => {
+    if (actor.node === yourNetworkNumber) {
+        const localActor = actors[actor.name]
+        //Local send
+        if(localActor){
+            localActor.mailbox.push(message);
             messageEmitter.emit(actor.name);
-        } else {
-            //Create network payload
-            const payload = { header: "MESSAGE", name: actor.name, to: actor.node, message }
-            forward(payload);
         }
+    } else {
+        //Create network payload
+        const payload = { header: "MESSAGE", actor, to: actor.node, message }
+        forward(payload);
     }
 }
 
@@ -221,12 +220,12 @@ const send = (name: string, message: object): void => {
  */
 const forward = (payload: any): void => {
     const modifiedPayload = { from: yourNetworkNumber, ...payload }
-    if (workers[payload.to] || payload.to === primary) 
+    if (workers[payload.to] || payload.to === primary)
         //If it is one of the neighbouring cluster nodes, forward it to the relevant node
         if (cluster.isPrimary)
             workers[payload.to].send(modifiedPayload)
         else
-            (<any>process).send(modifiedPayload)        
+            (<any>process).send(modifiedPayload)
     else
         //If recipient is not part of the cluster, send over the network
         network.send(JSON.stringify(modifiedPayload))
@@ -237,12 +236,12 @@ const forward = (payload: any): void => {
  * @param actor The actor to terminate
  * @param force True to immediately stop the actor, false to let it process remaining messages and terminate safely
  */
-const terminate = (name: string, force: boolean = false) => {
-    const actor = actors[name];
-    if (actor) {
+const terminate = (actor: ActorFacade, force: boolean = false) => {
+    const localActor = actors[actor.name];
+    if (localActor) {
         messageEmitter.removeAllListeners(actor.name);
         if (force)
-            actor.mailbox = []
+        localActor.mailbox = []
         delete actors[actor.name]
     }
 }
