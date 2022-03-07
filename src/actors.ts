@@ -11,7 +11,7 @@ const actors: { [key: string]: Actor } = {};
 let workers: { [key: number]: any } = {};
 let primary = 0;
 let yourNetworkNumber = 0;
-const remoteActors: { [key: string]: string } = {};
+const remoteActors: { [key: string]: ActorFacade } = {};
 
 let network: any;
 
@@ -47,8 +47,8 @@ const messageHandler = (messageJson: any) => {
     switch (messageJson.header) {
         case "SPAWN":
             //The spawn message is received when a spawn request is sent
-            const name = spawn(messageJson.state, messageJson.behaviour)
-            const payload = { header: "SPAWNED", to: messageJson.from, actualActorId: name, remoteActorId: messageJson.remoteActorId }
+            const actor = spawn(messageJson.state, messageJson.behaviour)
+            const payload = { header: "SPAWNED", to: messageJson.from, actualActorId: actor.name, remoteActorId: messageJson.remoteActorId }
             forward(payload)
             break;
         case "SPAWNED":
