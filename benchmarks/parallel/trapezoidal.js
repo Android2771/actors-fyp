@@ -4,17 +4,16 @@ const { init, spawn, spawnRemote, terminate, send } = actors
 
 //Number of workers
 const K = 4;
-const N = 1;
-
+const N = 1000;
 
 const wait = 0x7FFFFFFF
 init('ws://localhost:8080', wait, K).then(async ready => {
     if (ready.yourNetworkNumber === 1) {
-        const benchmarker = spawn({N, K, waiting: false, results: 0, acc: 0}, async (state, message, self) => {
-            if(!state.waiting){
+        const benchmarker = spawn({N, K, results: 0, acc: 0}, async (state, message, self) => {
+            if(message.header === "start"){
                 //Spawn worker actors
                 for(let i = 0; i < state.K; i++){
-                    const worker = await spawnRemote(i+2, {N: state.N, K: state.K}, (state, message, self) => {
+                    const worker = await spawnRemote(i+2, {N: state.N}, (state, message, self) => {
                             const f = x => (1 / (x + 1)) * Math.sqrt(1 + Math.pow(Math.E, Math.sqrt(2 * x))) * Math.sin(Math.pow(x, 3) - 1);
                             const h = (message.b - message.a) / message.N;    
                             let s = f(message.a) + f(message.b);
@@ -22,14 +21,14 @@ init('ws://localhost:8080', wait, K).then(async ready => {
                             for (let j = 1; j < state.N; j++)
                                 s += 2 * f(message.a + j * h);
     
-                            send(message.from, {output: (h / 2) * s});
+                            const output = (h/2) * s;
+                            send(message.from, {header: "output", output});
                     });       
                     
                     //Load balance
-                    const a = parseInt((message.b-message.a) * (i/K)) + message.a
-                    const b = parseInt((message.b-message.a) * ((i+1)/K)) + message.a
-                    self.remote = true;
-                    send(worker, {a, b, N, from: self})
+                    const a = parseInt((message.b-message.a) * (i/K)) + message.a;
+                    const b = parseInt((message.b-message.a) * ((i+1)/K)) + message.a;
+                    send(worker, {a, b, N, from: self});
                 }
                 state.waiting = true
             }else{
@@ -40,7 +39,7 @@ init('ws://localhost:8080', wait, K).then(async ready => {
                 }
             }
         });
-
-        send(benchmarker, {a: 0, b: K, N})
+        
+        send(benchmarker, {header: "start", a: 0, b: K, N})
     }
 })

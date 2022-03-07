@@ -11,7 +11,7 @@ const actors: { [key: string]: Actor } = {};
 let workers: { [key: number]: any } = {};
 let primary = 0;
 let yourNetworkNumber = 0;
-const remoteActors: { [key: string]: ActorFacade } = {};
+const remoteActors: { [key: string]: string } = {};
 
 let network: any;
 
@@ -186,7 +186,7 @@ const spawnRemote = (node: number, state: object, behaviour: ActorCallback, time
         forward(payload);
         spawnEmitter.once(name, () => {
             if (remoteActors[name]) {
-                resolve({ name: actor.name, node})
+                resolve({ name: remoteActors[name], node})
             }
         });
 
