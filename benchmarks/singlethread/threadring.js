@@ -4,7 +4,7 @@ const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10;       //Connected actors
 const H = 10000000;  //Number of hops
-const rounds = process.argv.slice(2)[0];   //Rounds
+const rounds = parseInt(process.argv.slice(2)[0]);   //Rounds
 
 const actorBehaviour = (state, message, self) => {
     if(message.val-1 < 0){

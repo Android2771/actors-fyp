@@ -23,10 +23,10 @@ function trapezoidal(a, b, n)
  
 // Range of definite integral
 let x0 = 0;
-let xn = 4;
+let xn = 32;
  
 // Number of grids. Higher
 // value means more accuracy
-let n = 1000;
+let n = 100000000;
 
 console.log(trapezoidal(x0, xn, n))

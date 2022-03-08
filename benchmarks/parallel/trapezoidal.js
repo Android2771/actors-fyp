@@ -4,9 +4,9 @@ import actors from '../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send } = actors
 
 //Number of workers
-const K = 2;
+const K = parseInt(parseInt(process.argv.slice(2)[0]));
+const rounds = parseInt(process.argv.slice(2)[1]);
 const N = 100000000;
-const rounds = 10;
 
 const wait = 0x7FFFFFFF
 init('ws://localhost:8080', wait, K).then(ready => {
@@ -16,12 +16,12 @@ init('ws://localhost:8080', wait, K).then(ready => {
                 state.start = new Date();  
                 //Spawn worker actors
                 for(let i = 0; i < state.K; i++){
-                    spawnRemote(i+2, {N: state.N}, (state, message, self) => {
+                    spawnRemote(i+2, {}, (state, message, self) => {
                             const f = x => (1 / (x + 1)) * Math.sqrt(1 + Math.pow(Math.E, Math.sqrt(2 * x))) * Math.sin(Math.pow(x, 3) - 1);
                             const h = (message.b - message.a) / message.N;    
                             let s = f(message.a) + f(message.b);
     
-                            for (let j = 1; j < state.N; j++)
+                            for (let j = 1; j < message.N; j++)
                                 s += 2 * f(message.a + j * h);
     
                             const output = (h/2) * s;
@@ -30,7 +30,7 @@ init('ws://localhost:8080', wait, K).then(ready => {
                         //Load balance
                         const a = parseInt((message.b-message.a) * (i/K)) + message.a;
                         const b = parseInt((message.b-message.a) * ((i+1)/K)) + message.a;
-                        send(worker, {a, b, N, from: self});
+                        send(worker, {a, b, N: state.N/state.K, from: self});
                     })       
                 }
                 state.waiting = true
@@ -40,12 +40,12 @@ init('ws://localhost:8080', wait, K).then(ready => {
                 //React to results
                 state.acc += message.output;
                 if(++state.results === state.K){
-                    console.log(time)
+                    console.log(time, state.acc)
                     state.results = 0
                     state.waiting = false
                     state.acc = 0
                     if(--state.rounds != 0)
-                        send(self, {a: 0, b: 32, N: state.N, K: state.K})
+                        send(self, {a: 0, b: 32})
                 }
             }
         });

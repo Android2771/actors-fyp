@@ -4,7 +4,7 @@ const wss = new WebSocketServer({ port: 8080 });
 
 const connections: any[] = [];
 const connectionAddresses: { [address: string]: number[] } = {};
-const expectedConnections: number = parseInt(process.argv.slice(2)[0]);
+const expectedConnections: number = parseInt(parseInt(process.argv.slice(2)[0]));
 
 wss.on('connection', (ws: any, req: any) => {
     connections.push(ws);
