@@ -1,5 +1,5 @@
 // Tests contention on mailbox (many to many)
-import cluster from 'cluster';
+import process from 'process';
 import actors from '../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send } = actors
 
@@ -40,12 +40,14 @@ init('ws://localhost:8080', wait, K).then(ready => {
                 //React to results
                 state.acc += message.output;
                 if(++state.results === state.K){
-                    console.log(time, state.acc)
+                    console.log(time)
                     state.results = 0
                     state.waiting = false
                     state.acc = 0
                     if(--state.rounds != 0)
                         send(self, {a: 0, b: 32})
+                    else
+                        process.exit(0)
                 }
             }
         });

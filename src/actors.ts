@@ -140,6 +140,10 @@ const init = (url: string, timeout: number = 0x7fffffff, numWorkers: number = 0)
     })
 }
 
+const closeConnection = () => {
+    network.close();
+}
+
 /**
  * Spawns an actor.
  * @param name The name of the actor
@@ -246,4 +250,4 @@ const terminate = (actor: ActorFacade, force: boolean = false) => {
     }
 }
 
-export default { init, spawn, spawnRemote, terminate, send }
+export default { init, spawn, spawnRemote, terminate, send, closeConnection }
