@@ -24,7 +24,7 @@ init('ws://localhost:8080', wait, K).then(ready => {
                     }).then(worker => {                    
                         //Load balance
                         const a = parseInt(state.N * (i/K));
-                        const b = parseInt(state.N * ((i+1)/K));
+                        const b = parseInt(state.N * ((i+1)/K))+1;
                         send(worker, {a, b, from: self});
                     })       
                 }
