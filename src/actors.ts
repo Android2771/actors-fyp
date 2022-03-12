@@ -163,7 +163,7 @@ const spawn = (state: object, behaviour: ActorCallback | string | Function): Act
 
     messageEmitter.on(name, () => {
         process.nextTick(() => {
-            let message = actor.mailbox.shift();
+            const message = actor.mailbox.shift();
             if (message !== undefined)
                 cleanedBehaviour(actor.state, message, {name: actor.name, node: actor.node});
         })
@@ -185,7 +185,6 @@ const spawn = (state: object, behaviour: ActorCallback | string | Function): Act
 const spawnRemote = (node: number, state: object, behaviour: ActorCallback, timeout: number = 0x7fffffff): Promise<ActorFacade> => {
     return new Promise((resolve, reject) => {
         const name = uuidv4()
-        const actor: Actor = { name, node, state, mailbox: [] }
         const payload = { header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state }
         forward(payload);
         spawnEmitter.once(name, () => {

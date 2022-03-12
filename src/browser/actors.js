@@ -1,6 +1,8 @@
 const actors = {};
-const workers = {};
+let workers = {};
 const remoteActors = {};
+let primary = 0;
+let yourNetworkNumber = 0;
 let network;
 
 //Taken from https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
@@ -56,59 +58,84 @@ const isWorker = () => typeof WorkerGlobalScope !== 'undefined' && self instance
 const messageHandler = (messageJson) => {
     switch (messageJson.header) {
         case "SPAWN":
-            const name = spawn(messageJson.state, messageJson.behaviour);
-            const payload = { header: "SPAWNED", to: messageJson.from, actualActorId: name, remoteActorId: messageJson.remoteActorId };
-            network.send(JSON.stringify(payload));
+            //The spawn message is received when a spawn request is sent
+            const actor = spawn(messageJson.state, messageJson.behaviour)
+            const payload = { header: "SPAWNED", to: messageJson.from, actualActorId: actor.name, remoteActorId: messageJson.remoteActorId }
+            forward(payload)
             break;
         case "SPAWNED":
+            //The spawned message is received as an acknowledgement by the remote node
+            //The message includes the name of the remote node so that it can be uniquely identified
             remoteActors[messageJson.remoteActorId] = messageJson.actualActorId;
-            spawnEmitter.emit(messageJson.remoteActorId);
+            spawnEmitter.emit(messageJson.remoteActorId)
             break;
         case "MESSAGE":
-            send(messageJson.name, messageJson.message);
+            //A message addressed to a node that needs to be locally forwarded
+            send(messageJson.actor, messageJson.message)
             break;
     }
 };
 
-export const init = (url, timeout = 0x7fffffff, numWorkers = 0, workerFile) => {
+const init = (url, timeout = 0x7fffffff, numWorkers = 0, workerFile) => {
     network = new WebSocket(url);
+    let readyMessage;
+
     return new Promise((resolve, reject) => {
         setTimeout(reject, timeout);
-        network.onmessage = (event) => {
-            const messageJson = JSON.parse(event.data.toString());
+        network.onmessage = event => {
+            const messageJson = JSON.parse(event.data);
             switch (messageJson.header) {
                 case "ACK":
                     let exchanged = false;
-                    
+
                     if (!isWorker()) {
                         for (let i = 0; i < numWorkers; i++) {
-                            const worker = new Worker(workerFile, {type: "module"});
-                            worker.onmessage = (message) => {
+                            const worker = new Worker(workerFile, { type: "module" });
+                            worker.onmessage = event => {
+                                const message = event.data;
                                 if (exchanged)
-                                    messageHandler(message);
+                                    if (message.to === messageJson.yourNetworkNumber)
+                                        messageHandler(message);
+                                    else
+                                        forward(message);
                                 else {
-                                    workers[message] = worker;
-                                    worker.postMessage(messageJson.sockNo);
-                                    exchanged = true;
+                                    workers[message] = worker;        
+                                    if (Object.keys(workers).length === numWorkers) {  
+                                        //When all workers are connected, send payload of neighbour cluster nodes
+                                        const payload = { primary: messageJson.yourNetworkNumber, workers: Object.keys(workers) }
+                                        for (let id in workers){
+                                            workers[id].postMessage(payload)
+                                        }
+
+                                        exchanged = true;
+                                        resolve(readyMessage)
+                                    }
                                 }
                             };
                         }
                     } else {
-                        onmessage = message => {
+                        onmessage = event => {
+                            const message = event.data
                             if (exchanged)
                                 messageHandler(message);
                             else {
-                                workers[message] = 0;
+                                primary = message.primary;
+                                workers = message.workers;
                                 exchanged = true;
+                                resolve(readyMessage)
                             }
                         };
                     }
                     break;
                 case "READY":
-                    if(isWorker()){
-                        postMessage(messageJson.yourNetworkNumber)
-                    }         
-                    resolve(messageJson);
+                    yourNetworkNumber = messageJson.yourNetworkNumber;
+                    if (isWorker()) 
+                        postMessage(messageJson.yourNetworkNumber)                    
+
+                    if (numWorkers === 0)
+                        resolve(messageJson);
+                    else
+                        readyMessage = messageJson;
                     break;
                 default:
                     messageHandler(messageJson);
@@ -118,71 +145,79 @@ export const init = (url, timeout = 0x7fffffff, numWorkers = 0, workerFile) => {
     });
 };
 
-export const spawn = (state, behaviour) => {
+const closeConnection = () => {
+    network.close();
+}
+
+const spawn = (state, behaviour) => {
     const cleanedBehaviour = (typeof behaviour === "string") ?
-        behaviour = Function('return ' + behaviour)() : behaviour;
-    let name;
-    do
-        name = uuidv4();
-    while (actors[name]);
-    const actor = { name, node: 0, state, mailbox: [] };
-    actor.state['self'] = actor;
+        behaviour = Function('init', 'spawn', 'spawnRemote', 'terminate', 'send', 'return ' + behaviour)(init, spawn, spawnRemote, terminate, send) : behaviour;
+    
+    const name = uuidv4();
+
+    const actor = { name, node: yourNetworkNumber, state, mailbox: [] };
+
     messageEmitter.on(name, () => {
         setTimeout(() => {
-            let message = actor.mailbox.shift();
+            const message = actor.mailbox.shift();
             if (message !== undefined)
                 cleanedBehaviour(actor.state, message, actor.name);
         }, 0)
     });
+
     actors[name] = actor;
-    return name;
+
+    return { name: actor.name, node: actor.node};
 };
 
-export const spawnRemote = (node, state, behaviour, timeout) => {
+const spawnRemote = (node, state, behaviour, timeout) => {
     return new Promise((resolve, reject) => {
         const name = uuidv4();
-        const actor = { name, node, state, mailbox: [] };
-        const payload = JSON.stringify({ header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state });
-        network.send(payload);
+        const payload = { header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state };
+        forward(payload);
         spawnEmitter.on(name, () => {
             if (remoteActors[name]) {
-                actor.name = remoteActors[name];
-                actors[actor.name] = actor;
-                delete remoteActors[name];
-                resolve(actor.name);
+                resolve({ name: remoteActors[name], node})
             }
         });
         setTimeout(() => reject(), timeout);
     });
 };
 
-export const send = (name, message) => {
-    const actor = actors[name];
-    if (actor) {
-        if (actor.node === 0) {
-            actor.mailbox.push(message);
-            messageEmitter.emit(actor.name, {});
+const send = (actor, message) => {
+    if (actor.node === yourNetworkNumber) {
+        const localActor = actors[actor.name]
+        //Local send
+        if(localActor){
+            localActor.mailbox.push(message);
+            messageEmitter.emit(actor.name);
         }
-        else {
-            const payload = { header: "MESSAGE", name: actor.name, to: actor.node, message };
-            if (workers[actor.node])
-                if(isWorker())
-                    postMessage(payload)
-                else
-                    workers[actor.node].postMessage(payload);
-            else
-                network.send(JSON.stringify(payload));
-        }
-    }
-};
-export const terminate = (name, force = false) => {
-    const actor = actors[name];
-    if (actor) {
-        messageEmitter.removeListener(actor.name);
-        if (force)
-            actor.mailbox = [];
-        delete actors[actor.name];
+    } else {
+        //Create network payload
+        const payload = { header: "MESSAGE", actor, to: actor.node, message }
+        forward(payload);
     }
 };
 
-export default { init, spawn, spawnRemote, terminate, send };
+const forward = (payload) => {
+    const modifiedPayload = Object.assign({ from: yourNetworkNumber }, payload);
+    if ((Array.isArray(workers) && workers.includes(payload.to)) || workers[payload.to] || payload.to === primary)
+        if (!isWorker())
+            workers[payload.to].postMessage(modifiedPayload);
+        else
+            postMessage(modifiedPayload);
+    else
+        network.send(JSON.stringify(modifiedPayload));
+};
+
+const terminate = (actor, force = false) => {
+    const localActor = actors[actor.name];
+    if (localActor) {
+        messageEmitter.removeAllListeners(actor.name);
+        if (force)
+        localActor.mailbox = []
+        delete actors[actor.name]
+    }
+};
+
+export default { init, spawn, spawnRemote, terminate, send, closeConnection };
