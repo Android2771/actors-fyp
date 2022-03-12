@@ -161,7 +161,7 @@ const spawn = (state, behaviour) => {
         setTimeout(() => {
             const message = actor.mailbox.shift();
             if (message !== undefined)
-                cleanedBehaviour(actor.state, message, actor.name);
+                cleanedBehaviour(actor.state, message, {name: actor.name, node: actor.node});
         }, 0)
     });
 
@@ -213,7 +213,7 @@ const forward = (payload) => {
 const terminate = (actor, force = false) => {
     const localActor = actors[actor.name];
     if (localActor) {
-        messageEmitter.removeAllListeners(actor.name);
+        messageEmitter.removeListener(actor.name);
         if (force)
         localActor.mailbox = []
         delete actors[actor.name]
