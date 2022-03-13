@@ -64,6 +64,13 @@ const messageHandler = (messageJson: any) => {
     }
 }
 
+/**
+ * Establishes the connection with a WebSocket server which links other nodes hosting actors with an optional number of spawned cluster nodes
+ * @param url The url to the WebSocket server
+ * @param timeout The amount of time to wait for the server to allow for communication with other nodes
+ * @param numWorkers The number of cluster nodes to spawn each of which will establish a connection with the server
+ * @returns 
+ */
 const init = (url: string, timeout: number = 0x7fffffff, numWorkers: number = 0): Promise<object> => {
     network = new ws(url);
     let readyMessage: any;
@@ -140,16 +147,18 @@ const init = (url: string, timeout: number = 0x7fffffff, numWorkers: number = 0)
     })
 }
 
+/**
+ * Closes the connection
+ */
 const closeConnection = () => {
     network.close();
 }
 
 /**
- * Spawns an actor.
- * @param name The name of the actor
+ * Spawns a local actor
  * @param state The initial state of the actor
  * @param behaviour The behaviour of the actor in response to a message
- * @returns The spawned actor
+ * @returns A reference to the spawned actor
  */
 const spawn = (state: object, behaviour: ActorCallback | string | Function): ActorFacade => {
     const cleanedBehaviour = (typeof behaviour === "string") ?
@@ -179,8 +188,8 @@ const spawn = (state: object, behaviour: ActorCallback | string | Function): Act
  * @param node The node referral number on the network
  * @param state The state to start the actor with
  * @param behaviour The behaviour of the actor when called
- * @param timeout How long to wait for the actor to spawn
- * @returns A promise with the resolved actor
+ * @param timeout How long to wait to receive an acknowledgement for the remotely spawned actor
+ * @returns A promise which resolves into a reference to the remote actor
  */
 const spawnRemote = (node: number, state: object, behaviour: ActorCallback, timeout: number = 0x7fffffff): Promise<ActorFacade> => {
     return new Promise((resolve, reject) => {
@@ -235,7 +244,7 @@ const forward = (payload: any): void => {
 }
 
 /**
- * Terminates an actor. Removes the actor from the context, delete the actor object from memory
+ * Terminates a local actor
  * @param actor The actor to terminate
  * @param force True to immediately stop the actor, false to let it process remaining messages and terminate safely
  */
@@ -244,7 +253,7 @@ const terminate = (actor: ActorFacade, force: boolean = false) => {
     if (localActor) {
         messageEmitter.removeAllListeners(actor.name);
         if (force)
-        localActor.mailbox = []
+            localActor.mailbox = []
         delete actors[actor.name]
     }
 }
