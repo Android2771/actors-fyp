@@ -111,7 +111,7 @@ const pong = spawn({}, pingPongBehaviour);
 send(ping, {replyTo: pong, val: 5})
 ```
 ### Single Threaded Browser
-The framework has been ported to use browsers as a platform to run actors. This [implementation](src/browser/actors.js) provides full interoperability for the exported functions between the node and browser implementations. The same code above will run in a browser.
+The framework has been ported to use browsers as a platform to run actors. This [implementation](src/browser/actors.js) provides full interoperability for the exported functions with the [node implementation](src/actors.ts). The same code above will run in a browser.
 
 ### WebSockets
 WebSocket connections facilitate the communicaiton between different nodes and browsers. All clients using the actor framework connect to a WebSocket server running the [star network implementation](src/network.js).
@@ -172,3 +172,26 @@ This will show the decrementing numbers from 5 to 0, but one should note that th
 </p>
 
 ### Multiple Threads Browser
+As previously mentioned, the [browser implementation](src/browser/actor.js) provides abstractions with full interoperability with [node's implementation](src/actor.ts) of the actor framework. The same code above will work on a browser as it makes use of [Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) instead.
+
+<p align="center">
+  <img src="documentation/readme-diagrams/webworkers.svg" />
+</p>
+
+## Adaptive and Flexible Communication
+The actor framework allows one to more easily orchestrate the communication and behaviour of nodes and browsers which may be distributed in multiple devices.
+
+The following diagram is a scenario which uses all communication links abstracted in the framework. Some links have been omitted to keep the graph neat, as a WebSocket link is established between Web Workers and the network as well as cluster worker nodes with the network.
+
+<p align="center">
+  <img src="documentation/readme-diagrams/network.svg" />
+</p>
+
+The programmer must define:
+* How many connections the network expects (if the programmer opts to not settle for single threaded implementations)
+* On which node actors are remotely spawned (custom load balancers might be required for HPC)
+
+The programmer benefits from the following:
+* The framework handles the mode of communication between actors and actor runtime
+* The programmer can have multiple nodes and browsers waiting for communication, and their behaviour can be orhcestrated from one JavaScript file.
+
