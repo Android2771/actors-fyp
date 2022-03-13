@@ -20,7 +20,8 @@ import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 ```
 
-**spawn**: Spawns a local actor with an initial state and behaviour on ceiving of a message.
+### spawn
+Spawns a local actor with an initial state and behaviour on ceiving of a message.
 
 The behaviour is specified as a function with the following parameters:
 * state: The current state of the actor
@@ -39,7 +40,8 @@ const pongBehaviour = (state, message, self) => {
 const pongReference = spawn({stateElement: "hello"}, pongBehaviour)
 ```
 
-**send**: Takes an actor reference (returned by **spawn** or spawnRemote**) and sends a message object to it.
+### send
+Takes an actor reference (returned by **spawn** or spawnRemote**) and sends a message object to it.
 
 ```js
 send(pongReference, {messageVal: "This is a message!"})
@@ -50,7 +52,8 @@ send(pongReference, {messageVal: "This is a message!"})
 terminate(pongReference)
 ```
 
-**init**: Establishes a connection with the WebSocket network server which enables connection with other processes. An optional parameter can be passed to specify the number of workers that need to be spawned, each of which will be connected to the server.
+### init
+Establishes a connection with the WebSocket network server which enables connection with other processes. An optional parameter can be passed to specify the number of workers that need to be spawned, each of which will be connected to the server.
 ```js
 const webSocketServer = 'ws://localhost:8080';
 const timeout = 10000;
@@ -65,12 +68,14 @@ init(webSocketServer, timeout, numberOfWorkers).then(ready => {
 })
 ```
 
-**closeConnection**: Closes the established WebSocket connection
+### closeConnection
+Closes the established WebSocket connection
 ```js
 closeConnection()
 ```
 
-**spawnRemote**: Spawns an actor remotely on the node specified by a rameter. The programmer will identify the node by specifying its network number as seen by the network.
+### spawnRemote
+Spawns an actor remotely on the node specified by a rameter. The programmer will identify the node by specifying its network number as seen by the network.
 
 This function can only be used following init
 ```js
@@ -186,12 +191,4 @@ The following diagram is a scenario which uses all communication links abstracte
 <p align="center">
   <img src="documentation/readme-diagrams/network.svg" />
 </p>
-
-The programmer must define:
-* How many connections the network expects (if the programmer opts to not settle for single threaded implementations)
-* On which node actors are remotely spawned (custom load balancers might be required for HPC)
-
-The programmer benefits from the following:
-* The framework handles the mode of communication between actors and actor runtime
-* The programmer can have multiple nodes and browsers waiting for communication, and their behaviour can be orhcestrated from one JavaScript file.
 
