@@ -150,7 +150,7 @@ init('ws://localhost:8080').then(async ready => {
 //Simply connect to the web socket server. This will await any remote spawns and the framework will take care of the actor runtimes
 init('ws://localhost:8080')
 ```
-As output node 2 will print out the values 5, 3, 1 for the ping actor while node 3 will print out the valeus 4, 2, 0 for the pong actor. This implementation can be reproduced by using a node application or a browser for any of the nodes. 
+As output node 2 will print out the values 5, 3, 1 for the ping actor while node 3 will print out the values 4, 2, 0 for the pong actor. This implementation can be reproduced by using a node application or a browser for any of the nodes. 
 
 Note that the orchestration of nodes 2 and 3 is managed by node 1, including the function definitions of actor behaviours which are sent through the WebSocket link.
 
