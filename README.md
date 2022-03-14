@@ -47,7 +47,8 @@ Takes an actor reference (returned by **spawn** or spawnRemote**) and sends a me
 send(pongReference, {messageVal: "This is a message!"})
 ```
 
-**terminate**: Terminates a local actor. Cannot be used to termiante remote actors.
+### terminate
+Terminates a local actor. Cannot be used to termiante remote actors.
 ```js
 terminate(pongReference)
 ```
@@ -186,7 +187,7 @@ As previously mentioned, the [browser implementation](src/browser/actor.js) prov
 ## Adaptive and Flexible Communication
 The actor framework allows one to more easily orchestrate the communication and behaviour of nodes and browsers which may be distributed in multiple devices.
 
-The following diagram is a scenario which uses all communication links abstracted in the framework. Some links have been omitted to keep the graph neat, as a WebSocket link is established between Web Workers and the network as well as cluster worker nodes with the network.
+The following diagram is a scenario which uses all communication links abstracted in the framework. Some links have been omitted to keep the graph neat, as a WebSocket link is established between Web Workers and the network as well as cluster worker nodes and the network.
 
 <p align="center">
   <img src="documentation/readme-diagrams/network.svg" />
