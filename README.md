@@ -41,7 +41,7 @@ const pongReference = spawn({stateElement: "hello"}, pongBehaviour)
 ```
 
 ### send
-Takes an actor reference (returned by **spawn** or spawnRemote**) and sends a message object to it.
+Takes an actor reference (returned by **spawn** or **spawnRemote**) and sends a message object to it.
 
 ```js
 send(pongReference, {messageVal: "This is a message!"})
