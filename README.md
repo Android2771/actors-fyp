@@ -21,7 +21,7 @@ const { init, spawn, spawnRemote, terminate, send} = actors
 ```
 
 ### spawn
-Spawns a local actor with an initial state and behaviour on ceiving of a message.
+Spawns a local actor with an initial state and behaviour on receiving of a message.
 
 The behaviour is specified as a function with the following parameters:
 * state: The current state of the actor
