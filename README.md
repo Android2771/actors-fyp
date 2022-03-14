@@ -76,7 +76,7 @@ closeConnection()
 ```
 
 ### spawnRemote
-Spawns an actor remotely on the node specified by a rameter. The programmer will identify the node by specifying its network number as seen by the network.
+Spawns an actor remotely on the node specified by a parameter. The programmer will identify the node by specifying its network number as seen by the network.
 
 This function can only be used following init
 ```js
