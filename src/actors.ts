@@ -166,7 +166,10 @@ const spawn = (state: object, behaviour: ActorCallback | string | Function): Act
 
     //Populate the context with the new actor with an empty mailbox and return the actor
     //Generate unique name
-    const name = uuidv4();
+    let name : string;
+    do
+        name = uuidv4();
+    while(actors[name])
 
     const actor: Actor = { name, node: yourNetworkNumber, state, mailbox: [] };
 

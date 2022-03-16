@@ -76,7 +76,10 @@ const messageHandler = (messageJson) => {
     }
 };
 
-const init = (url, timeout = 0x7fffffff, numWorkers = 0, workerFile) => {
+const init = (url, timeout = 0x7fffffff, numWorkers = 0) => {
+    const error = new Error();
+    //Get the file name on the caller to spawn the web worker there
+    const workerFile = error.stack.split('\n')[2].match(/[^\/]*\.js/gm)[0]
     network = new WebSocket(url);
     let readyMessage;
 
@@ -153,7 +156,10 @@ const spawn = (state, behaviour) => {
     const cleanedBehaviour = (typeof behaviour === "string") ?
         behaviour = Function('init', 'spawn', 'spawnRemote', 'terminate', 'send', 'return ' + behaviour)(init, spawn, spawnRemote, terminate, send) : behaviour;
     
-    const name = uuidv4();
+    let name 
+    do
+        name = uuidv4();
+    while(actors[name])
 
     const actor = { name, node: yourNetworkNumber, state, mailbox: [] };
 

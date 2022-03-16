@@ -7,7 +7,7 @@ const pingPongBehaviour = (state, message, self) => {
         send(message.replyTo, {val: message.val-1, replyTo: self});
 };
 //Specify timeout and number of workers to spawn
-init('ws://localhost:8080', 100000, 2, 'index.js').then(async ready => {
+init('ws://localhost:8080', 100000, 2).then(async ready => {
     //The primary node is always 1
     if(ready.yourNetworkNumber === 1){
         const ping = await spawnRemote(2, {}, pingPongBehaviour);
