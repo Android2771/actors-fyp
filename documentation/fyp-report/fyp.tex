@@ -72,34 +72,29 @@ an abstract
 \mainmatter
 
 \chapter{Introduction}
-%%you can organise your chapters into parts but this is not always necessary
-\part{Part1}
-\chapter{Body1}
+\section{Motivation}
+%Why JavaScript
+JavaScript is widely used for client applications and benefits from a growing popularity for server-side applications. Since JavaScript is a single threaded language, it lacks an intuitive way to program in a concurrent and distributed fashion. The artifact engineered in this dissertation allows developers to distribute work amongst multiple Node.js and browser runtimes. This enables devices which run browsers or Node.js applications to communicate together and concurrently solve problems.
 
-\section{section 1}
+%Why Actors
+The framework uses actors~\cite{hewitt1973session}\cite{43years} as concurrent units of computation which the developer defines and deploys either locally or remotely to other running node applications and browsers. Actors communicate with each other using messages which are stored in a queue. When a message is received an actor processes it using its defined behaviour. Actors are a good fit for JavaScript as they are both event driven. Actors treat incoming messages as events which must be processed through its behaviour while JavaScript runtime revolves around an event loop which also waits for messages to process to completion. The Actor Model has already achieved success in the telecommunications industry and is more recently used for implementing distributed systems in languages such as Erlang and Scala~\cite{haller2012integration}.
 
-\begin{definition}
-This is an example of a definition
-\end{definition}
+\section{Objectives}
+This dissertation explores the suitability of the actor model when used to reason about distributed and concurrent systems in JavaScript. The objectives of the artifact are as follows.
+\begin{enumerate}
+    \item Allow developers to define, spawn, and send messages to actors on a single thread
+    \item Extend the implementation to allow for spawning and interacting with actors on different Node.js runtimes through WebSockets
+    \item Extend the implementation to allow for spawning and interacting with actors on multiple processes using Node.js cluster
+    \item Allow the framework to be used by both browsers as well as Node.js
+    \item Benchmark several aspects of the system to assess its performance metrics
+\end{enumerate}
+\chapter{Background}
 
-\begin{example}
-This is an example of an example :)
-\end{example}
+\chapter{Design}
 
+\chapter{Evaluation}
 
-
-
-\part{Part2}
-\chapter{Body2}
-
-\section{section 2}
-\begin{proof}
-this is a proof
-\end{proof}
-
-
-\chapter{Conclusions}
-
+\chapter{Conclusion}
 
 \appendix
 
@@ -116,7 +111,7 @@ I hope you found this template useful.
 
 
 
-\bibliographystyle{abbrv}
- \bibliography{references}
+\bibliographystyle{ieeetr}
+\bibliography{references}
  
 \end{document}
