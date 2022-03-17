@@ -29,7 +29,7 @@ The behaviour is specified as a function with the following parameters:
 * self: A self reference to the actor which can be passed locally or remotely
 
 ```js
-//Function behaviour
+//Actor behaviour
 const pongBehaviour = (state, message, self) => {
     console.log("My state object is " + state)
     console.log("I'm processing the message object " + message)
