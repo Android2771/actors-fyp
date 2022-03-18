@@ -74,28 +74,28 @@ an abstract
 \chapter{Introduction}
 \section{Motivation}
 %Why JavaScript
-JavaScript is widely used for client applications and benefits from a growing popularity for server-side applications. Since JavaScript is a single threaded language, it lacks an intuitive way to program in a concurrent and distributed fashion. The artifact engineered in this dissertation allows developers to distribute work amongst multiple Node.js and browser runtimes. This enables devices which run browsers or Node.js applications to communicate with each other to concurrently solve problems.
+JavaScript is widely used for client applications on the browser and benefits from a growing popularity of server-side applications using environments such as Node.js. It is a single threaded language which lacks an intuitive way to program in a concurrent and distributed fashion. This dissertation presents a prototype that implements a JavaScript framework which allows developers to build actor-based systems~\cite{hewitt1973session}\cite{43years}. Developers can use actors as concurrent units of computation which can be deployed either locally or remotely on multiple node applications and browsers. This will allow JavaScript applications to intuitively distribute work amongst multiple processes and devices to reduce the time taken to solve a particular problem.
 
 %Why Actors
-The framework uses actors~\cite{hewitt1973session}\cite{43years} as concurrent units of computation which the developer defines and deploys either locally or remotely on other running node applications and browsers. Actors communicate with each other through messages which are stored in the receiving actor's queue. When a message is received an actor processes it by executing its defined behaviour. Actors are a good fit for JavaScript as they are both event driven. Actors treat incoming messages as events which must be processed through its behaviour while JavaScript runtime uses an event loop which also waits for events which are then processed to completion. The Actor Model has already achieved success in the telecommunications industry and is more recently used for implementing distributed systems in languages such as Erlang and Scala/Akka~\cite{haller2012integration}.
+Actors communicate with each other through messages which are stored in the receiving actor's queue. A message is processed by an actor by executing its defined actor behaviour. Since the Actor Model is event driven it is a good fit for an implementation using the JavaScript event loop. The Actor Model has already achieved success in the telecommunications industry and is more recently used for implementing distributed systems in languages such as Erlang and Scala/Akka~\cite{haller2012integration}.
 
 \section{Objectives}
-This dissertation explores the suitability of the Actor Model when used to reason about distributed and concurrent systems in JavaScript. The objectives of the artifact are as follows.
+This dissertation should explore the suitability of the Actor Model when used to reason about distributed and concurrent systems in JavaScript. The framework is suitable if it is performant, scalable and intuitive to use. The objectives of the artifact are as follows.
 \begin{enumerate}
-    \item Allow developers to easily define and spawn actors and the communication between them
-    \item Extend the implementation to allow for spawning and interacting with actors on different runtimes through WebSockets
+    \item Allow developers to easily define and spawn actors and the communication between them through the framework API
+    \item Extend the framework implementation to allow for spawning and interacting with actors on different Node.js processes through WebSockets
     \item Extend the implementation to allow for spawning and interacting with actors on multiple processes using Node.js cluster
-    \item Allow the framework to be used by both browsers as well as Node.js, while providing full interoperability for the developers using the framework
+    \item Allow the framework to be used by both browsers as well as Node.js, while providing full interoperability for the code using the framework
     \item Provide location transparency when dealing with actor references. Interacting with a local actor should be the same as interacting with a remote actor
-    \item Benchmark several aspects of the system to assess its performance and scalability as well as its network footprint.
+    \item Benchmark the performance and scalability as well as the network footprint of the framework
 \end{enumerate}
 
 \chapter{Background}
-\subsection{The Importance of Concurrency on JavaScript}
-Some tasks may require significant computational power to execute. By writing concurrent code, a developer is able to write applications that utilise multiple threads, cores, or devices. If some tasks require input from the user or other tasks, resources can be allocated to the working tasks instead. JavaScript and Node.js do not rely on multithreading to support concurrent execution of such tasks~\cite{highperformance}, which is an issue when high performance computing is required. However, Web Workers and child processes~\cite{concurrencyjs}\cite{spidersjs} can be used to bring parallel computation to the language and uses a similar philosophy to that of the actor model.
+\subsection{Concurrency and Parallelism on JavaScript}
+By writing parallel code, a developer is able to write applications that utilise multiple threads, cores, or devices. This reduces the amount of time required to process a computationally intensive task. If some tasks require input from the user or other tasks, resources can be given to the working tasks instead. JavaScript and Node.js do not rely on multithreading to support concurrent execution of such tasks~\cite{highperformance}, which is an issue when high performance computing is required. However, Web Workers and child processes~\cite{concurrencyjs}\cite{spidersjs} can be used to bring parallel computation to the language and uses a similar philosophy to that of the actor model. Both involve independently running tasks which communicate through messaging in order to allow collaboration in solving a particular problem.
 \subsection{The History of the Actor Model}
-The Actor Model was first presented as a concurrency model in 1973 by Carl Hewitt~\cite{hewitt1973session}. Actors were refined by Gul A. Agha in 1985~\cite{agha1985actors} as computational agents which map incoming communication to a certain behaviour. This behaviour may be commuincating with other actors, decide how to handle the next message and creating new actors. Since then, the Actor model has been integrated into mainstream programming languages such as Akka, Scala and Erlang~\cite{43years}\cite{haller2012integration}. Note that the actor model has evolved from only being characterised by three primitives~\cite{agha1985actors}. Since then, different variants and philosophies of the actor model have been integrated into modern languages to suit their respective requirements. The success of the Actor model may be attributed to its message driven and isolated nature which allows for easier concurrent programming, and their resilience against failure as actors are isolated and can be easily replicated by other actors\cite{reactivemanifesto}.
-\subsection{Studies on bringing the Actor Model onto JavaScript}
+The Actor Model was first presented as a concurrency model in 1973 by Carl Hewitt~\cite{hewitt1973session}. Actors were refined by Gul A. Agha in 1985~\cite{agha1985actors} as computational agents which map incoming communication to a certain behaviour. This behaviour may be commuincating with other actors, decide how to handle the next message and creating new actors. Since then, the Actor model has been integrated into mainstream programming languages such as Akka, Scala and Erlang~\cite{43years}\cite{haller2012integration}. The actor model evolved from only being characterised by three primitives~\cite{agha1985actors}. Since then, different variants and philosophies of the actor model have been integrated into modern languages to suit their respective requirements. The success of the Actor model may be attributed to its message driven and isolated nature which allows for more intuitive concurrent programming. The model also provides resilience against failure as actors are isolated and can be easily replicated by other actors\cite{reactivemanifesto}.
+\subsection{Similar Work}
 A notable project called \textbf{Akka.js}~\cite{stivan2015akka} allows developers to cross-compile Akka to JavaScript browsers and server-side runtimes. This framework allows developers to build distributed applications through separate browsers using WebRTC. It also incentivises developers to only have to be knowledgeable with Scala to deploy applications on both the browser and the server.
 
 A project which is more similar to the aims of this dissertation is called \textbf{Spiders.js}~\cite{spidersjs}. While Akka.js focused on the original actor model~\cite{agha1985actors} and the active objects model (an object-oriented focused actor model), Spiders.js focuses on the Communicating Event-loops model which differs in a number of ways. The paper identifies the problem of different API's being used for web workers and child processes, both of which are inspired by the actor model for constructing parallel systems using JavaScript. The project is focused on defining a single actor model API despite if it's a client or server-side application. The paper benchmarks the usage of Spiders.js against JavaScript native web workers as well as the actor creation overhead for both. The results are in favour of using web workers for such tasks.
@@ -184,10 +184,19 @@ The \textbf{spawnRemote} function sends a request to spawn an actor to the remot
 Location transparency is provided when obtaining the remotely spawned actor references. The developer can invoke \textbf{send} on the ping actor and the framework will use Cluster IPC to forward the message to the node. In response to this message, the actor's behaviour will then send a message to the pong actor using the reference that it was sent by the primary node. The actor resides in the worker node and it wishes to send this message to an actor residing in a different worker node in the same cluster. It will send the message to the primary node (network number 1) which will then forward it to the recipient worker node.
 
 \section{Actor Runtime}
-\subsection{Node.js}
+The JavaScript event loop is responsible for executing the application code~\cite{eventloopbrowser}. The runtime has a queue of messages where each message is mapped to a function which processes that message. The event loop waits for a message and processes the queue of messages when there is a backlog. Each message is processed to completion before more recent messages sare processed. The Actor Model also maps messages onto functions which act as message handlers. The framework's implementation takes advantage of the similar philosophies between the JavaScript runtime and the Actor Model.
 
-\subsection{Browser}
-
+The actors maintain their own message queue. Once a message is received by an actor, it will schedule the processing of the message before the next event loop tick starts~\cite{nexttick}.
+\begin{code}
+messageEmitter.on(name, () => {
+    process.nextTick(() => {
+        const message = actor.mailbox.shift();
+        if (message !== undefined)
+            cleanedBehaviour(actor.state, message, 
+            {name: actor.name, node: actor.node});
+    })
+});
+\end{code}
 \chapter{Evaluation}
 
 \chapter{Conclusion}
