@@ -7,57 +7,57 @@
         let primary = 0;
         let yourNetworkNumber = 0;
         let network;
-
+        
         //Taken from https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
         function uuidv4() {
             return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
                 (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
             );
         }
-
+        
         //Taken from https://betterprogramming.pub/how-to-create-your-own-event-emitter-in-javascript-fbd5db2447c4
         class MessageEmitter {
             constructor() {
                 this._events = {};
             }
-
+        
             on(name, listener) {
                 if (!this._events[name]) {
                     this._events[name] = [];
                 }
-
+        
                 this._events[name].push(listener);
             }
-
+        
             removeListener(name, listenerToRemove) {
                 if (!this._events[name]) {
                     throw new Error(`Can't remove a listener. Event "${name}" doesn't exits.`);
                 }
-
+        
                 const filterListeners = (listener) => listener !== listenerToRemove;
-
+        
                 this._events[name] = this._events[name].filter(filterListeners);
             }
-
+        
             emit(name, data) {
                 if (!this._events[name]) {
                     throw new Error(`Can't emit an event. Event "${name}" doesn't exits.`);
                 }
-
+        
                 const fireCallbacks = (callback) => {
                     callback(data);
                 };
-
+        
                 this._events[name].forEach(fireCallbacks);
             }
         }
-
+        
         const messageEmitter = new MessageEmitter();
         const spawnEmitter = new MessageEmitter();
-
+        
         //Adapted from https://stackoverflow.com/questions/7931182/reliably-detect-if-the-script-is-executing-in-a-web-worker
         const isWorker = () => typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope
-
+        
         const messageHandler = (messageJson) => {
             switch (messageJson.header) {
                 case "SPAWN":
@@ -78,14 +78,14 @@
                     break;
             }
         };
-
+        
         const init = (url, timeout = 0x7fffffff, numWorkers = 0) => {
             const error = new Error();
             //Get the file name on the caller to spawn the web worker there
             const workerFile = error.stack.split('\n')[2].match(/[^\/]*\.js/gm)[0]
             network = new WebSocket(url);
             let readyMessage;
-
+        
             return new Promise((resolve, reject) => {
                 setTimeout(reject, timeout);
                 network.onmessage = event => {
@@ -93,7 +93,7 @@
                     switch (messageJson.header) {
                         case "ACK":
                             let exchanged = false;
-
+        
                             if (!isWorker()) {
                                 for (let i = 0; i < numWorkers; i++) {
                                     const worker = new Worker(workerFile, { type: "module" });
@@ -112,7 +112,7 @@
                                                 for (let id in workers){
                                                     workers[id].postMessage(payload)
                                                 }
-
+        
                                                 exchanged = true;
                                                 resolve(readyMessage)
                                             }
@@ -137,7 +137,7 @@
                             yourNetworkNumber = messageJson.yourNetworkNumber;
                             if (isWorker()) 
                                 postMessage(messageJson.yourNetworkNumber)                    
-
+        
                             if (numWorkers === 0)
                                 resolve(messageJson);
                             else
@@ -150,11 +150,11 @@
                 };
             });
         };
-
+        
         const closeConnection = () => {
             network.close();
         }
-
+        
         const spawn = (state, behaviour) => {
             const cleanedBehaviour = (typeof behaviour === "string") ?
                 behaviour = Function('init', 'spawn', 'spawnRemote', 'terminate', 'send', 'return ' + behaviour)(init, spawn, spawnRemote, terminate, send) : behaviour;
@@ -163,22 +163,22 @@
             do
                 name = uuidv4();
             while(actors[name])
-
+        
             const actor = { name, node: yourNetworkNumber, state, mailbox: [] };
-
+        
             messageEmitter.on(name, () => {
-                setTimeout(() => {
+                Promise.resolve().then(() => {
                     const message = actor.mailbox.shift();
                     if (message !== undefined)
                         cleanedBehaviour(actor.state, message, {name: actor.name, node: actor.node});
                 }, 0)
             });
-
+        
             actors[name] = actor;
-
+        
             return { name: actor.name, node: actor.node};
         };
-
+        
         const spawnRemote = (node, state, behaviour, timeout) => {
             return new Promise((resolve, reject) => {
                 const name = uuidv4();
@@ -192,7 +192,7 @@
                 setTimeout(() => reject(), timeout);
             });
         };
-
+        
         const send = (actor, message) => {
             if (actor.node === yourNetworkNumber) {
                 const localActor = actors[actor.name]
@@ -207,7 +207,7 @@
                 forward(payload);
             }
         };
-
+        
         const forward = (payload) => {
             const modifiedPayload = Object.assign({ from: yourNetworkNumber }, payload);
             if ((Array.isArray(workers) && workers.includes(payload.to)) || workers[payload.to] || payload.to === primary)
@@ -218,7 +218,7 @@
             else
                 network.send(JSON.stringify(modifiedPayload));
         };
-
+        
         const terminate = (actor, force = false) => {
             const localActor = actors[actor.name];
             if (localActor) {

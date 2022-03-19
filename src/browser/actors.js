@@ -164,7 +164,7 @@ const spawn = (state, behaviour) => {
     const actor = { name, node: yourNetworkNumber, state, mailbox: [] };
 
     messageEmitter.on(name, () => {
-        setTimeout(() => {
+        Promise.resolve().then(() => {
             const message = actor.mailbox.shift();
             if (message !== undefined)
                 cleanedBehaviour(actor.state, message, {name: actor.name, node: actor.node});
