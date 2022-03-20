@@ -39,6 +39,7 @@ const benchmarker = spawn({received: 0, rounds}, (state, message, self) => {
             const time = state.end.getTime() - state.start.getTime()
             console.log(time);
             state.rounds--;
+            state.received = 0;
             if(state.rounds != 0)
                 send(self, {value: N});
     }

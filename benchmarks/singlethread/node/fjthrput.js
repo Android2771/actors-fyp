@@ -1,5 +1,5 @@
 // Tests messaging throughput
-import actors from '../../src/actors.js';
+import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 20000;  //total messages to send to each actor

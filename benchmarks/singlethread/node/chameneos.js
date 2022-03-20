@@ -1,5 +1,5 @@
 // Tests contention on mailbox (many to one)
-import actors from '../../src/actors.js';
+import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 100000;  //Number of meetings
