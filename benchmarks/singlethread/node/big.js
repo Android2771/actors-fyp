@@ -4,7 +4,7 @@ const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10;   //Number of actors
 const P = 30000;   //Number of pings
-const rounds = parseInt(process.argv.slice(2)[0]);
+const rounds = 100;
 
 const sinkBehaviour = (state, message, self) => {
     if(state.received < N-1){

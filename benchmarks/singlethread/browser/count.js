@@ -1,9 +1,9 @@
-1//Tests message delivery overhead
+//Tests message delivery overhead
 import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 100000;  //Successive messages to be sent
-const rounds = parseInt(process.argv.slice(2)[0]);   //Rounds
+const rounds = 100;   //Rounds
 
 const counterBehaviour = (state, message, self) => {
     switch(message.header){
