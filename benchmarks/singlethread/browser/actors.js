@@ -12,40 +12,23 @@ function uuidv4() {
     );
 }
 
-//Taken from https://betterprogramming.pub/how-to-create-your-own-event-emitter-in-javascript-fbd5db2447c4
+//Adapted from https://betterprogramming.pub/how-to-create-your-own-event-emitter-in-javascript-fbd5db2447c4
 class MessageEmitter {
     constructor() {
-        this._events = {};
+        this.events = {};
     }
 
     on(name, listener) {
-        if (!this._events[name]) {
-            this._events[name] = [];
-        }
-
-        this._events[name].push(listener);
+        this.events[name] = listener;
     }
 
-    removeListener(name, listenerToRemove) {
-        if (!this._events[name]) {
-            throw new Error(`Can't remove a listener. Event "${name}" doesn't exits.`);
-        }
-
-        const filterListeners = (listener) => listener !== listenerToRemove;
-
-        this._events[name] = this._events[name].filter(filterListeners);
+    removeListener(name) {
+        delete this.events[name];
     }
 
-    emit(name, data) {
-        if (!this._events[name]) {
-            throw new Error(`Can't emit an event. Event "${name}" doesn't exits.`);
-        }
-
-        const fireCallbacks = (callback) => {
-            callback(data);
-        };
-
-        this._events[name].forEach(fireCallbacks);
+    emit(name) {
+        if (this.events[name])
+            this.events[name]();      
     }
 }
 
