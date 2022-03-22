@@ -2,9 +2,9 @@
 import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 100000;  //Number of meetings
+const N = 1400000;  //Number of meetings
 const C = 10;      //Number of chameneos
-const rounds = 5;
+const rounds = 1;
 
 const mallBehaviour = (state, message, self) => {    
     if(message.benchmarker)
@@ -44,6 +44,7 @@ const chameneosBehaviour = (state, message, self) => {
 const benchmarker = spawn({rounds, chameneosList: []}, (state, message, self) => {
     switch(message.header){
         case "start":   
+            state.start = new Date();    
             state.mall = spawn({chameneosRequest: undefined, matchesLeft: N}, mallBehaviour);
             send(state.mall, {benchmarker: self})   
 
@@ -51,19 +52,19 @@ const benchmarker = spawn({rounds, chameneosList: []}, (state, message, self) =>
                 const chameneos = spawn({mall: state.mall}, chameneosBehaviour)
                 state.chameneosList.push(chameneos);       
             }
-
-            state.start = new Date();    
             
             state.chameneosList.forEach(item => {                
                 send(item, {header: "send"})     
             })
         break;
         case "end":
-            state.end = new Date();
             for(let i = 0; i < C; i++)
                 terminate(state.chameneosList.pop())
+
+            state.end = new Date();
             const time = state.end.getTime() - state.start.getTime()
             console.log(time);
+            
             state.rounds--;
             if(state.rounds != 0)
                 send(self, {header: "start"})

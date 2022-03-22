@@ -2,8 +2,8 @@
 import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 25;    //fibonnachi index
-const rounds = 5;
+const N = 30;    //fibonnachi index
+const rounds = 1;
 
 const behaviour = (state, message, self) => {
     state.received++;
@@ -37,7 +37,8 @@ const benchmarker = spawn({received: 0, rounds}, (state, message, self) => {
         case 2:
             state.end = new Date();
             const time = state.end.getTime() - state.start.getTime()
-            console.log(time, message.value);
+            console.log(time);
+
             state.rounds--;
             state.received = 0;
             if(state.rounds != 0)

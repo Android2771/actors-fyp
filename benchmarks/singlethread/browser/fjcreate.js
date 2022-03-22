@@ -2,8 +2,8 @@
 import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 1000000;  //Number of actors to spawn
-const rounds = 5;
+const N = 3000000;  //Number of actors to spawn
+const rounds = 1;
 
 const benchmarker = spawn({rounds}, (state, message, self) => {
         switch(message.header){
@@ -24,7 +24,8 @@ const benchmarker = spawn({rounds}, (state, message, self) => {
                 state.end = new Date()
                 const time = state.end.getTime() - state.start.getTime()
                 console.log(time);
-                    state.rounds--;
+                
+                state.rounds--;
                 if(state.rounds != 0){
                     send(self, {header: "start"});
                 }

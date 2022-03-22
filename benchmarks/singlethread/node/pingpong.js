@@ -2,7 +2,7 @@
 import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 10000000;   //Number of sends
+const N = 100000000;   //Number of sends
 const rounds = parseInt(process.argv.slice(2)[0]);    //Rounds of benchmark
 
 const pongBehaviour = (state, message, self) => {
@@ -21,17 +21,19 @@ const pingBehaviour = (state, message, self) => {
 const benchmarker = spawn({rounds}, (state, message, self) => {
     switch(message.header){
         case "start":
+            state.start = new Date();
             state.ping = spawn({benchmarker: self}, pingBehaviour);
             state.pong = spawn({}, pongBehaviour);
-            state.start = new Date();
             send(state.ping, {val: N, sender: state.pong, benchmarker: self});
         break;
         case "end":
-            state.end = new Date();
             terminate(state.ping);
             terminate(state.pong);
+
+            state.end = new Date();
             const time = state.end.getTime() - state.start.getTime()
             console.log(time);
+            
             state.rounds--;
             if(state.rounds != 0)
                 send(self, {header: "start"})

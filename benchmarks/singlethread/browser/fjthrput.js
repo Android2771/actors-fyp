@@ -2,14 +2,15 @@
 import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 20000;  //total messages to send to each actor
+const N = 1000000;  //total messages to send to each actor
 const K = 10;       //total number of actors to spawn
-const rounds = 5;
+const rounds = 1;
 
 const benchmarker = spawn({rounds, actors: [], messagesToSend: N*K}, (state, message, self) => {
 
     switch(message.header){
-        case "start":         
+        case "start":        
+            state.start = new Date(); 
             for(let i = 0; i < K-1; i++){
                 state.actors.push(spawn({i: 0, N}, (state, message, self) => {
                     if(++state.i >= N)
@@ -25,15 +26,16 @@ const benchmarker = spawn({rounds, actors: [], messagesToSend: N*K}, (state, mes
                 }
             }));
 
-            state.start = new Date(); 
             for(let i = 0; i < state.messagesToSend; i++)
                 send(state.actors[i % K], {sender: self})            
         break;
         case "end":
-            state.end = new Date()
             state.actors = []
+
+            state.end = new Date()
             const time = state.end.getTime() - state.start.getTime()
             console.log(time);
+            
             state.rounds--;
             if(state.rounds != 0)
                 send(self, {header: "start"})
