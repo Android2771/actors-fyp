@@ -4,7 +4,7 @@ const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 20000;  //total messages to send to each actor
 const K = 10;       //total number of actors to spawn
-const rounds = parseInt(process.argv.slice(2)[0]);
+const rounds = 100;
 
 const benchmarker = spawn({rounds, actors: [], messagesToSend: N*K}, (state, message, self) => {
 

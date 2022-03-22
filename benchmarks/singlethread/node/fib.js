@@ -3,7 +3,11 @@ import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 30;    //fibonnachi index
+<<<<<<< HEAD
 const rounds = parseInt(process.argv.slice(2)[0]);
+=======
+const rounds = 100;
+>>>>>>> 5a084eab5db1b256813e4aec939b5ac0fad7511b
 
 const behaviour = (state, message, self) => {
     state.received++;
