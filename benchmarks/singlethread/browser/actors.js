@@ -4,13 +4,8 @@ const remoteActors = {};
 let primary = 0;
 let yourNetworkNumber = 0;
 let network;
-
-//Taken from https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
-function uuidv4() {
-    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-    );
-}
+//Provided by https://www.npmjs.com/package/uuid
+import uuidv4 from './uuid/v4.js';
 
 //Adapted from https://betterprogramming.pub/how-to-create-your-own-event-emitter-in-javascript-fbd5db2447c4
 class MessageEmitter {
@@ -28,11 +23,10 @@ class MessageEmitter {
 
     emit(name) {
         if (this.events[name])
-            this.events[name]();      
+            this.events[name]();
     }
 }
 
-const messageEmitter = new MessageEmitter();
 const spawnEmitter = new MessageEmitter();
 
 //Adapted from https://stackoverflow.com/questions/7931182/reliably-detect-if-the-script-is-executing-in-a-web-worker
@@ -85,11 +79,11 @@ const init = (url, timeout = 0x7fffffff, numWorkers = 0) => {
                                     else
                                         forward(message);
                                 else {
-                                    workers[message] = worker;        
-                                    if (Object.keys(workers).length === numWorkers) {  
+                                    workers[message] = worker;
+                                    if (Object.keys(workers).length === numWorkers) {
                                         //When all workers are connected, send payload of neighbour cluster nodes
                                         const payload = { primary: messageJson.yourNetworkNumber, workers: Object.keys(workers) }
-                                        for (let id in workers){
+                                        for (let id in workers) {
                                             workers[id].postMessage(payload)
                                         }
 
@@ -115,8 +109,8 @@ const init = (url, timeout = 0x7fffffff, numWorkers = 0) => {
                     break;
                 case "READY":
                     yourNetworkNumber = messageJson.yourNetworkNumber;
-                    if (isWorker()) 
-                        postMessage(messageJson.yourNetworkNumber)                    
+                    if (isWorker())
+                        postMessage(messageJson.yourNetworkNumber)
 
                     if (numWorkers === 0)
                         resolve(messageJson);
@@ -138,17 +132,16 @@ const closeConnection = () => {
 const spawn = (state, behaviour) => {
     const cleanedBehaviour = (typeof behaviour === "string") ?
         behaviour = Function('init', 'spawn', 'spawnRemote', 'terminate', 'send', 'return ' + behaviour)(init, spawn, spawnRemote, terminate, send) : behaviour;
-    
-    let name 
+
+    let name;
     do
         name = uuidv4();
-    while(actors[name])
+    while (actors[name]);
 
     const actor = { name, node: yourNetworkNumber, state, behaviour: cleanedBehaviour, active: true };
-
     actors[name] = actor;
 
-    return { name: actor.name, node: actor.node};
+    return { name: actor.name, node: actor.node };
 };
 
 const spawnRemote = (node, state, behaviour, timeout) => {
@@ -158,7 +151,7 @@ const spawnRemote = (node, state, behaviour, timeout) => {
         forward(payload);
         spawnEmitter.on(name, () => {
             if (remoteActors[name]) {
-                resolve({ name: remoteActors[name], node})
+                resolve({ name: remoteActors[name], node })
             }
         });
         setTimeout(() => reject(), timeout);
@@ -167,17 +160,17 @@ const spawnRemote = (node, state, behaviour, timeout) => {
 
 const send = (actor, message) => {
     if (actor.node === yourNetworkNumber) {
-        const localActor = actors[actor.name]
-        //Local send
-        if(localActor){
+        const localActor = actors[actor.name];
+
+        if (localActor) {
             Promise.resolve().then(() => {
                 if (message !== undefined && localActor.active)
-                    localActor.behaviour(localActor.state, message, {name: localActor.name, node: localActor.node});
-            })
+                    localActor.behaviour(localActor.state, message, { name: localActor.name, node: localActor.node });
+            });
         }
-    } else {
-        //Create network payload
-        const payload = { header: "MESSAGE", actor, to: actor.node, message }
+    }
+    else {
+        const payload = { header: "MESSAGE", actor, to: actor.node, message };
         forward(payload);
     }
 };
@@ -196,8 +189,8 @@ const forward = (payload) => {
 const terminate = (actor, force = false) => {
     const localActor = actors[actor.name];
     if (localActor) {
-        localActor.active = !force
-        delete actors[actor.name]
+        localActor.active = !force;
+        delete actors[actor.name];
     }
 };
 
