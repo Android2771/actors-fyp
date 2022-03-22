@@ -3,13 +3,8 @@ import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10;       //Connected actors
-<<<<<<< HEAD
 const H = 100000000;  //Number of hops
 const rounds = parseInt(process.argv.slice(2)[0]);   //Rounds
-=======
-const H = 10000000;  //Number of hops
-const rounds = 100;   //Rounds
->>>>>>> 5a084eab5db1b256813e4aec939b5ac0fad7511b
 
 const actorBehaviour = (state, message, self) => {
     if(message.val-1 < 0){

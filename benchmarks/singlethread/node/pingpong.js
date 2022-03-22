@@ -2,13 +2,8 @@
 import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-<<<<<<< HEAD
 const N = 100000000;   //Number of sends
 const rounds = parseInt(process.argv.slice(2)[0]);    //Rounds of benchmark
-=======
-const N = 10000000;   //Number of sends
-const rounds = 100;    //Rounds of benchmark
->>>>>>> 5a084eab5db1b256813e4aec939b5ac0fad7511b
 
 const pongBehaviour = (state, message, self) => {
     if(!(message.val-1 < 0))
