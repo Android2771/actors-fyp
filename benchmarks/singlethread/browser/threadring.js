@@ -3,7 +3,7 @@ import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10;       //Connected actors
-const H = 10000000;  //Number of hops
+const H = 100000000;  //Number of hops
 const rounds = 100;
 
 const actorBehaviour = (state, message, self) => {

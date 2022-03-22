@@ -2,7 +2,7 @@
 import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 10000000;   //Number of sends
+const N = 100000000;   //Number of sends
 const rounds = 100;
 
 const pongBehaviour = (state, message, self) => {

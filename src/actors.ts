@@ -1,6 +1,5 @@
 import EventEmitter from 'events';
 class MessageEmitter extends EventEmitter { }
-const messageEmitter = new MessageEmitter();
 const spawnEmitter = new MessageEmitter();
 import ws from 'ws';
 import { v4 as uuidv4 } from 'uuid';
@@ -34,7 +33,8 @@ interface Actor {
     name: string,
     node: number,
     state: { [key: string]: any },
-    mailbox: object[]
+    behaviour: ActorCallback,
+    active: boolean
 }
 
 //Actor facade interface
@@ -171,15 +171,7 @@ const spawn = (state: object, behaviour: ActorCallback | string | Function): Act
         name = uuidv4();
     while(actors[name])
 
-    const actor: Actor = { name, node: yourNetworkNumber, state, mailbox: [] };
-
-    messageEmitter.on(name, () => {
-        Promise.resolve().then(() => {
-            const message = actor.mailbox.shift();
-            if (message !== undefined)
-                cleanedBehaviour(actor.state, message, {name: actor.name, node: actor.node});
-        })
-    });
+    const actor: Actor = { name, node: yourNetworkNumber, state, behaviour: cleanedBehaviour, active: true };
 
     actors[name] = actor;
 
@@ -218,9 +210,11 @@ const send = (actor: ActorFacade, message: object): void => {
     if (actor.node === yourNetworkNumber) {
         const localActor = actors[actor.name]
         //Local send
-        if(localActor){
-            localActor.mailbox.push(message);
-            messageEmitter.emit(actor.name);
+        if(localActor){           
+            Promise.resolve().then(() => {
+                if (message !== undefined && localActor.active)
+                    localActor.behaviour(localActor.state, message, {name: localActor.name, node: localActor.node});
+            })
         }
     } else {
         //Create network payload
@@ -254,9 +248,7 @@ const forward = (payload: any): void => {
 const terminate = (actor: ActorFacade, force: boolean = false) => {
     const localActor = actors[actor.name];
     if (localActor) {
-        messageEmitter.removeAllListeners(actor.name);
-        if (force)
-            localActor.mailbox = []
+        localActor.active = !force;
         delete actors[actor.name]
     }
 }
