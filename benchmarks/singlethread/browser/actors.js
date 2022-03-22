@@ -144,15 +144,7 @@ const spawn = (state, behaviour) => {
         name = uuidv4();
     while(actors[name])
 
-    const actor = { name, node: yourNetworkNumber, state, mailbox: [] };
-
-    messageEmitter.on(name, () => {
-        Promise.resolve().then(() => {
-            const message = actor.mailbox.shift();
-            if (message !== undefined)
-                cleanedBehaviour(actor.state, message, {name: actor.name, node: actor.node});
-        }, 0)
-    });
+    const actor = { name, node: yourNetworkNumber, state, behaviour: cleanedBehaviour, active: true };
 
     actors[name] = actor;
 
@@ -178,8 +170,10 @@ const send = (actor, message) => {
         const localActor = actors[actor.name]
         //Local send
         if(localActor){
-            localActor.mailbox.push(message);
-            messageEmitter.emit(actor.name);
+            Promise.resolve().then(() => {
+                if (message !== undefined && localActor.active)
+                    localActor.behaviour(localActor.state, message, {name: localActor.name, node: localActor.node});
+            })
         }
     } else {
         //Create network payload
@@ -202,9 +196,7 @@ const forward = (payload) => {
 const terminate = (actor, force = false) => {
     const localActor = actors[actor.name];
     if (localActor) {
-        messageEmitter.removeListener(actor.name);
-        if (force)
-        localActor.mailbox = []
+        localActor.active = !force
         delete actors[actor.name]
     }
 };
