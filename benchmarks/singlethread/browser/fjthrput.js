@@ -2,9 +2,9 @@
 import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 1000000;  //total messages to send to each actor
+const N = 2000000;  //total messages to send to each actor
 const K = 10;       //total number of actors to spawn
-const rounds = 100;
+const rounds = 1;
 
 const benchmarker = spawn({rounds, actors: [], messagesToSend: N*K}, (state, message, self) => {
 

@@ -3,8 +3,8 @@ import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10;   //Number of actors
-const P = 600000;   //Number of pings
-const rounds = 100;
+const P = 1000000;   //Number of pings
+const rounds = 1;
 
 const sinkBehaviour = (state, message, self) => {
     if(state.received < N-1){

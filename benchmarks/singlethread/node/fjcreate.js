@@ -2,7 +2,7 @@
 import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 3000000;  //Number of actors to spawn
+const N = 6000000;  //Number of actors to spawn
 const rounds = parseInt(process.argv.slice(2)[0]);
 
 const benchmarker = spawn({rounds}, (state, message, self) => {

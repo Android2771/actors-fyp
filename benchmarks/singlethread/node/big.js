@@ -3,7 +3,7 @@ import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10;   //Number of actors
-const P = 600000;   //Number of pings
+const P = 1000000;   //Number of pings
 const rounds = parseInt(process.argv.slice(2)[0]);
 
 const sinkBehaviour = (state, message, self) => {
