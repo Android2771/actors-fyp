@@ -152,6 +152,7 @@ const init = (url: string, timeout: number = 0x7fffffff, numWorkers: number = 0)
  */
 const closeConnection = () => {
     network.close();
+    process.exit();
 }
 
 /**
