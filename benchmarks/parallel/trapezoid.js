@@ -35,11 +35,11 @@ init('ws://localhost:8080', wait, K).then(ready => {
                 }
                 state.waiting = true
             }else{
-                state.end = new Date()
-                const time = state.end.getTime() - state.start.getTime()
                 //React to results
                 state.acc += message.output;
                 if(++state.results === state.K){
+                    state.end = new Date()
+                    const time = state.end.getTime() - state.start.getTime()
                     console.log(time)
                     state.results = 0
                     state.waiting = false

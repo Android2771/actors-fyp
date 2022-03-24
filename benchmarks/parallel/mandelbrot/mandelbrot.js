@@ -2,6 +2,19 @@ import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 import fs from 'fs';
 
+const constants = {
+    width: 12000,
+    height: 8000,
+    realStart: -2,
+    realEnd: 1,
+    imaginaryStart: -1,
+    imaginaryEnd: 1,
+    iterations: 80
+}
+
+const K = parseInt(process.argv.slice(2)[0]);
+const output = process.argv.slice(2)[1] === "true"
+
 const rowRendererBehaviour = (state, message, self) => {
     const add = (x, y) => ({re: x.re + y.re, im: x.im + y.im});   
     const mul = (x, y) => ({re: x.re*y.re - x.im*y.im, im: x.re*y.im + x.im*y.re}); 
@@ -30,23 +43,12 @@ const rowRendererBehaviour = (state, message, self) => {
     send(message.sender, {header: "ROW", pixelRow, x: message.x, from: self});
 };
 
-const constants = {
-    width: 600,
-    height: 400,
-    realStart: -2,
-    realEnd: 1,
-    imaginaryStart: -1,
-    imaginaryEnd: 1,
-    iterations: 80
-}
-
-const K = parseInt(parseInt(process.argv.slice(2)[0]));
-
 init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {    
     if(ready.yourNetworkNumber === 1){
         const imageRenderer = spawn({constants, rowRendererBehaviour, responses: {}, image: [], receivedColumns: 0, nextColumn: 0, actors: []}, (state, message, self) => {
             switch(message.header){
                 case "START":
+                    state.start = new Date();  
                     //Spawn actors and initial fan out of work
                     state.nextColumn = K;
                     for(let i = 2; i <= K+1; i++){
@@ -63,7 +65,13 @@ init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {
                             if(i > 0)
                                 state.image.push(state.responses[i]);
                         
-                        fs.writeFile("mandelbrot.json", JSON.stringify(state.image), err => {closeConnection()});                        
+                        state.end = new Date();
+                        const time = state.end.getTime() - state.start.getTime();
+                        console.log(time);
+                        if(output)                            
+                            fs.writeFile("mandelbrot.json", JSON.stringify(state.image), err => {closeConnection()});                        
+                        else
+                            closeConnection();
                     }else{
                         if(++state.nextColumn <= state.constants.width){      
                             send(message.from, {x: state.nextColumn, sender: self});
