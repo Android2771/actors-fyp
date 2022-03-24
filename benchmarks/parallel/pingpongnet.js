@@ -3,7 +3,7 @@ import actors from '../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10000;   //Number of sends
-const rounds = 10;    //Rounds of benchmark
+const rounds = 1000;    //Rounds of benchmark
 
 const pongBehaviour = (state, message, self) => {
     if(!(message.val-1 < 0))
