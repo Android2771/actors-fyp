@@ -44,27 +44,30 @@ const K = parseInt(parseInt(process.argv.slice(2)[0]));
 
 init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {    
     if(ready.yourNetworkNumber === 1){
-        const imageRenderer = spawn({constants, rowRendererBehaviour, responses: {}, image: [], receivedRows: 0, nextRow: 0, actors: []}, (state, message, self) => {
+        const imageRenderer = spawn({constants, rowRendererBehaviour, responses: {}, image: [], receivedColumns: 0, nextColumn: 0, actors: []}, (state, message, self) => {
             switch(message.header){
                 case "START":
                     //Spawn actors and initial fan out of work
+                    state.nextColumn = K;
                     for(let i = 2; i <= K+1; i++){
                         spawnRemote(i, state.constants, state.rowRendererBehaviour).then(actor => {
                             state.actors.push(actor);
-                            send(actor, {x: ++state.nextRow, sender: self});  
+                            send(actor, {x: i-1, sender: self});  
                         });
                     }                
                 break;
                 case "ROW":
                     state.responses[message.x] = message.pixelRow;
-                    if(++state.receivedRows === state.constants.width){
+                    if(++state.receivedColumns === state.constants.width){
                         for(let i in Object.keys(state.responses))
                             if(i > 0)
                                 state.image.push(state.responses[i]);
                         
                         fs.writeFile("mandelbrot.json", JSON.stringify(state.image), err => {closeConnection()});                        
                     }else{
-                        send(message.from, {x: ++state.nextRow, sender: self});
+                        if(++state.nextColumn <= state.constants.width){      
+                            send(message.from, {x: state.nextColumn, sender: self});
+                        }
                     }
                 break;
             }
