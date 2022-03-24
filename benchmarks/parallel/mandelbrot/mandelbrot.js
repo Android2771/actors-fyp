@@ -40,7 +40,7 @@ const constants = {
     iterations: 80
 }
 
-const K = 1;
+const K = parseInt(parseInt(process.argv.slice(2)[0]));
 
 init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {    
     if(ready.yourNetworkNumber === 1){
@@ -48,7 +48,7 @@ init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {
             switch(message.header){
                 case "START":
                     //Spawn actors and initial fan out of work
-                    for(let i = 1; i <= K; i++){
+                    for(let i = 2; i <= K+1; i++){
                         spawnRemote(i, state.constants, state.rowRendererBehaviour).then(actor => {
                             state.actors.push(actor);
                             send(actor, {x: ++state.nextRow, sender: self});  
