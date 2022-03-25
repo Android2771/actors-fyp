@@ -3,8 +3,8 @@ const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 import fs from 'fs';
 
 const constants = {
-    width: 12000,
-    height: 8000,
+    width: 600,
+    height: 400,
     realStart: -2,
     realEnd: 1,
     imaginaryStart: -1,
@@ -30,52 +30,55 @@ const rowRendererBehaviour = (state, message, self) => {
         return n;
     };
 
-    const pixelRow = [];
-
-    for(let y = 0; y < state.height; y++){
-        const c = {re: state.realStart + (message.x / state.width) * (state.realEnd - state.realStart),
-                   im: state.imaginaryStart + (y / state.height) * (state.imaginaryEnd - state.imaginaryStart)};
-        const m = mandelbrot(c);
-        const colour = 255 - parseInt(m * 255 / state.iterations);
-        pixelRow.push(colour);
+    const chunk = [];
+    for(let y = message.start; y < message.end; y++){
+        const column = [];
+        for(let x = 0; x < state.width; x++){
+            const c = {re: state.realStart + (x / state.width) * (state.realEnd - state.realStart),
+                    im: state.imaginaryStart + (y / state.height) * (state.imaginaryEnd - state.imaginaryStart)};
+            const m = mandelbrot(c);
+            const colour = 255 - parseInt(m * 255 / state.iterations);
+            column.push(colour);
+        }
+        chunk.push(column);
     }
 
-    send(message.sender, {header: "ROW", pixelRow, x: message.x, from: self});
+
+    send(message.sender, {header: "CHUNK", chunk, start: message.start, end: message.end, from: self, i: message.i});
 };
 
 init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {    
     if(ready.yourNetworkNumber === 1){
-        const imageRenderer = spawn({constants, rowRendererBehaviour, responses: {}, image: [], receivedColumns: 0, nextColumn: 0, actors: []}, (state, message, self) => {
+        const imageRenderer = spawn({constants, rowRendererBehaviour, responses: {}, image: [], receivedChunks: 0, actors: []}, (state, message, self) => {
             switch(message.header){
                 case "START":
                     state.start = new Date();  
                     //Spawn actors and initial fan out of work
                     state.nextColumn = K;
-                    for(let i = 2; i <= K+1; i++){
-                        spawnRemote(i, state.constants, state.rowRendererBehaviour).then(actor => {
+                    for(let i = 1; i <= K; i++){
+                        spawnRemote(i+1, state.constants, state.rowRendererBehaviour).then(actor => {
                             state.actors.push(actor);
-                            send(actor, {x: i-1, sender: self});  
+                            const start = (i-1)*(state.constants.height/K);
+                            const end = i*(state.constants.height/K);
+                            send(actor, {start, end, sender: self, i: i-1});  
                         });
                     }                
                 break;
-                case "ROW":
-                    state.responses[message.x] = message.pixelRow;
-                    if(++state.receivedColumns === state.constants.width){
-                        for(let i in Object.keys(state.responses))
-                            if(i > 0)
-                                state.image.push(state.responses[i]);
-                        
+                case "CHUNK":
+                    state.responses[message.i] = message.chunk;
+                    if(++state.receivedChunks === K){
                         state.end = new Date();
                         const time = state.end.getTime() - state.start.getTime();
                         console.log(time);
+
+                        for(let i in Object.keys(state.responses))
+                            for(const row of state.responses[i])
+                                state.image.push(row);
+
                         if(output)                            
                             fs.writeFile("mandelbrot.json", JSON.stringify(state.image), err => {closeConnection()});                        
                         else
                             closeConnection();
-                    }else{
-                        if(++state.nextColumn <= state.constants.width){      
-                            send(message.from, {x: state.nextColumn, sender: self});
-                        }
                     }
                 break;
             }
