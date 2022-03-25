@@ -60,7 +60,7 @@ init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {
                 break;
                 case "ROW":
                     state.responses[message.y] = message.pixelRow;
-                    if(++state.receivedRows === state.constants.height){
+                    if(++state.receivedRows > state.constants.height){
                         for(let i in Object.keys(state.responses))
                             if(i > 0)
                                 state.image.push(state.responses[i]);
@@ -72,10 +72,8 @@ init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {
                             fs.writeFile("mandelbrot.json", JSON.stringify(state.image), err => {closeConnection()});                        
                         else
                             closeConnection();
-                    }else{
-                        if(++state.nextRow <= state.constants.height){      
-                            send(message.from, {y: state.nextRow, sender: self});
-                        }
+                    }else if(state.nextRow++ <= state.constants.height){                              
+                        send(message.from, {y: state.nextRow, sender: self});
                     }
                 break;
             }
