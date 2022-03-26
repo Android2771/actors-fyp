@@ -1,10 +1,10 @@
 // Tests contention on mailbox (many to one)
-import actors from './actors.js';
+import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 2400000;  //Number of meetings
 const C = 10;      //Number of chameneos
-const rounds = 100;
+const rounds = 1;
 
 const mallBehaviour = (state, message, self) => {    
     if(message.benchmarker)

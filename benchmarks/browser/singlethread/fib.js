@@ -1,9 +1,9 @@
 // Tests incremental actor creation and destruction
-import actors from './actors.js';
+import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 30;    //fibonnachi index
-const rounds = 100;
+const rounds = 1;
 
 const behaviour = (state, message, self) => {
     state.received++;

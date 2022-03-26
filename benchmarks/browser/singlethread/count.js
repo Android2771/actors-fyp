@@ -1,9 +1,9 @@
 //Tests message delivery overhead
-import actors from './actors.js';
+import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 15000000;  //Successive messages to be sent
-const rounds = 100;   //Rounds
+const rounds = 1;   //Rounds
 
 const counterBehaviour = (state, message, self) => {
     switch(message.header){

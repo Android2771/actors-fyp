@@ -1,10 +1,10 @@
 //Tests message sending and context switching bewteen actors
-import actors from './actors.js';
+import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10;       //Connected actors
 const H = 200000000;  //Number of hops
-const rounds = 100;   //Rounds
+const rounds = 1;   //Rounds
 
 const actorBehaviour = (state, message, self) => {
     if(message.val-1 < 0){
