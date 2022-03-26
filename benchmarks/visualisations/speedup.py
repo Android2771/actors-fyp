@@ -18,7 +18,7 @@ for processes in keys:
             node_data[processes].append(int(line.strip()))
 
 keys = keys[:len(keys)-1]
-node_speedup = [np.average(node_data[1])/np.average(node_data[key]) for key in node_data.keys()]
+node_speedup = [np.average(node_data[1])/np.average(node_data[key]) for key in keys]
 print(node_speedup)
 #Plot graph and make it look nice
 df = pandas.DataFrame(dict(graph=keys,
