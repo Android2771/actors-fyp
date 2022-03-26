@@ -144,7 +144,7 @@ const spawn = (state, behaviour) => {
     return { name: actor.name, node: actor.node };
 };
 
-const spawnRemote = (node, state, behaviour, timeout) => {
+const spawnRemote = (node, state, behaviour, timeout = 0x7fffffff) => {
     return new Promise((resolve, reject) => {
         const name = uuidv4();
         const payload = { header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state };

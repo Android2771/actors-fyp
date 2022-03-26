@@ -2,8 +2,8 @@ import actors from '../../actors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 
 const constants = {
-    width: 600,
-    height: 400,
+    width: 12000,
+    height: 8000,
     realStart: -2,
     realEnd: 1,
     imaginaryStart: -1,
@@ -11,7 +11,7 @@ const constants = {
     iterations: 80
 }
 
-const K = 4;
+const K = 32;
 const rounds = 100;
 
 const rowRendererBehaviour = (state, message, self) => {
