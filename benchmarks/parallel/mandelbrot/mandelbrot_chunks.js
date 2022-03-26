@@ -3,8 +3,8 @@ const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 import fs from 'fs';
 
 const constants = {
-    width: 12000,
-    height: 8000,
+    width: 600,
+    height: 400,
     realStart: -2,
     realEnd: 1,
     imaginaryStart: -1,
@@ -13,6 +13,7 @@ const constants = {
 }
 
 const K = parseInt(process.argv.slice(2)[0]);
+const rounds = parseInt(process.argv.slice(2)[1]);
 const output = process.argv.slice(2)[1] === "true"
 
 const rowRendererBehaviour = (state, message, self) => {
@@ -49,7 +50,7 @@ const rowRendererBehaviour = (state, message, self) => {
 
 init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {    
     if(ready.yourNetworkNumber === 1){
-        const imageRenderer = spawn({constants, rowRendererBehaviour, responses: {}, image: [], receivedChunks: 0, actors: []}, (state, message, self) => {
+        const imageRenderer = spawn({rounds, constants, rowRendererBehaviour, responses: {}, image: [], receivedChunks: 0, actors: []}, (state, message, self) => {
             switch(message.header){
                 case "START":
                     state.start = new Date();  
@@ -77,8 +78,15 @@ init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {
 
                         if(output)                            
                             fs.writeFile("mandelbrot.json", JSON.stringify(state.image), err => {closeConnection()});                        
-                        else
-                            closeConnection();
+                        else if(--state.rounds != 0){
+                                state.image = [];
+                                state.responses = {};
+                                state.receivedChunks = 0;
+                                state.actors = [];
+                                send(self, {header: "START"})
+                            }
+                            else
+                                closeConnection();
                     }
                 break;
             }

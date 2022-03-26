@@ -4,13 +4,10 @@ mkdir results
 export NODE_OPTIONS=--max-old-space-size=4192;
 
 run_benchmark(){
-    for _ in {1..100}
-    do
-        node ../../../src/network.js $(($1+1)) &
-        sleep 1
-        node mandelbrot_chunks.js $1 false >> results/$2.txt
-        kill %%
-    done
+    node ../../../src/network.js $(($1+1)) 100 &
+    sleep 1
+    node mandelbrot_chunks.js $1 false >> results/$2.txt
+    kill %%
 }
 
 run_benchmark 1 "mandelbrot_1worker"
