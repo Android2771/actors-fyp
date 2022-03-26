@@ -53,10 +53,10 @@ const messageHandler = (messageJson) => {
     }
 };
 
-const init = (url, timeout = 0x7fffffff, numWorkers = 0) => {
+const init = (url, timeout = 0x7fffffff, numWorkers = 0, file) => {
     const error = new Error();
     //Get the file name on the caller to spawn the web worker there
-    const workerFile = error.stack.split('\n')[2].match(/[^\/]*\.js/gm)[0]
+    const workerFile = file ?? error.stack.split('\n')[2].match(/[^\/]*\.js/gm)[0]
     network = new WebSocket(url);
     let readyMessage;
 

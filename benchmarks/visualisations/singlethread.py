@@ -7,7 +7,7 @@ import re
 #Declare vars
 node_data = {}
 browser_data = {}
-node_directory = '../singlethread/node/results'
+node_directory = '../node/singlethread/results'
 
 #Scrape node results
 for filename in os.listdir(node_directory):
@@ -23,7 +23,7 @@ node_averages = [np.average(node_data[key]) for key in node_data.keys()]
 node_errors = [np.std(node_data[key])/np.sqrt(np.size(node_data[key])) for key in node_data.keys()]
 
 #Scrape browser results
-with open('./chrome_debug.log') as f:
+with open('chrome_debug.log') as f:
     for line in f.readlines():
         sanitized_line = line.strip()
         if '.js ' in sanitized_line:
@@ -57,4 +57,4 @@ ax.legend()
 plt.title('Single Threaded Benchmarks Node.js and Browser Comparision')
 plt.ylabel('Benchmark')
 plt.xlabel('Time to execute (ms)')
-plt.savefig('plot.png')
+plt.savefig('singlethread.png')
