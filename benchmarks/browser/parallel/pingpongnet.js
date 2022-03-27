@@ -1,9 +1,9 @@
 //Tests message passing overhead
-import actors from '../../../src/actors.js';
+import actors from '../../actors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection} = actors
 
 const N = 100000;   //Number of sends
-const rounds = parseInt(process.argv.slice(2)[0]);    //Rounds of benchmark
+const rounds = 100;    //Rounds of benchmark
 
 const pongBehaviour = (state, message, self) => {
     if(!(message.val-1 < 0))
@@ -18,7 +18,7 @@ const pingBehaviour = (state, message, self) => {
     }
 };
 
-init('ws://localhost:8080', 0x7FFFFFFF, 2).then(ready => {
+init('ws://localhost:8080').then(ready => {
     if (ready.yourNetworkNumber === 1) {
         const benchmarker = spawn({rounds}, async (state, message, self) => {
             switch(message.header){
