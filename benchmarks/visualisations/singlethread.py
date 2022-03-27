@@ -23,7 +23,7 @@ node_averages = [np.average(node_data[key]) for key in node_data.keys()]
 node_errors = [np.std(node_data[key])/np.sqrt(np.size(node_data[key])) for key in node_data.keys()]
 
 #Scrape browser results
-with open('chrome_debug.log') as f:
+with open('../browser/singlethread/chrome_debug.log') as f:
     for line in f.readlines():
         sanitized_line = line.strip()
         if '.js ' in sanitized_line:
