@@ -1,5 +1,5 @@
 //Tests message passing overhead
-import actors from '../../src/actors.js';
+import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10000;   //Number of sends

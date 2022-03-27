@@ -3,7 +3,7 @@
 mkdir results
 
 run_benchmark(){
-    node ../../src/network.js $(($1+1)) &
+    node ../../../src/network.js $(($1+1)) &
     node piprecision.js $1 $2 >> results/$3.txt
     kill %%
 }

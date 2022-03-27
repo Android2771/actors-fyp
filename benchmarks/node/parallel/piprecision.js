@@ -1,7 +1,7 @@
 // Tests contention on mailbox (many to many)
 import process from 'process';
-import actors from '../../src/actors.js';
-const { init, spawn, spawnRemote, terminate, send } = actors
+import actors from '../../../src/actors.js';
+const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 
 //Number of workers
 const K = parseInt(parseInt(process.argv.slice(2)[0]));
@@ -42,7 +42,7 @@ init('ws://localhost:8080', wait, K).then(ready => {
                     if(--state.rounds != 0)
                         send(self, {})
                     else
-                        process.exit(0)
+                        closeConnection()
                 }
             }
         });

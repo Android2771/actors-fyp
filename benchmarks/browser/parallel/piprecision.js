@@ -1,15 +1,14 @@
 // Tests contention on mailbox (many to many)
-import process from 'process';
-import actors from '../../../src/actors.js';
+import actors from '../../actors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 
 //Number of workers
-const K = parseInt(parseInt(process.argv.slice(2)[0]));
-const rounds = parseInt(process.argv.slice(2)[1]);
+const K = 32;
+const rounds = 100;
 const N = 100000000;
 
 const wait = 0x7FFFFFFF
-init('ws://localhost:8080', wait, K).then(ready => {
+init('ws://localhost:8080', wait, K, './parallel/piprecision.js').then(ready => {
     if (ready.yourNetworkNumber === 1) {
         const benchmarker = spawn({rounds, N, K, results: 0, acc: 0, waiting: false}, (state, message, self) => {
             if(!state.waiting){
@@ -17,20 +16,15 @@ init('ws://localhost:8080', wait, K).then(ready => {
                 //Spawn worker actors
                 for(let i = 0; i < state.K; i++){
                     spawnRemote(i+2, {}, (state, message, self) => {
-                            const f = x => (1 / (x + 1)) * Math.sqrt(1 + Math.pow(Math.E, Math.sqrt(2 * x))) * Math.sin(Math.pow(x, 3) - 1);
-                            const h = (message.b - message.a) / message.N;    
-                            let s = f(message.a) + f(message.b);
-    
-                            for (let j = 1; j < message.N; j++)
-                                s += 2 * f(message.a + j * h);
-    
-                            const output = (h/2) * s;
+                            let output = 0;
+                            for(let j = message.a; j <= message.b; j++)
+                                output += (4/(8*j+1)-2/(8*j+4)-1/(8*j+5)-1/(8*j+6))*Math.pow(1/16, j);
                             send(message.from, {output});
                     }).then(worker => {                    
                         //Load balance
-                        const a = parseInt((message.b-message.a) * (i/K)) + message.a;
-                        const b = parseInt((message.b-message.a) * ((i+1)/K)) + message.a;
-                        send(worker, {a, b, N: state.N/state.K, from: self});
+                        const a = parseInt(state.N * (i/K));
+                        const b = parseInt(state.N * ((i+1)/K))+1;
+                        send(worker, {a, b, from: self});
                     })       
                 }
                 state.waiting = true
@@ -45,13 +39,13 @@ init('ws://localhost:8080', wait, K).then(ready => {
                     state.waiting = false
                     state.acc = 0
                     if(--state.rounds != 0)
-                        send(self, {a: 0, b: 32})
+                        send(self, {})
                     else
                         closeConnection()
                 }
             }
         });
         
-        send(benchmarker, {a: 0, b: 32})
+        send(benchmarker, {})
     }
-})
+});

@@ -1,15 +1,14 @@
 // Tests contention on mailbox (many to many)
-import process from 'process';
-import actors from '../../../src/actors.js';
+import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 
 //Number of workers
-const K = parseInt(parseInt(process.argv.slice(2)[0]));
-const rounds = parseInt(process.argv.slice(2)[1]);
+const K = 1;
+const rounds = 100;
 const N = 100000000;
 
 const wait = 0x7FFFFFFF
-init('ws://localhost:8080', wait, K).then(ready => {
+init('ws://localhost:8080', wait, K, './parallel/trapezoid.js').then(ready => {
     if (ready.yourNetworkNumber === 1) {
         const benchmarker = spawn({rounds, N, K, results: 0, acc: 0, waiting: false}, (state, message, self) => {
             if(!state.waiting){
