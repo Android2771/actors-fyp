@@ -8,9 +8,9 @@ run_benchmark(){
     kill %%
 }
 
-run_benchmark 1 100 "pipresicion_1worker"
-run_benchmark 2 100 "pipresicion_2worker"
-run_benchmark 4 100 "pipresicion_4worker"
-run_benchmark 8 100 "pipresicion_8worker"
-run_benchmark 16 100 "pipresicion_16worker"
-run_benchmark 32 100 "pipresicion_32worker"
+run_benchmark 1 100 "piprecision_1worker"
+run_benchmark 2 100 "piprecision_2worker"
+run_benchmark 4 100 "piprecision_4worker"
+run_benchmark 8 100 "piprecision_8worker"
+run_benchmark 16 100 "piprecision_16worker"
+run_benchmark 32 100 "piprecision_32worker"
