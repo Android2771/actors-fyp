@@ -1,6 +1,3 @@
-import EventEmitter from 'events';
-class MessageEmitter extends EventEmitter { }
-const spawnEmitter = new MessageEmitter();
 import ws from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 import cluster from 'cluster';
@@ -13,6 +10,21 @@ let yourNetworkNumber = 0;
 const remoteActors: { [key: string]: string } = {};
 
 let network: any;
+
+const events : {[key:string]: any} = {};
+
+const on = (name : string, listener : Function) => {
+    events[name] = listener;
+}
+
+const removeListener = (name: string) => {
+    delete events[name];
+}
+
+const emit = (name: string) => {
+    if(events[name])
+        events[name]();
+}
 
 /**
  * state: The current state of the actor
@@ -55,7 +67,7 @@ const messageHandler = (messageJson: any) => {
             //The spawned message is received as an acknowledgement by the remote node
             //The message includes the name of the remote node so that it can be uniquely identified
             remoteActors[messageJson.remoteActorId] = messageJson.actualActorId;
-            spawnEmitter.emit(messageJson.remoteActorId)
+            emit(messageJson.remoteActorId)
             break;
         case "MESSAGE":
             //A message addressed to a node that needs to be locally forwarded
@@ -192,7 +204,7 @@ const spawnRemote = (node: number, state: object, behaviour: ActorCallback, time
         const name = uuidv4()
         const payload = { header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state }
         forward(payload);
-        spawnEmitter.once(name, () => {
+        on(name, () => {
             if (remoteActors[name]) {
                 resolve({ name: remoteActors[name], node})
             }
@@ -249,6 +261,7 @@ const forward = (payload: any): void => {
 const terminate = (actor: ActorFacade, force: boolean = false) => {
     const localActor = actors[actor.name];
     if (localActor) {
+        removeListener(localActor.name)
         localActor.active = !force;
         delete actors[actor.name]
     }

@@ -1,33 +1,26 @@
+import uuidv4 from './uuid/v4.js';
+
 const actors = {};
 let workers = {};
 const remoteActors = {};
 let primary = 0;
 let yourNetworkNumber = 0;
 let network;
-//Provided by https://www.npmjs.com/package/uuid
-import uuidv4 from './uuid/v4.js';
 
-//Adapted from https://betterprogramming.pub/how-to-create-your-own-event-emitter-in-javascript-fbd5db2447c4
-class MessageEmitter {
-    constructor() {
-        this.events = {};
-    }
+const events = {};
 
-    on(name, listener) {
-        this.events[name] = listener;
-    }
-
-    removeListener(name) {
-        delete this.events[name];
-    }
-
-    emit(name) {
-        if (this.events[name])
-            this.events[name]();
-    }
+const on = (name , listener) => {
+    events[name] = listener;
 }
 
-const spawnEmitter = new MessageEmitter();
+const removeListener = (name) => {
+    delete events[name];
+}
+
+const emit = (name) => {
+    if(events[name])
+        events[name]();
+}
 
 //Adapted from https://stackoverflow.com/questions/7931182/reliably-detect-if-the-script-is-executing-in-a-web-worker
 const isWorker = () => typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope
@@ -44,7 +37,7 @@ const messageHandler = (messageJson) => {
             //The spawned message is received as an acknowledgement by the remote node
             //The message includes the name of the remote node so that it can be uniquely identified
             remoteActors[messageJson.remoteActorId] = messageJson.actualActorId;
-            spawnEmitter.emit(messageJson.remoteActorId)
+            emit(messageJson.remoteActorId)
             break;
         case "MESSAGE":
             //A message addressed to a node that needs to be locally forwarded
@@ -149,7 +142,7 @@ const spawnRemote = (node, state, behaviour, timeout = 0x7fffffff) => {
         const name = uuidv4();
         const payload = { header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state };
         forward(payload);
-        spawnEmitter.on(name, () => {
+        on(name, () => {
             if (remoteActors[name]) {
                 resolve({ name: remoteActors[name], node })
             }
@@ -189,6 +182,7 @@ const forward = (payload) => {
 const terminate = (actor, force = false) => {
     const localActor = actors[actor.name];
     if (localActor) {
+        removeListener(localActor.name)
         localActor.active = !force;
         delete actors[actor.name];
     }
