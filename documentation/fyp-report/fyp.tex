@@ -12,11 +12,49 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 
+\usepackage{pdfpages}
+\usepackage{amssymb}
+\usepackage{graphicx}
 \usepackage{listings}
+\usepackage{proof}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{rotating}
+\usepackage{float}
+\usepackage{tikz}
 
-%%this environment is useful if you have code snippets
-\newenvironment{code}
-{\footnotesize\verbatim}{\endverbatim\normalfont}
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, let, const, if, in, while, do, else, case, break},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]
+}
+
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{purple},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3,
+  numbers=left
+}
 
 %%the following environments are useful to present proofs in your thesis
 \theoremstyle{definition}
@@ -84,17 +122,18 @@ Actors~\cite{hewitt1973session}\cite{43years} communicate with each other throug
 \section{Objectives}
 This dissertation will explore the suitability of the Actor Model when used to reason about distributed and concurrent systems in JavaScript through the use of one or multiple prototypes. The framework's suitability is based on its performance, scalablity, and intuitiveness to use. The objectives of the artifact are as follows.
 \begin{enumerate}
-    \item Allow developers to easily define and spawn actors through the framework API on a Node.js environment. Actors should be able to send messages to other actors as well as spawn more actors.
-    \item Allow for spawning and interacting with actors on different Node.js processes through WebSockets
-    \item Allow for spawning and interacting with actors on multiple processes using Node.js cluster
-    \item Allow developers to use the same API on a browser, while providing full interoperability for the developer's code between Node.js and the browser.
+    \item Allow developers to easily define and spawn actors through the framework API on Node.js or a browser. Actors should be able to send messages to other actors as well as spawn more actors. Full interoperability should be offered when using the framework across the two environments.
+    \item Allow for spawning and interacting with actors on different Node.js processes through different network links. Node.js cluster\cite{cluster} can be used for IPC between node processes, while WebWorkers\cite{webworkers} can be used for communication between the primary thread and its spawned workers. When such communicaiton links are not available, the network stack is involved by using WebSockets for flexible communication to link remote processes and devices.
     \item Provide location transparency when dealing with actor references. Interacting with a local actor should be the same as interacting with a remote actor when using the API
-    \item Benchmark the performance and scalability as well as the network footprint of the framework
+    \item Benchmark the performance and scalability of the developed prototype.
 \end{enumerate}
 
 \chapter{Background}
 \section{Concurrency and Parallelism on JavaScript}
-By writing parallel code, a developer is able to write applications that utilise multiple threads, cores, or devices. This reduces the amount of time required to process a computationally intensive task. If some tasks require input from the user or other tasks, resources can be given to the working tasks instead. JavaScript and Node.js do not rely on multithreading to support concurrent execution of such tasks~\cite{highperformance}, which is an issue when high performance computing is required. However, Web Workers and child processes~\cite{concurrencyjs}\cite{spidersjs} can be used to bring parallel computation to the language and uses a similar philosophy to that of the actor model. Both involve independently running tasks which communicate through messaging in order to allow for collaboration in solving a particular problem.
+Concurrency allows one to switch the order of the execution of tasks without yielding an incorrect output. Since the order in which a program is executed would not an issue, one can run these code segments in parallel, reducing the time taken to solve a particular problem. JavaScript and Node.js rely on a single threaded non-blocking event loop~\cite{eventloopbrowser}\cite{eventloopnode} which do not support parallel execution of such tasks, raising an issue when high performance~\cite{highperformance} computing is required. If JavaScript had to block when input or output was required, it would stop a page from being responsive. Instead, JavaScript handles I/O using events and callbacks which were posted on the event queue. The runtime will eventually process all the messages in a FIFO order, where each event has a corresponding callback or event listener function to execute. Each message is processed to completion without pre-emption by the processing of a different message, allowing for predictable concurrency of code. Web Workers\cite{webworkers} and child processes\cite{cluster} can be used to bring parallel computation to JavaScript~\cite{concurrencyjs}\cite{spidersjs} and uses a similar philosophy to that of the actor model. Both involve independently running tasks which communicate through messaging in order to allow for collaboration in solving a particular problem.
+
+JavaScript is an implementation of the ECMAScript design. The ECMA-262 (ECMAScript 2021) language has multiple published editions, each of which serving as the blueprint for JavaScript’s next stable release. ECMAScript 8 provides the SharedArrayBuffer~\cite{es8}\cite{sharedarraybuffer} constructor which allows for concurrent access for a set of bytes. This allows for memory to be shared across agents in different cluster processes or webworkers. The process which created the SharedArrayBuffer need only pass the object to the workers to allow them to access and manipulate the same data block. SharedArrayBuffers allow for different workers to have access to the same memory which promotes collaboration when working on the same data points. However, parallel code accessing the same data may lead to data races and additional care must be taken by the developer.
+
 \section{The History of the Actor Model}
 The Actor Model was first presented as a concurrency model in 1973 by Carl Hewitt~\cite{hewitt1973session}. Actors were refined by Gul A. Agha in 1985~\cite{agha1985actors} as computational agents which map incoming communication to a certain behaviour. This behaviour may involve commuincating with other actors, deciding how to handle the next message and creating new actors. Since then, the Actor model has been integrated into mainstream programming languages such as Scala with Akka and Erlang~\cite{43years}\cite{haller2012integration}. The actor model evolved from only being characterised by three primitives~\cite{agha1985actors} as different variants and philosophies of the actor model have been integrated into modern languages to suit their respective requirements. The success of the Actor model may be attributed to its message driven and isolated nature which allows for more intuitive concurrent programming. The model also provides resilience against failure as actors are isolated and can be easily replicated by other actors\cite{reactivemanifesto}.
 \section{Similar Work}
@@ -105,17 +144,17 @@ A project which is more similar to the aims of this dissertation is called \text
 \chapter{Design}
 \section{API Design}
 This section explores each of the functions that the framework exposes which developers will interact with to make use of the Actor Model in JavaScript. Using ES6 Modules the functions are imported as follows.
-\begin{code}
+\begin{lstlisting}
 import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
-\end{code}
+\end{lstlisting}
 \subsection{Spawning Local Actors}
 The implementation of a JavaScript actor is central to the design of the framework. When the developer spawns an actor, the framework will create a listener for any messages addressed to this actor. For every received message, the framework will process it by executing the actor behaviour. The actor behaviour takes the form of a function which has the processed message and actor state as parameters.
 
 When the developer calls the \textbf{spawn} function, they will pass in the actor's initial state as the first parameter. The actor will maintain this state throughout every processed message and it can be manipulated by its behaviour. The actor's state allows for it to maintain memory throughout its lifetime when processing messages. As a second parameter the developer must specify the actor's behaviour which has the actor's current state, current processed message as well as the actor's self reference as parameters. Using these parameters, the developer can define how the behaviour should manipulate the actor's state or how the message contents should be processed. It also allows the actor to pass a reference of itself to other actors using the behaviour's third parameter.
 
 The example below defines the actor behaviour to print out each of the parameters. It then uses this function to spawn an actor with that behaviour, and a reference to that actor is returned
-\begin{code}
+\begin{lstlisting}
 //Actor behaviour
 const pongBehaviour = (state, message, self) => {
     console.log("My state object is " + state);
@@ -125,22 +164,22 @@ const pongBehaviour = (state, message, self) => {
 
 //Spawn an actor with the above behaviour and an initial state
 const pongReference = spawn({stateElement: "hello"}, pongBehaviour);
-\end{code}
+\end{lstlisting}
 Note that with this implementation nothing is printed out, as the actor behaviour is only executed in response to a message which is sent to the spawned actor.
 \subsection{Sending Messages to Actors}
 The \textbf{send} function is used to send a message to an actor. It takes in the actor reference and message object to send as parameters.
-\begin{code}
+\begin{lstlisting}
 send(pongReference, {messageVal: "This is a message!"});
-\end{code}
+\end{lstlisting}
 One of the framework's key features is location transparency. Whether the actor resides locally or remotely on a different process or device, the framework internally identifies the fastest medium to use for message transportation and sends it through that link.
 \subsection{Terminating Actors}
 An actor can be terminated using the \textbf{terminate} function. The function takes in the actor to terminate as the first parameter. An actor is terminated by removing its message listener as well as the internal record of the actor. The actor will however process its remaining messages as these are events already queued in the browser or Node.js's event loop. To forcefully terminate an actor, the second parameter can be set to true which will clear the actor's mailbox. The remaining messages to be processed in the runtime's event queue will detect that the mailbox has been cleared and thus any activity related to the terminated actor will be minimal.
-\begin{code}
+\begin{lstlisting}
 terminate(pongReference, false)
-\end{code}
+\end{lstlisting}
 \subsection{Connecting Processes to the Network}
 The \textbf{init} function is the most complex function in the framework as it handles the spawning of worker processes as well as connections with other Node.js and browser runtimes through WebSockets.
-\begin{code}
+\begin{lstlisting}
 const webSocketServer = 'ws://localhost:8080';
 const timeout = 10000;
 const numberOfWorkers = 4;
@@ -150,7 +189,7 @@ init(webSocketServer, timeout, numberOfWorkers).then(ready => {
         //Code for node 1 to execute
     }
 })
-\end{code}
+\end{lstlisting}
  
 \subsubsection{WebSocket Network}
 Separate from the actor framework implementation, the prototype includes a WebSocket server implementation which handles a fixed number of expected WebSocket connections. As Node.js or browser runtimes connect to the WebSocket server through the invocation of \textbf{init}, the WebSocket server replies with acknowledgements. When the number of expected WebSocket connections are met, the server broadcasts to all connected clients that it is ready to receive and forward information. This effectively turns into a star network where each client can communicate with any other connected client through the WebSocket server. The server allocates and broadcasts unique identifying numbers to each connected client. This allows the developer to uniquely and easily identify remote hosts when required. The first parameter of \textbf{init} is the WebSocket server link while the second parameter specifies the timeout, which is the amount of time in milliseconds the client is willing to wait until it receives the indication that the server is ready to receive and forward information.
@@ -162,7 +201,7 @@ The third parameter of the \textbf{init} function is the number of workers that 
 
 \subsection{Remotely Spawning Actors}
 After invoking \textbf{init}, the developer can use \textbf{spawnRemote} to remotely spawn actors in other nodes. This function takes the network number as the first parameter, the initial state and behaviour as the other two parameters.
-\begin{code}
+\begin{lstlisting}
 const pingPongBehaviour = (state, message, self) => {
     console.log(message.val);
     if(!(message.val-1 < 0))
@@ -180,7 +219,7 @@ init('ws://localhost:8080', 10000, 2).then(async ready => {
         send(ping, {replyTo: pong, val: 5})
     }
 });
-\end{code}
+\end{lstlisting}
 The \textbf{spawnRemote} function sends a request to spawn an actor to the remote node. The request has embedded within it the string representation of its behaviour which is reconstructed as a function on the recipient end. Just like the \textbf{send} function, it chooses the fastest transport mechanism to send the spawn request. In the example above, nodes 2 and 3 are the workers that the primary node spawned. The primary node is internally aware of the network numbers of the worker nodes it spawned, so it will make use of Cluster IPC to send these requests rather than the slower established WebSocket link through the network.
 
 Location transparency is provided when obtaining the remotely spawned actor references. The developer can invoke \textbf{send} on the ping actor and the framework will use Cluster IPC to forward the message to the node. When the recipient actor processes message, the actor's behaviour will then send a message to the pong actor using the reference that it was sent by the primary node. The sending actor resides in a spawned worker node and it wishes to send this message to the recipient actor residing in a different worker node in the same cluster. The \textbf{send} function will send the message to the primary node (network number 1) which will then forward the message to the recipient worker node.
@@ -189,7 +228,7 @@ Location transparency is provided when obtaining the remotely spawned actor refe
 The JavaScript event loop is responsible for executing the application code. The runtime has a queue of messages where each message is mapped to a function which processes that message. The event loop waits for the arrival of a message and processes the queue of messages when there is a backlog. Each message is processed to completion before other messages are processed. The Actor Model also maps messages onto functions which act as message handlers. Therefore, the framework's implementation takes advantage of the similar philosophies between the JavaScript runtime and the Actor Model.
 
 The actors maintain their own message queue in an array. Once a message is received by an actor, it will schedule the processing of the message on the JavaScript event loop. This is done by scheduling a microtask which executes before the start of the next event loop~\cite{eventloopbrowser}\cite{eventloopnode}. The microtask is scheduled by creating a promise which is immediately resolved. This behaviour is similar to using Node.js' \textbf{process.nextTick()}~\cite{nexttick}. This is more efficient than using the JavaScript \textbf{setTimeout()} function as that is scheduled as a macrotask which would execute in the following event loop.
-\begin{code}
+\begin{lstlisting}
 messageEmitter.on(name, () => {
     Promise.resolve().then(() => {
         const message = actor.mailbox.shift();
@@ -198,7 +237,7 @@ messageEmitter.on(name, () => {
             {name: actor.name, node: actor.node});
     })
 });
-\end{code}
+\end{lstlisting}
 
 With this implementation, actors only process messages only when other actors are not in the middle of processing a message. When the developer chooses to send a message to an actor, JavaScript schedules a microtask to be executed before the end of the current event loop. When an actor sends a message to another, it also schedules a microtask. Since JavaScript will process the current microtask to completion before fetching the next, the implementation ensures that at most one actor is in the middle of processing a message.
 \chapter{Evaluation}
@@ -211,10 +250,10 @@ With this implementation, actors only process messages only when other actors ar
 \chapter{This chapter is in the appendix}
 \section{These are some details}
 %%example of the code environment
-\begin{code}
+\begin{lstlisting}
 this is some code;
 I hope you found this template useful.
-\end{code}
+\end{lstlisting}
 
 
 \bibliomatter
