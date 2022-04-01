@@ -147,9 +147,9 @@ Nact~\cite{nact} is a more faithful implementation to the Actor model as it reli
 
 A project similar to this dissertation's prototype is called \textbf{Spiders.js}~\cite{spidersjs}. The paper identifies the problem of different API's being used for web workers and child processes, both of which are inspired by the actor model for constructing parallel systems using JavaScript. This project is focused on defining a single actor model API no matter if it's a client or server-side application. The paper benchmarks the usage of Spiders.js against JavaScript native web workers as well as the actor creation overhead for both. The results are in favour of using web workers for such tasks. This is no surprise as the project is an abstraction built on top web workers on the client side.
 
-
+TigerQuoll~\cite{tigerquoll}
 \chapter{Design}
-\section{API Abstractions}
+\section{Design Goals}
 \section{Using the API}
 This section explores each of the functions that the framework exposes which developers will interact with to make use of the Actor Model in JavaScript. Using ES6 Modules the functions are imported as follows.
 \begin{lstlisting}
