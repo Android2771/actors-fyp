@@ -40,12 +40,13 @@ node_errors = [np.std(node_data[key])/np.sqrt(np.size(node_data[key])) for key i
 # browser_averages = [np.average(browser_data[key]) for key in browser_data.keys()]
 # browser_errors = [np.std(browser_data[key])/np.sqrt(np.size(browser_data[key])) for key in browser_data.keys()] 
 
-browser_averages = [1,2,3,4,5,6,7,8]
+browser_averages = [10000,20000,30000,4000,5,6,7,8]
 browser_errors = [1,2,3,4,5,6,7,8]
 
 X_axis = np.arange(len(node_averages))
 width=0.2
-figure(figsize=(8, 7), dpi=80)
+figure(figsize=(8, 7.5), dpi=80)
+
 plt.bar(X_axis-0.1, node_averages, width, color='green', label='Node', yerr=node_errors)
 plt.bar(X_axis+0.1, browser_averages, width, color='blue', label='Browser', yerr=browser_errors)
 
