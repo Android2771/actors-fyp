@@ -8,29 +8,26 @@ def make_graph(node_results_folder, browser_results_folder, title, output_name):
     keys = [1,2,3,4,8]
     node_data = {}
     browser_data = {}
-    # for processes in keys:
-    #     node_data[processes] = []
-    #     browser_data[processes] = []
+    for processes in keys:
+        node_data[processes] = []
+        browser_data[processes] = []
         
-    #     #Scrape node data
-    #     with open(f'{node_results_folder}{processes}worker.txt') as f:
-    #         for line in f.readlines():
-    #             node_data[processes].append(int(line.strip()))
+        #Scrape node data
+        with open(f'{node_results_folder}{processes}worker.txt') as f:
+            for line in f.readlines():
+                node_data[processes].append(int(line.strip()))
         
-    #     #Scrape browser data      
-    #     with open(f'{browser_results_folder}/{processes}worker.log') as f:
-    #         for line in f.readlines():
-    #             sanitized_line = line.strip()
-    #             if '.js ' in sanitized_line:
-    #                 reading = sanitized_line[sanitized_line.find('"')+1:sanitized_line.find('"', sanitized_line.find('"')+1)]
-    #                 browser_data[processes].append(int(reading))
+        #Scrape browser data      
+        with open(f'{browser_results_folder}/{processes}worker.log') as f:
+            for line in f.readlines():
+                sanitized_line = line.strip()
+                if '.js ' in sanitized_line:
+                    reading = sanitized_line[sanitized_line.find('"')+1:sanitized_line.find('"', sanitized_line.find('"')+1)]
+                    browser_data[processes].append(int(reading))
 
     keys = keys[:len(keys)-1]
-    # node_speedup = [np.average(node_data[1])/np.average(node_data[key]) for key in keys]
-    # browser_speedup = [np.average(browser_data[1])/np.average(browser_data[key]) for key in keys]
-    
-    node_speedup = [1,2,3,4]
-    browser_speedup = [0.5,1,2,3]
+    node_speedup = [np.average(node_data[1])/np.average(node_data[key]) for key in keys]
+    browser_speedup = [np.average(browser_data[1])/np.average(browser_data[key]) for key in keys]
     
     fig, ax = plt.subplots()
     

@@ -23,25 +23,22 @@ for filename in os.listdir(node_directory):
 node_averages = [np.average(node_data[key]) for key in node_data.keys()]
 node_errors = [np.std(node_data[key])/np.sqrt(np.size(node_data[key])) for key in node_data.keys()]
 
-# #Scrape browser results
-# with open('../browser/singlethread/chrome_debug.log') as f:
-#     for line in f.readlines():
-#         sanitized_line = line.strip()
-#         if '.js ' in sanitized_line:
-#             #Get benchmark name
-#             search = 'source: http://'
-#             benchmark = sanitized_line[sanitized_line.find(search)+len(search):]
-#             benchmark = benchmark[benchmark.find('/')+1:benchmark.find('.')].upper()
+#Scrape browser results
+with open('../browser/singlethread/chrome_debug.log') as f:
+    for line in f.readlines():
+        sanitized_line = line.strip()
+        if '.js ' in sanitized_line:
+            #Get benchmark name
+            search = 'source: http://'
+            benchmark = sanitized_line[sanitized_line.find(search)+len(search):]
+            benchmark = benchmark[benchmark.find('/')+1:benchmark.find('.')].upper()
             
-#             reading = sanitized_line[sanitized_line.find('"')+1:sanitized_line.find('"', sanitized_line.find('"')+1)]
-#             browser_data[benchmark].append(int(reading))
+            reading = sanitized_line[sanitized_line.find('"')+1:sanitized_line.find('"', sanitized_line.find('"')+1)]
+            browser_data[benchmark].append(int(reading))
             
-# #Compute browser results to put on graph
-# browser_averages = [np.average(browser_data[key]) for key in browser_data.keys()]
-# browser_errors = [np.std(browser_data[key])/np.sqrt(np.size(browser_data[key])) for key in browser_data.keys()] 
-
-browser_averages = [10000,20000,30000,4000,5,6,7,8]
-browser_errors = [1,2,3,4,5,6,7,8]
+#Compute browser results to put on graph
+browser_averages = [np.average(browser_data[key]) for key in browser_data.keys()]
+browser_errors = [np.std(browser_data[key])/np.sqrt(np.size(browser_data[key])) for key in browser_data.keys()] 
 
 X_axis = np.arange(len(node_averages))
 width=0.2
