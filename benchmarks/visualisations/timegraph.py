@@ -1,5 +1,6 @@
 import pandas
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 import numpy as np
 import os
 import re
@@ -22,39 +23,35 @@ for filename in os.listdir(node_directory):
 node_averages = [np.average(node_data[key]) for key in node_data.keys()]
 node_errors = [np.std(node_data[key])/np.sqrt(np.size(node_data[key])) for key in node_data.keys()]
 
-#Scrape browser results
-with open('../browser/singlethread/chrome_debug.log') as f:
-    for line in f.readlines():
-        sanitized_line = line.strip()
-        if '.js ' in sanitized_line:
-            #Get benchmark name
-            search = 'source: http://'
-            benchmark = sanitized_line[sanitized_line.find(search)+len(search):]
-            benchmark = benchmark[benchmark.find('/')+1:benchmark.find('.')].upper()
+# #Scrape browser results
+# with open('../browser/singlethread/chrome_debug.log') as f:
+#     for line in f.readlines():
+#         sanitized_line = line.strip()
+#         if '.js ' in sanitized_line:
+#             #Get benchmark name
+#             search = 'source: http://'
+#             benchmark = sanitized_line[sanitized_line.find(search)+len(search):]
+#             benchmark = benchmark[benchmark.find('/')+1:benchmark.find('.')].upper()
             
-            reading = sanitized_line[sanitized_line.find('"')+1:sanitized_line.find('"', sanitized_line.find('"')+1)]
-            browser_data[benchmark].append(int(reading))
+#             reading = sanitized_line[sanitized_line.find('"')+1:sanitized_line.find('"', sanitized_line.find('"')+1)]
+#             browser_data[benchmark].append(int(reading))
             
-#Compute browser results to put on graph
-browser_averages = [np.average(browser_data[key]) for key in browser_data.keys()]
-browser_errors = [np.std(browser_data[key])/np.sqrt(np.size(browser_data[key])) for key in browser_data.keys()]
-   
-#Plot graph and make it look nice
-df = pandas.DataFrame(dict(graph=node_data.keys(),
-                           n=node_averages, m=browser_averages)) 
+# #Compute browser results to put on graph
+# browser_averages = [np.average(browser_data[key]) for key in browser_data.keys()]
+# browser_errors = [np.std(browser_data[key])/np.sqrt(np.size(browser_data[key])) for key in browser_data.keys()] 
 
-ind = np.arange(len(df))
-width = 0.4
+browser_averages = [1,2,3,4,5,6,7,8]
+browser_errors = [1,2,3,4,5,6,7,8]
 
-fig, ax = plt.subplots()
-fig.set_size_inches(10, 5, forward=True)
-ax.barh(ind, df.n, width, color='green', label='Node', xerr=node_errors)
-ax.barh(ind + width, df.m, width, color='blue', label='Browser', xerr=browser_errors)
+X_axis = np.arange(len(node_averages))
+width=0.2
+figure(figsize=(8, 7), dpi=80)
+plt.bar(X_axis-0.1, node_averages, width, color='green', label='Node', yerr=node_errors)
+plt.bar(X_axis+0.1, browser_averages, width, color='blue', label='Browser', yerr=browser_errors)
 
-ax.set(yticks=ind + width, yticklabels=df.graph, ylim=[2*width - 1, len(df)])
-ax.legend()
-
+plt.xticks(X_axis, list(node_data.keys()), rotation=45)
 plt.title('Single Threaded Benchmarks Node.js and Browser Comparision')
-plt.ylabel('Benchmark')
-plt.xlabel('Time to execute (ms)')
+plt.xlabel('Benchmark')
+plt.ylabel('Time to execute (ms)')
+plt.legend()
 plt.savefig('singlethread.png')
