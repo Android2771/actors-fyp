@@ -50,27 +50,19 @@ errors.append(get_node_average('./results/fjcreatenodews.txt')[1])
 errors.append(get_browser_average('./results/fjcreatewebworker.txt')[1])
 errors.append(get_browser_average('./results/fjcreatebrowserws.txt')[1])
 
-keys.reverse()
-data.reverse()
+Ygirls = [10,20]
+Zboys = [20,30]
+  
+X_axis = np.arange(len(keys))
+  
+plt.bar(X_axis - 0.15, [data[0], data[4]], 0.1, label = 'Cluster')
+plt.bar(X_axis - 0.05, [data[1], data[5]], 0.1, label = 'Node WebSocket')  
+plt.bar(X_axis + 0.05, [data[2], data[6]], 0.1, label = 'Web Worker')
+plt.bar(X_axis + 0.15, [data[3], data[7]], 0.1, label = 'Browser WebSocket')
+  
+plt.xticks(X_axis, keys)
+plt.title('Comparision of Communication Links')
+plt.xlabel('Benchmark')
+plt.ylabel('Time to execute benchmark (ms)')
 
-#Plot graph and make it look nice
-df = pandas.DataFrame(dict(graph=keys,
-                        m=[data[0], data[4]], n=[data[1], data[5]], o=[data[2], data[6]], p=[data[3], data[7]])) 
-
-ind = np.arange(len(df))
-width = 0.2
-
-fig, ax = plt.subplots()
-fig.set_size_inches(9, 5, forward=True)
-ax.barh(ind, df.m, width, color='green', label='Browser WebSocket', xerr=[errors[0], errors[4]])
-ax.barh(ind+width, df.n, width, color='blue', label='Browser WebWorker', xerr=[errors[1], errors[5]])
-ax.barh(ind+2*width, df.o, width, color='red', label='Node WebSocket', xerr=[errors[2], errors[6]])
-ax.barh(ind+3*width, df.p, width, color='orange', label='Node Cluster', xerr=[errors[3], errors[7]])
-
-ax.set(yticks=ind + width, yticklabels=df.graph, ylim=[2*width - 1, len(df)])
-ax.legend()
-
-plt.title('Comparision of Communication Heavy Implementations using different links')
-plt.ylabel('Benchmark')
-plt.xlabel('Time to execute (ms)')
 plt.savefig('link.png')
