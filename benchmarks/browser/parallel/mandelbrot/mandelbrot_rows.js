@@ -1,6 +1,5 @@
 import actors from '../../actors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
-import fs from 'fs';
 
 const constants = {
     width: 12000,
@@ -13,7 +12,7 @@ const constants = {
 }
 
 const K = 4;
-const rounds = 100;
+const rounds = 5;
 
 const rowRendererBehaviour = (state, message, self) => {
     const add = (x, y) => ({re: x.re + y.re, im: x.im + y.im});   
@@ -43,7 +42,7 @@ const rowRendererBehaviour = (state, message, self) => {
     send(message.sender, {header: "ROW", pixelRow, y: message.y, from: self});
 };
 
-init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {    
+init('ws://localhost:8080', 0x7FFFFFF, K, './parallel/mandelbrot/mandelbrot_rows.js').then(ready => {    
     if(ready.yourNetworkNumber === 1){
         const imageRenderer = spawn({rounds, constants, rowRendererBehaviour, responses: {}, image: [], receivedRows: 0, nextRow: 0, actors: []}, (state, message, self) => {
             switch(message.header){

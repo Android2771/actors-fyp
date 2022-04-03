@@ -1,9 +1,9 @@
 //Tests message passing overhead
-import actors from '../../actors.js';
+import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection} = actors
 
 const N = 100000;   //Number of sends
-const rounds = 5;    //Rounds of benchmark
+const rounds = parseInt(process.argv.slice(2)[0]);    //Rounds of benchmark
 
 const pongBehaviour = (state, message, self) => {
     if(!(message.val-1 < 0))

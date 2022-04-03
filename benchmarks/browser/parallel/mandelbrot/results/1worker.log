@@ -1,0 +1,9 @@
+[25966:25966:0403/145227.096520:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
+[25924:25924:0403/145227.153571:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[25924:25990:0403/145227.234143:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
+[25924:25924:0403/145245.378241:WARNING:controller_impl.cc(1184)] Background download complete, client: 6, completion type: 0, file size:44872688
+[25924:25924:0403/145257.790530:INFO:CONSOLE(69)] "20094", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
+[25924:25924:0403/145317.788408:INFO:CONSOLE(69)] "19998", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
+[25924:25924:0403/145337.435956:INFO:CONSOLE(69)] "19647", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
+[25924:25924:0403/145356.840853:INFO:CONSOLE(69)] "19405", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
+[25924:25924:0403/145416.412544:INFO:CONSOLE(69)] "19572", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)

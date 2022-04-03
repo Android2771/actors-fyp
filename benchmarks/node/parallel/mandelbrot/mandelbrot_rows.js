@@ -14,7 +14,7 @@ const constants = {
 
 const K = parseInt(process.argv.slice(2)[0]);
 const rounds = parseInt(process.argv.slice(2)[1]);
-const output = process.argv.slice(2)[1] === "true"
+const output = process.argv.slice(2)[2] === "true"
 
 const rowRendererBehaviour = (state, message, self) => {
     const add = (x, y) => ({re: x.re + y.re, im: x.im + y.im});   
@@ -62,13 +62,14 @@ init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {
                 case "ROW":
                     state.responses[message.y] = message.pixelRow;
                     if(++state.receivedRows > state.constants.height){
+                        state.end = new Date();
+                        const time = state.end.getTime() - state.start.getTime();
+                        console.log(time);
+
                         for(let i in Object.keys(state.responses))
                             if(i > 0)
                                 state.image.push(state.responses[i]);
                         
-                        state.end = new Date();
-                        const time = state.end.getTime() - state.start.getTime();
-                        console.log(time);
                         if(output)                            
                             fs.writeFile("mandelbrot.json", JSON.stringify(state.image), err => {closeConnection()});                        
                         else if(--state.rounds != 0){

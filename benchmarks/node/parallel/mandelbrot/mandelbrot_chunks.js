@@ -14,7 +14,7 @@ const constants = {
 
 const K = parseInt(process.argv.slice(2)[0]);
 const rounds = parseInt(process.argv.slice(2)[1]);
-const output = process.argv.slice(2)[1] === "true"
+const output = process.argv.slice(2)[2] === "true"
 
 const rowRendererBehaviour = (state, message, self) => {
     const add = (x, y) => ({re: x.re + y.re, im: x.im + y.im});   

@@ -1,0 +1,8 @@
+[30145:30200:0403/152952.328658:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
+[30186:30186:0403/152952.347259:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
+[30145:30145:0403/152952.397013:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[30145:30145:0403/153002.999906:INFO:CONSOLE(37)] "3135", source: http://localhost:3000/parallel/piprecision.js (37)
+[30145:30145:0403/153006.109879:INFO:CONSOLE(37)] "3110", source: http://localhost:3000/parallel/piprecision.js (37)
+[30145:30145:0403/153009.229533:INFO:CONSOLE(37)] "3120", source: http://localhost:3000/parallel/piprecision.js (37)
+[30145:30145:0403/153012.327738:INFO:CONSOLE(37)] "3098", source: http://localhost:3000/parallel/piprecision.js (37)
+[30145:30145:0403/153015.422768:INFO:CONSOLE(37)] "3095", source: http://localhost:3000/parallel/piprecision.js (37)

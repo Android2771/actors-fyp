@@ -6,7 +6,7 @@ const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 //Number of workers
 const K = parseInt(parseInt(process.argv.slice(2)[0]));
 const rounds = parseInt(process.argv.slice(2)[1]);
-const N = 100000000;
+const N = 200000000;
 
 const wait = 0x7FFFFFFF
 init('ws://localhost:8080', wait, K).then(ready => {

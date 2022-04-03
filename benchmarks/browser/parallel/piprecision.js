@@ -3,9 +3,9 @@ import actors from '../../actors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 
 //Number of workers
-const K = 32;
-const rounds = 100;
-const N = 100000000;
+const K = 4;
+const rounds = 5;
+const N = 200000000;
 
 const wait = 0x7FFFFFFF
 init('ws://localhost:8080', wait, K, './parallel/piprecision.js').then(ready => {

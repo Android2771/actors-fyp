@@ -3,7 +3,7 @@ import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 20000;  //Number of actors to spawn
-const rounds = 100;
+const rounds = 5;
 
 init('ws://localhost:8080').then(ready => {
     if (ready.yourNetworkNumber === 1) {

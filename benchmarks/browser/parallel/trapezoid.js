@@ -3,8 +3,8 @@ import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 
 //Number of workers
-const K = 1;
-const rounds = 100;
+const K = 4;
+const rounds = 5;
 const N = 100000000;
 
 const wait = 0x7FFFFFFF

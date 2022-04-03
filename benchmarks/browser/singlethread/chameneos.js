@@ -2,9 +2,9 @@
 import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 2400000;  //Number of meetings
+const N = 1200000;  //Number of meetings
 const C = 10;      //Number of chameneos
-const rounds = 1;
+const rounds = 5;
 
 const mallBehaviour = (state, message, self) => {    
     if(message.benchmarker)

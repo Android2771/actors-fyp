@@ -12,7 +12,7 @@ const constants = {
 }
 
 const K = 32;
-const rounds = 100;
+const rounds = 5;
 
 const rowRendererBehaviour = (state, message, self) => {
     const add = (x, y) => ({re: x.re + y.re, im: x.im + y.im});   

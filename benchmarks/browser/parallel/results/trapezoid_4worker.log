@@ -1,0 +1,8 @@
+[32179:32242:0403/153612.503343:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
+[32221:32221:0403/153612.523377:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
+[32179:32179:0403/153612.567587:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[32179:32179:0403/153621.180387:INFO:CONSOLE(42)] "4468", source: http://localhost:3000/parallel/trapezoid.js (42)
+[32179:32179:0403/153625.603051:INFO:CONSOLE(42)] "4422", source: http://localhost:3000/parallel/trapezoid.js (42)
+[32179:32179:0403/153630.001956:INFO:CONSOLE(42)] "4399", source: http://localhost:3000/parallel/trapezoid.js (42)
+[32179:32179:0403/153634.397681:INFO:CONSOLE(42)] "4396", source: http://localhost:3000/parallel/trapezoid.js (42)
+[32179:32179:0403/153638.794516:INFO:CONSOLE(42)] "4397", source: http://localhost:3000/parallel/trapezoid.js (42)
