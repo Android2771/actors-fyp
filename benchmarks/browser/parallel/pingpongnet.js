@@ -18,7 +18,7 @@ const pingBehaviour = (state, message, self) => {
     }
 };
 
-init('ws://localhost:8080').then(ready => {
+init('ws://localhost:8080', 0x7FFFFFFF, 2, './parallel/pingpongnet.js').then(ready => {
     if (ready.yourNetworkNumber === 1) {
         const benchmarker = spawn({rounds}, async (state, message, self) => {
             switch(message.header){
