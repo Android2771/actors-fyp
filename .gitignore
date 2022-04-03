@@ -389,3 +389,4 @@ other/
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
 mandelbrot.json
+documentation/*/*.log
