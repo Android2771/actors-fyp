@@ -29,10 +29,9 @@ with open('../browser/singlethread/singlethread.log') as f:
         sanitized_line = line.strip()
         if '.js ' in sanitized_line:
             #Get benchmark name
-            search = 'source: http://'
+            search = 'source: http://localhost:3000/singlethread/'
             benchmark = sanitized_line[sanitized_line.find(search)+len(search):]
             benchmark = benchmark[benchmark.find('/')+1:benchmark.find('.')].upper()
-            
             reading = sanitized_line[sanitized_line.find('"')+1:sanitized_line.find('"', sanitized_line.find('"')+1)]
             browser_data[benchmark].append(int(reading))
             

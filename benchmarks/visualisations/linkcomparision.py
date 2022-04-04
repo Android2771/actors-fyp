@@ -29,26 +29,26 @@ errors = []
 data2 = [0,1,2,3]
 
 #Note, these ping pong models were run for 1000000 messages
-data.append(get_node_average('./results/pingpongcluster.txt')[0])
-data.append(get_node_average('./results/pingpongnodews.txt')[0])
-data.append(get_browser_average('./results/pingpongwebworker.txt')[0])
-data.append(get_browser_average('./results/pingpongbrowserws.txt')[0])
+data.append(get_node_average('../node/parallel/results/pingpongnetcluster.txt')[0])
+data.append(get_node_average('../node/parallel/results/pingpongnetws.txt')[0])
+data.append(get_browser_average('../browser/parallel/results/pingpongnetwebworker.log')[0])
+data.append(get_browser_average('../browser/parallel/results/pingpongnetws.log')[0])
 
-errors.append(get_node_average('./results/pingpongcluster.txt')[1])
-errors.append(get_node_average('./results/pingpongnodews.txt')[1])
-errors.append(get_browser_average('./results/pingpongwebworker.txt')[1])
-errors.append(get_browser_average('./results/pingpongbrowserws.txt')[1])
+errors.append(get_node_average('../node/parallel/results/pingpongnetcluster.txt')[1])
+errors.append(get_node_average('../node/parallel/results/pingpongnetws.txt')[1])
+errors.append(get_browser_average('../browser/parallel/results/pingpongnetwebworker.log')[1])
+errors.append(get_browser_average('../browser/parallel/results/pingpongnetws.log')[1])
 
 #Note, these fjcreate models were run for 20000 spawns
-data.append(get_node_average('./results/fjcreatecluster.txt')[0])
-data.append(get_node_average('./results/fjcreatenodews.txt')[0])
-data.append(get_browser_average('./results/fjcreatewebworker.txt')[0])
-data.append(get_browser_average('./results/fjcreatebrowserws.txt')[0])
+data.append(get_node_average('../node/parallel/results/fjcreatenetcluster.txt')[0])
+data.append(get_node_average('../node/parallel/results/fjcreatenetws.txt')[0])
+data.append(get_browser_average('../browser/parallel/results/fjcreatenetwebworker.log')[0])
+data.append(get_browser_average('../browser/parallel/results/fjcreatenetws.log')[0])
 
-errors.append(get_node_average('./results/fjcreatecluster.txt')[1])
-errors.append(get_node_average('./results/fjcreatenodews.txt')[1])
-errors.append(get_browser_average('./results/fjcreatewebworker.txt')[1])
-errors.append(get_browser_average('./results/fjcreatebrowserws.txt')[1])
+errors.append(get_node_average('../node/parallel/results/fjcreatenetcluster.txt')[1])
+errors.append(get_node_average('../node/parallel/results/fjcreatenetws.txt')[1])
+errors.append(get_browser_average('../browser/parallel/results/fjcreatenetwebworker.log')[1])
+errors.append(get_browser_average('../browser/parallel/results/fjcreatenetws.log')[1])
 
 Ygirls = [10,20]
 Zboys = [20,30]
