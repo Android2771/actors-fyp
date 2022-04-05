@@ -158,13 +158,20 @@ TigerQuoll~\cite{tigerquoll} took a different approach when providing parallelis
 \chapter{Design}
 The design chapter is split into three sections. The first section presents a high level overview of the API's features. The following section presents examples on how to use the framework's features through the use of code segments and explanations. The final section delves into the design decisions of the internal framework code which is abstracted by the API.
 \section{API Features}
-The API’s goal is to allow developers to intuitively engineer concurrent and parallel code in JavaScript through the actor model. The developer can define how an actor will process each message using a callback function, and spawn it on a JavaScript runtime. This runtime can be either local or remote, and it can run on a Node.js instance or any modern browser with full interoperability. Programs will be made up of multiple spawned isolated actors, similar to the micro-services approach adopted by the industry. Each actor will be serving incoming requests (messages) and can optionally send messages to other actors such as the sender. Furthermore, an actor can spawn other actors and send the reference to the newly spawned actor to other actors, similar to the OOP factory pattern.
+The API’s goal is to allow developers to intuitively engineer concurrent and parallel code in JavaScript through the actor model. The developer can define how an actor will process each message using a callback function, and spawn it on a JavaScript runtime. This runtime can be either local or remote, and it can run on a Node.js instance or any modern browser with full interoperability. Programs will be made up of multiple spawned isolated actors, similar to the micro-services approach adopted by the industry. Each actor will be serving incoming requests (messages) and can optionally send messages to other actors such as the sender. Furthermore, an actor can spawn other actors and send the reference to the newly spawned actors to other actors embedded inside a message.
+
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=250px]{resources/actors.png}
+        \caption{Actor spawning a set of communicating Actors with labelled order}
+    \end{centering}
+\end{figure}
 
 By sending messages to locally spawned actors, each message will be processed to completion in a FIFO order. Actors differ from regular functions as each spawned actor maintains a state which can be manipulated by its defined behaviour when executed in response to incoming messages. The actor’s behaviour can depend on the incoming message’s structure or the actor’s current state, offering seemingly non-uniform behaviour across messages. An actor can then be terminated where it will stop listening for incoming messages.
 
 Since the spawned actors are isolated computational units, they are concurrent and thus potentially parallelisable. This API offers a mechanism to remotely spawn actors on other processes (shared memory) as well as over the web (distributed memory). One could host a website which remotely spawns actors on visiting clients to help speed up a computationally intensive task such as finding the next prime number. The more traction the website gains, the more computational power available.
 
-Offering an intuitive way to remotely spawn and send messages to actors was a challenging task. The prototype offers a WebSocket server which accepts a predefined number of clients. Each client is assigned a number, and when the number of expected clients connect the server sends a ‘ready’ message to all clients. This releases the barrier which waited for all clients to connect and allows communication between any two connected clients. 
+Providing an intuitive way to remotely spawn and send messages to actors proved to be challenging. The prototype offers a WebSocket server which accepts a predefined number of clients. Each client is assigned a number, and when the number of expected clients connect the server sends a ‘ready’ message to all clients. This releases the barrier which waited for all clients to connect and allows communication between any two connected clients. 
 
 With the current implementation, the developer needs to connect the clients in a certain order to keep track of their incremental network numbers. The network number can then be used to indicate to the WebSocket server which client to communicate with. This is done when remotely spawning actors, as the developer needs to indicate on which connected client the actor will be spawned. Location transparency is offered when sending messages to such remotely spawned actors, as all the information required to establish communication is embedded within the actor reference. The API also allows the developer to make use of Node.js Cluster as well as Web Workers for faster communication, as it avoids adding the network stack and the overhead introduced when communicating with a potentially remote WebSocket server. All Node.js child processes and spawned web workers still need to establish a connection with the WebSocket server so that they are discoverable by remote devices.
 \section{Using the API}
@@ -174,8 +181,6 @@ import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 \end{lstlisting}
 \subsection{Spawning Local Actors}
-The implementation of a JavaScript actor is central to the design of the framework. When the developer spawns an actor, the framework will create a listener for any messages addressed to this actor. For every received message, the framework will process it by executing the actor behaviour. The actor behaviour takes the form of a function which has the processed message and actor state as parameters.
-
 When the developer calls the \textbf{spawn} function, they will pass in the actor's initial state as the first parameter. The actor will maintain this state throughout every processed message and it can be manipulated by its behaviour. The actor's state allows for it to maintain memory throughout its lifetime when processing messages. As a second parameter the developer must specify the actor's behaviour which has the actor's current state, current processed message as well as the actor's self reference as parameters. Using these parameters, the developer can define how the behaviour should manipulate the actor's state or how the message contents should be processed. It also allows the actor to pass a reference of itself to other actors using the behaviour's third parameter.
 
 The example below defines the actor behaviour to print out each of the parameters. It then uses this function to spawn an actor with that behaviour, and a reference to that actor is returned
@@ -198,12 +203,12 @@ send(pongReference, {messageVal: "This is a message!"});
 \end{lstlisting}
 One of the framework's key features is location transparency. Whether the actor resides locally or remotely on a different process or device, the framework internally identifies the fastest medium to use for message transportation and sends it through that link.
 \subsection{Terminating Actors}
-An actor can be terminated using the \textbf{terminate} function. The function takes in the actor to terminate as the first parameter. An actor is terminated by removing its message listener as well as the internal record of the actor. The actor will however process its remaining messages as these are events already queued in the browser or Node.js's event loop. To forcefully terminate an actor, the second parameter can be set to true which will clear the actor's mailbox. The remaining messages to be processed in the runtime's event queue will detect that the mailbox has been cleared and thus any activity related to the terminated actor will be minimal.
+An actor can be terminated using the \textbf{terminate} function. The function takes in the actor to terminate as the first parameter. An actor is terminated by removing its message listener as well as the internal record of the actor. The actor will however process its remaining messages as these are events already queued in the browser or Node.js's event loop. To forcefully terminate an actor, the second parameter can be set to true which will deactivate the actor. When the events are processed, the actor will perform minimal work ignoring the messages.
 \begin{lstlisting}
 terminate(pongReference, false)
 \end{lstlisting}
 \subsection{Connecting Processes to the Network}
-The \textbf{init} function is the most complex function in the framework as it handles the spawning of worker processes as well as connections with other Node.js and browser runtimes through WebSockets.
+The \textbf{init} function handles the spawning of worker processes as well as connections with other Node.js and browser runtimes through WebSockets.
 \begin{lstlisting}
 const webSocketServer = 'ws://localhost:8080';
 const timeout = 10000;

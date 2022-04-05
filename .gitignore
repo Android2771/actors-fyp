@@ -378,9 +378,6 @@ TSWLatexianTemp*
 # xwatermark package
 *.xwm
 
-# pdf
-*.pdf
-
 src/*.js
 other/
 
@@ -390,3 +387,4 @@ other/
 #*Notes.bib
 mandelbrot.json
 documentation/*/*.log
+*:Zone.Identifier
