@@ -175,7 +175,8 @@ const closeConnection = () => {
  */
 const spawn = (state: object, behaviour: ActorCallback | string | Function): ActorFacade => {
     const cleanedBehaviour = (typeof behaviour === "string") ?
-        behaviour = Function('init', 'spawn', 'spawnRemote', 'terminate', 'send', 'return ' + behaviour)(init, spawn, spawnRemote, terminate, send) : behaviour;
+        Function('init', 'spawn', 'spawnRemote', 'terminate', 'send', 'closeConnection', 'return ' + behaviour)(init, spawn, spawnRemote, terminate, send, closeConnection) 
+        : behaviour;
 
     //Populate the context with the new actor with an empty mailbox and return the actor
     //Generate unique name
