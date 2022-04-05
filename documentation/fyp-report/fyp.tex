@@ -23,23 +23,11 @@
 \usepackage{float}
 \usepackage{tikz}
 
-\lstdefinelanguage{JavaScript}{
-  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, let, const, if, in, while, do, else, case, break},
-  keywordstyle=\color{blue}\bfseries,
-  ndkeywords={class, export, boolean, throw, implements, import, this},
-  ndkeywordstyle=\color{darkgray}\bfseries,
-  identifierstyle=\color{black},
-  sensitive=false,
-  comment=[l]{//},
-  morecomment=[s]{/*}{*/},
-  commentstyle=\color{purple}\ttfamily,
-  stringstyle=\color{red}\ttfamily,
-  morestring=[b]',
-  morestring=[b]
-}
+\definecolor{OliveGreen}{rgb}{0,0.6,0}
 
-\lstset{frame=tb,
-  language=Python,
+\lstset{
+  language=C,
+  frame=tb,
   aboveskip=3mm,
   belowskip=3mm,
   showstringspaces=false,
@@ -48,7 +36,7 @@
   numbers=none,
   numberstyle=\tiny\color{gray},
   keywordstyle=\color{blue},
-  commentstyle=\color{dkgreen},
+  commentstyle = \color{OliveGreen},
   stringstyle=\color{purple},
   breaklines=true,
   breakatwhitespace=true,
@@ -171,9 +159,20 @@ By sending messages to locally spawned actors, each message will be processed to
 
 Since the spawned actors are isolated computational units, they are concurrent and thus potentially parallelisable. This API offers a mechanism to remotely spawn actors on other processes (shared memory) as well as over the web (distributed memory). One could host a website which remotely spawns actors on visiting clients to help speed up a computationally intensive task such as finding the next prime number. The more traction the website gains, the more computational power available.
 
-Providing an intuitive way to remotely spawn and send messages to actors proved to be challenging. The prototype offers a WebSocket server which accepts a predefined number of clients. Each client is assigned a number, and when the number of expected clients connect the server sends a ‘ready’ message to all clients. This releases the barrier which waited for all clients to connect and allows communication between any two connected clients.
-
-With the current implementation, the developer needs to connect the clients in a certain order to keep track of their incremental network numbers. The network number can then be used to indicate to the WebSocket server which client to communicate with. This is done when remotely spawning actors, as the developer needs to indicate on which connected client the actor will be spawned. Location transparency is offered when sending messages to such remotely spawned actors, as all the information required to establish communication is embedded within the actor reference. The API also allows the developer to make use of Node.js Cluster as well as Web Workers for faster communication, as it avoids adding the network stack and the overhead introduced when communicating with a potentially remote WebSocket server. All Node.js child processes and spawned web workers still need to establish a connection with the WebSocket server so that they are discoverable by remote devices.
+Providing an intuitive way to remotely spawn and send messages to actors proved to be challenging. The prototype offers a WebSocket server which accepts a predefined number of clients. Each client is assigned a number, and when the number of expected clients connect the server sends a ‘ready’ message to all clients. This releases the barrier which waited for all clients to connect and allows communication between actors residing in any two connected clients. With the current implementation, the developer needs to connect the clients in a certain order to keep track of their incremental network numbers. The network number can then be used to indicate to the WebSocket server which client to communicate with. This is done when remotely spawning actors, as the developer needs to indicate on which connected client the actor will be spawned. Location transparency is offered when sending messages to such remotely spawned actors, as all the information required to establish communication is embedded within the actor reference. 
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=\textwidth]{resources/websocketconnection.png}
+        \caption{WebSocket Connection Establishment with Node and Browser Clients}
+    \end{centering}
+\end{figure}
+The API also allows the developer to make use of Node.js Cluster as well as Web Workers for faster communication, as it avoids adding the network stack and the overhead introduced when communicating with a potentially remote WebSocket server. All Node.js child processes and spawned web workers still need to establish a connection with the WebSocket server so that they are discoverable by remote devices.
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=\textwidth]{resources/websocketconnectioncomplex.png}
+        \caption{WebSocket Connection Establishment with Spawned Workers}
+    \end{centering}
+\end{figure}
 \section{Using the API}
 This section explores each of the functions that the framework exposes which developers will interact with to make use of the Actor Model in JavaScript. Using ES6 Modules the functions are imported as follows.
 \begin{lstlisting}
@@ -185,7 +184,7 @@ When the developer calls the \textbf{spawn} function, they will pass in the acto
 
 The example below defines the actor behaviour to print out each of the parameters. It then uses this function to spawn an actor with that behaviour, and a reference to that actor is returned
 \begin{lstlisting}
-//Actor behaviour
+// Actor behaviour
 const pongBehaviour = (state, message, self) => {
     console.log("My state object is " + state);
     console.log("I'm processing the message object " + message);
