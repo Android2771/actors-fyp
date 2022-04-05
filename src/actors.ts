@@ -11,9 +11,9 @@ const remoteActors: { [key: string]: string } = {};
 
 let network: any;
 
-const events : {[key:string]: any} = {};
+const events: { [key: string]: any } = {};
 
-const on = (name : string, listener : Function) => {
+const on = (name: string, listener: Function) => {
     events[name] = listener;
 }
 
@@ -22,7 +22,7 @@ const removeListener = (name: string) => {
 }
 
 const emit = (name: string) => {
-    if(events[name])
+    if (events[name])
         events[name]();
 }
 
@@ -175,21 +175,21 @@ const closeConnection = () => {
  */
 const spawn = (state: object, behaviour: ActorCallback | string | Function): ActorFacade => {
     const cleanedBehaviour = (typeof behaviour === "string") ?
-        Function('init', 'spawn', 'spawnRemote', 'terminate', 'send', 'closeConnection', 'return ' + behaviour)(init, spawn, spawnRemote, terminate, send, closeConnection) 
+        Function('init', 'spawn', 'spawnRemote', 'terminate', 'send', 'closeConnection', 'return ' + behaviour)(init, spawn, spawnRemote, terminate, send, closeConnection)
         : behaviour;
 
     //Populate the context with the new actor with an empty mailbox and return the actor
     //Generate unique name
-    let name : string;
+    let name: string;
     do
         name = uuidv4();
-    while(actors[name])
+    while (actors[name])
 
     const actor: Actor = { name, node: yourNetworkNumber, state, behaviour: cleanedBehaviour, active: true };
 
     actors[name] = actor;
 
-    return { name: actor.name, node: actor.node};
+    return { name: actor.name, node: actor.node };
 }
 
 /**
@@ -207,7 +207,7 @@ const spawnRemote = (node: number, state: object, behaviour: ActorCallback, time
         forward(payload);
         on(name, () => {
             if (remoteActors[name]) {
-                resolve({ name: remoteActors[name], node})
+                resolve({ name: remoteActors[name], node })
             }
         });
 
@@ -224,10 +224,10 @@ const send = (actor: ActorFacade, message: object): void => {
     if (actor.node === yourNetworkNumber) {
         const localActor = actors[actor.name]
         //Local send
-        if(localActor){           
+        if (localActor) {
             Promise.resolve().then(() => {
                 if (message !== undefined && localActor.active)
-                    localActor.behaviour(localActor.state, message, {name: localActor.name, node: localActor.node});
+                    localActor.behaviour(localActor.state, message, { name: localActor.name, node: localActor.node });
             })
         }
     } else {

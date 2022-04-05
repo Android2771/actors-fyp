@@ -159,14 +159,14 @@ By sending messages to locally spawned actors, each message will be processed to
 
 Since the spawned actors are isolated computational units, they are concurrent and thus potentially parallelisable. This API offers a mechanism to remotely spawn actors on other processes (shared memory) as well as over the web (distributed memory). One could host a website which remotely spawns actors on visiting clients to help speed up a computationally intensive task such as finding the next prime number. The more traction the website gains, the more computational power available.
 
-Providing an intuitive way to remotely spawn and send messages to actors proved to be challenging. The prototype offers a WebSocket server which accepts a predefined number of clients. Each client is assigned a number, and when the number of expected clients connect the server sends a ‘ready’ message to all clients. This releases the barrier which waited for all clients to connect and allows communication between actors residing in any two connected clients. With the current implementation, the developer needs to connect the clients in a certain order to keep track of their incremental network numbers. The network number can then be used to indicate to the WebSocket server which client to communicate with. This is done when remotely spawning actors, as the developer needs to indicate on which connected client the actor will be spawned. Location transparency is offered when sending messages to such remotely spawned actors, as all the information required to establish communication is embedded within the actor reference. 
+Providing an intuitive way to remotely spawn and send messages to actors proved to be challenging. The prototype offers a WebSocket server which accepts a predefined number of clients. Each client is assigned a number, and when the number of expected clients connect the server sends a ‘ready’ message to all clients. This releases the barrier which blocked until all clients connected and allows communication between actors residing in any two connected clients. With the current implementation, the developer needs to connect the clients in a certain order to keep track of their incremental network numbers. The network number can then be used to indicate to the WebSocket server which client to communicate with. This is done when remotely spawning actors, as the developer needs to indicate on which connected client the actor will be spawned. Location transparency is offered when sending messages to such remotely spawned actors, as all the information required to establish communication is embedded within the actor reference. 
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=\textwidth]{resources/websocketconnection.png}
         \caption{WebSocket Connection Establishment with Node and Browser Clients}
     \end{centering}
 \end{figure}
-The API also allows the developer to make use of Node.js Cluster as well as Web Workers for faster communication, as it avoids adding the network stack and the overhead introduced when communicating with a potentially remote WebSocket server. All Node.js child processes and spawned web workers still need to establish a connection with the WebSocket server so that they are discoverable by remote devices.
+The API also allows the developer to spawn Node.js Cluster processes and Web Workers. Communicating with spawned workers is faster as it avoids adding the network stack and the overhead introduced when communicating with a potentially remote WebSocket server. All Node.js child processes and spawned web workers still need to establish a connection with the WebSocket server so that they are discoverable by remote devices.
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=\textwidth]{resources/websocketconnectioncomplex.png}
@@ -180,9 +180,9 @@ import actors from './actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 \end{lstlisting}
 \subsection{Spawning Local Actors}
-When the developer calls the \textbf{spawn} function, they will pass in the actor's initial state as the first parameter. The actor will maintain this state throughout every processed message and it can be manipulated by its behaviour. The actor's state allows for it to maintain memory throughout its lifetime when processing messages. As a second parameter the developer must specify the actor's behaviour which has the actor's current state, current processed message as well as the actor's self reference as parameters. Using these parameters, the developer can define how the behaviour should manipulate the actor's state or how the message contents should be processed. It also allows the actor to pass a reference of itself to other actors using the behaviour's third parameter.
+When the developer calls the \textbf{spawn} function, they will pass in the actor's initial state as the first parameter. The actor will maintain this state throughout every processed message and it can be manipulated by its behaviour. As a second parameter the developer must specify the actor's behaviour which has the actor's current state, current processed message as well as the actor's self reference as parameters. Using these parameters, the developer can define how the behaviour should manipulate the actor's state or how the message contents should be processed. It also allows the actor to pass a reference of itself to other actors using the behaviour's third parameter.
 
-The example below defines the actor behaviour to print out each of the parameters. It then uses this function to spawn an actor with that behaviour, and a reference to that actor is returned
+The example below defines the actor behaviour to print out each of the parameters. This function is used to spawn an actor with that behaviour, and a reference to that actor is returned.
 \begin{lstlisting}
 // Actor behaviour
 const pongBehaviour = (state, message, self) => {
@@ -200,60 +200,57 @@ The \textbf{send} function is used to send a message to an actor. It takes in th
 \begin{lstlisting}
 send(pongReference, {messageVal: "This is a message!"});
 \end{lstlisting}
-One of the framework's key features is location transparency. Whether the actor resides locally or remotely on a different process or device, the framework internally identifies the fastest medium to use for message transportation and sends it through that link.
+One of the framework's key features is location transparency. The framework internally identifies the fastest medium to use for message transportation and sends the message through that link.
 \subsection{Terminating Actors}
-An actor can be terminated using the \textbf{terminate} function. The function takes in the actor to terminate as the first parameter. An actor is terminated by removing its message listener as well as the internal record of the actor. The actor will however process its remaining messages as these are events already queued in the browser or Node.js's event loop. To forcefully terminate an actor, the second parameter can be set to true which will deactivate the actor. When the events are processed, the actor will perform minimal work ignoring the messages.
+An actor can be terminated using the \textbf{terminate} function. The function takes in the actor to terminate as the first parameter. The actor will process its remaining queued messages as these are events already queued in the browser or Node.js's event loop. To forcefully terminate an actor, the second parameter can be set to true which will deactivate the actor. When the events are processed, the actor will perform minimal work ignoring the messages.
 \begin{lstlisting}
-terminate(pongReference, false)
+terminate(pingReferece, false)      //forceful termination
+terminate(pongReference, false)     //non-forceful termination
 \end{lstlisting}
 \subsection{Connecting Processes to the Network}
 The \textbf{init} function handles the spawning of worker processes as well as connections with other Node.js and browser runtimes through WebSockets.
 \begin{lstlisting}
-const webSocketServer = 'ws://localhost:8080';
-const timeout = 10000;
-const numberOfWorkers = 4;
-
-init(webSocketServer, timeout, numberOfWorkers).then(ready => {
+//Connect to local WebSocket server and spawn four processes. Wait 10000ms for all processes to connect
+init('ws://localhost:8080', 10000, 4).then(ready => {
     if (ready.yourNetworkNumber === 1) {
         //Code for node 1 to execute
     }
 })
 \end{lstlisting}
  
-\subsubsection{WebSocket Network}
-Separate from the actor framework implementation, the prototype includes a WebSocket server implementation which handles a fixed number of expected WebSocket connections. As Node.js or browser runtimes connect to the WebSocket server through the invocation of \textbf{init}, the WebSocket server replies with acknowledgements. When the number of expected WebSocket connections are met, the server broadcasts to all connected clients that it is ready to receive and forward information. This effectively turns into a star network where each client can communicate with any other connected client through the WebSocket server. The server allocates and broadcasts unique identifying numbers to each connected client. This allows the developer to uniquely and easily identify remote hosts when required. The first parameter of \textbf{init} is the WebSocket server link while the second parameter specifies the timeout, which is the amount of time in milliseconds the client is willing to wait until it receives the indication that the server is ready to receive and forward information.
+The first parameter takes in the url of the WebSocket server. The second parameter is the timeout, which defines how long the client will wait for all clients to connect to the network. The third and final parameter is the number of workers that are to be spawned. Each of these workers will connect to the WebSocket server.
 
-The WebSocket network could have been peer to peer to eliminate the network hop required for one client to communicate with another through the server. However, this would have required multiple or all hosts to be a WebSocket server listening for incoming connections. Furthermore, complex negotiation between peers would have been required when establishing WebSocket links and unique host identifiers on the fly. Another design alternative would be to establish WebSocket connections on the fly when required. However, this would mean that there may be a slowdown in performance during runtime as connection establishment is being done on demand.
-
-\subsubsection{Spawning Processes}
-The third parameter of the \textbf{init} function is the number of workers that are to be spawned. In the case of Node.js it spawns Cluster~\cite{cluster} child processes while in the browser it spawns Web Workers~\cite{webworkers}. These created workers will also establish a WebSocket connection with the server and are assigned a network number. The primary node or the browser's main thread will exchange their network number with the workers that they spawned so that they are aware on which nodes can be communicated with through the respective API's. With Node.js this would be Cluter IPC while with browsers it would be the Web Worker \textbf{postMessage} function. Both these methods are faster than WebSocket connections as you are avoiding the network stack which provides the flexibility for remote devices to communicate. The primary node/browser main thread is assigned with the task of forwarding messages between worker nodes as direct links are only established between the primary node and each of the workers. The workers are made aware of the assigned network numbers of neighbouring workers so that they can forward messages to the primary node when possible (rather than making use of the WebSocket network)
+Once all clients connect to the server, the server broadcasts a message indicating that it is ready to receive and forward communication to connected clients. This message has embedded within it information about the connected clients' IP addresses and unique incrementally assigned network numbers, as well as the network number assigned to the client receiving the message. In the example above, four processes are spawned (given network numbers 2 to 5), so an if statement is used to define logic only executed by the primary process possessing network number 1.
 
 \subsection{Remotely Spawning Actors}
-After invoking \textbf{init}, the developer can use \textbf{spawnRemote} to remotely spawn actors in other nodes. This function takes the network number as the first parameter, the initial state and behaviour as the other two parameters.
+After invoking \textbf{init}, the developer can use \textbf{spawnRemote} to remotely spawn actors in other connected clients. This function takes the network number of the client to spawn the actor in as the first parameter, the initial state as the second parameter and the actor behaviour as the final parameter.
 \begin{lstlisting}
 const pingPongBehaviour = (state, message, self) => {
     console.log(message.val);
     if(!(message.val-1 < 0))
         send(message.replyTo, {val: message.val-1, replyTo: self});
 };
-
 //Specify timeout and number of workers to spawn
 init('ws://localhost:8080', 10000, 2).then(async ready => {
-    //The primary node is always 1
+    //The primary node always connects first
     if(ready.yourNetworkNumber === 1){
         const ping = await spawnRemote(2, {}, pingPongBehaviour);
         const pong = await spawnRemote(3, {}, pingPongBehaviour);
-
         //Send ping a message. Output will be decrementing values from 5 to 0
         send(ping, {replyTo: pong, val: 5})
     }
 });
 \end{lstlisting}
-The \textbf{spawnRemote} function sends a request to spawn an actor to the remote node. The request has embedded within it the string representation of its behaviour which is reconstructed as a function on the recipient end. Just like the \textbf{send} function, it chooses the fastest transport mechanism to send the spawn request. In the example above, nodes 2 and 3 are the workers that the primary node spawned. The primary node is internally aware of the network numbers of the worker nodes it spawned, so it will make use of Cluster IPC to send these requests rather than the slower established WebSocket link through the network.
+In the example above, nodes 2 and 3 are the workers that the primary node spawned. Node 1 sends requests to the spawned workers to spawn actors. The \textbf{spawnRemote} function returns a Promise which is resolved once the actor is remotely spawned and an acknowledgement is returned. The promise resolves into an actor reference which has embedded information indicating that this is a remote node. This enables location transparency when sending to the actor, as the developer need not be aware of whether the actor reference points to a local or remote actor. Instead, communication is handled internally by the framework.
+\section{Internal Framework Logic}
+\subsection{Composition of an Actor}
+
+\subsection{Communicating with an Actor}
+\subsection{Remote Spawning Mechanism}
+The \textbf{spawnRemote} function sends a request to spawn an actor to the remote node. The request has embedded within it the string representation of its behaviour which is reconstructed as a function on the recipient end. Just like the \textbf{send} function, it chooses the fastest transport mechanism to send the spawn request. The primary node is internally aware of the network numbers of the worker nodes it spawned, so it will make use of Cluster IPC to send these requests rather than the slower established WebSocket link through the network.
 
 Location transparency is provided when obtaining the remotely spawned actor references. The developer can invoke \textbf{send} on the ping actor and the framework will use Cluster IPC to forward the message to the node. When the recipient actor processes message, the actor's behaviour will then send a message to the pong actor using the reference that it was sent by the primary node. The sending actor resides in a spawned worker node and it wishes to send this message to the recipient actor residing in a different worker node in the same cluster. The \textbf{send} function will send the message to the primary node (network number 1) which will then forward the message to the recipient worker node.
-
-\section{Actor Runtime}
+\subsection{Actor Runtime}
 The JavaScript event loop is responsible for executing the application code. The runtime has a queue of messages where each message is mapped to a function which processes that message. The event loop waits for the arrival of a message and processes the queue of messages when there is a backlog. Each message is processed to completion before other messages are processed. The Actor Model also maps messages onto functions which act as message handlers. Therefore, the framework's implementation takes advantage of the similar philosophies between the JavaScript runtime and the Actor Model.
 
 The actors maintain their own message queue in an array. Once a message is received by an actor, it will schedule the processing of the message on the JavaScript event loop. This is done by scheduling a microtask which executes before the start of the next event loop~\cite{eventloopbrowser}\cite{eventloopnode}. The microtask is scheduled by creating a promise which is immediately resolved. This behaviour is similar to using Node.js' \textbf{process.nextTick()}~\cite{nexttick}. This is more efficient than using the JavaScript \textbf{setTimeout()} function as that is scheduled as a macrotask which would execute in the following event loop.
