@@ -378,6 +378,9 @@ TSWLatexianTemp*
 # xwatermark package
 *.xwm
 
+# pdf
+*.pdf
+
 src/*.js
 other/
 
