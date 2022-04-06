@@ -25,14 +25,17 @@
 
 \definecolor{OliveGreen}{rgb}{0,0.6,0}
 
+
 \lstset{
   language=C,
   frame=tb,
   aboveskip=3mm,
-  belowskip=3mm,
-  showstringspaces=false,
+  basicstyle=\footnotesize\ttfamily,
+  numbers=left,
+  stepnumber=1,
+  numbersep=10pt,
+  tabsize=4,
   columns=flexible,
-  basicstyle={\small\ttfamily},
   numbers=none,
   numberstyle=\tiny\color{gray},
   keywordstyle=\color{blue},
@@ -244,25 +247,47 @@ init('ws://localhost:8080', 10000, 2).then(async ready => {
 In the example above, nodes 2 and 3 are the workers that the primary node spawned. Node 1 sends requests to the spawned workers to spawn actors. The \textbf{spawnRemote} function returns a Promise which is resolved once the actor is remotely spawned and an acknowledgement is returned. The promise resolves into an actor reference which has embedded information indicating that this is a remote node. This enables location transparency when sending to the actor, as the developer need not be aware of whether the actor reference points to a local or remote actor. Instead, communication is handled internally by the framework.
 \section{Internal Framework Logic}
 \subsection{Composition of an Actor}
-
+The first decision taken when designing the actor framework is what an actor is composed of. An actor takes the form of an object which contains its maintained state as well as its behaviour as an executable function. Each actor stores a name so that it can be uniquely identified when sending messages to. The network node it resides in as well as whether it is accepting messages are also stored. For every spawned actor, the following information is stored.
+\begin{lstlisting}
+//TypeScript object interface for an Actor
+interface Actor {
+    name: string,                   //generated using uuidv4
+    node: number,                   //found in global var
+    state: { [key: string]: any },  //given by developer
+    behaviour: ActorCallback,       //given by developer
+    active: boolean                 //starts with true
+}
+\end{lstlisting}
+When spawning an actor, the state and behaviour are defined by the developer. The name is automatically generated using a uuidv4 package. The node is the network number assigned to the connected client and all actors start off as active (accepting messages). When returning the actor reference to the developer, an issue arises if the whole actor object is returned. Not only does it contain redundant information such as returning the state and behaviour that were just defined by the developer, it also undermines the concept of actor isolation. Since objects are passed by reference in JavaScript, the developer or other actors would be able to modify the actor's state and behaviour through its reference. This is why a subset of attributes are returned, defined by the ActorFacade TypeScript interface. These are the attributes required to uniquely find an actor anywhere on a distributed network.
+\begin{lstlisting}
+interface ActorFacade {
+    name: string,   //finds the actor
+    node: number    //finds the client
+}
+\end{lstlisting}
 \subsection{Communicating with an Actor}
+Using the returned ActorFacade object from the \textbf{spawn}, an actor can be uniquely identified across the web. The developer puts in the actor reference insied the \textbf{send} function to send that actor a message. Internally, the framework looks at the actor reference's node number. If it matches the client's network number it resides in, then it will queue the local actor's behaviour on the runtime's event loop. 
+
+If the actor resides in a remote node, it creates a payload to send over the network. When the \textbf{init} function is used, the developer can choose to spawn a number of child processes or web workers. Each of the spawned workers will send to the spawner (primary node) their network number assigned by the WebSocket network. The primary node will then inform each of the spawned workers of their neighbouring spawned processes. This is so that spawned processes can communicate with each other through the primary node using the cluster or web worker API instead of the WebSocket network to avoid the network stack. If the actor resides on a separate device or group of spawned processes, it resorts to using the WebSocket network.
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=\textwidth]{resources/communication.png}
+        \caption{Choosing the Communication Link Flowchart}
+    \end{centering}
+\end{figure}
 \subsection{Remote Spawning Mechanism}
 The \textbf{spawnRemote} function sends a request to spawn an actor to the remote node. The request has embedded within it the string representation of its behaviour which is reconstructed as a function on the recipient end. Just like the \textbf{send} function, it chooses the fastest transport mechanism to send the spawn request. The primary node is internally aware of the network numbers of the worker nodes it spawned, so it will make use of Cluster IPC to send these requests rather than the slower established WebSocket link through the network.
 
-Location transparency is provided when obtaining the remotely spawned actor references. The developer can invoke \textbf{send} on the ping actor and the framework will use Cluster IPC to forward the message to the node. When the recipient actor processes message, the actor's behaviour will then send a message to the pong actor using the reference that it was sent by the primary node. The sending actor resides in a spawned worker node and it wishes to send this message to the recipient actor residing in a different worker node in the same cluster. The \textbf{send} function will send the message to the primary node (network number 1) which will then forward the message to the recipient worker node.
+On the recipient side, the node will spawn an actor with that behaviour. It locally generates the spawned actor's name, and sends an acknowledgement to the remote spawner. Once this acknowledgement is received by the spawner, it constructs the actor reference using the received actor name and resolves the promise. This allows developers to use JavaScript async/await to suspend the function until the actor is spawned remotely, or use Promise.then to have a callback function execute once this acknowledgement is received. The developer is not allowed to interact with the remote actor until the acknowledgement is received. 
 \subsection{Actor Runtime}
 The JavaScript event loop is responsible for executing the application code. The runtime has a queue of messages where each message is mapped to a function which processes that message. The event loop waits for the arrival of a message and processes the queue of messages when there is a backlog. Each message is processed to completion before other messages are processed. The Actor Model also maps messages onto functions which act as message handlers. Therefore, the framework's implementation takes advantage of the similar philosophies between the JavaScript runtime and the Actor Model.
 
 The actors maintain their own message queue in an array. Once a message is received by an actor, it will schedule the processing of the message on the JavaScript event loop. This is done by scheduling a microtask which executes before the start of the next event loop~\cite{eventloopbrowser}\cite{eventloopnode}. The microtask is scheduled by creating a promise which is immediately resolved. This behaviour is similar to using Node.js' \textbf{process.nextTick()}~\cite{nexttick}. This is more efficient than using the JavaScript \textbf{setTimeout()} function as that is scheduled as a macrotask which would execute in the following event loop.
 \begin{lstlisting}
-messageEmitter.on(name, () => {
-    Promise.resolve().then(() => {
-        const message = actor.mailbox.shift();
-        if (message !== undefined)
-            cleanedBehaviour(actor.state, message, 
-            {name: actor.name, node: actor.node});
-    })
-});
+Promise.resolve().then(() => {
+    if (message !== undefined && localActor.active)
+        localActor.behaviour(localActor.state, message, { name: localActor.name, node: localActor.node });
+})
 \end{lstlisting}
 
 With this implementation, actors only process messages only when other actors are not in the middle of processing a message. When the developer chooses to send a message to an actor, JavaScript schedules a microtask to be executed before the end of the current event loop. When an actor sends a message to another, it also schedules a microtask. Since JavaScript will process the current microtask to completion before fetching the next, the implementation ensures that at most one actor is in the middle of processing a message.

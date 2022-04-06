@@ -43,9 +43,9 @@ interface ActorCallback {
 //Actor object interface
 interface Actor {
     name: string,
-    node: number,
     state: { [key: string]: any },
     behaviour: ActorCallback,
+    node: number,
     active: boolean
 }
 
