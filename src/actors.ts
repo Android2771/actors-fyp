@@ -211,7 +211,7 @@ const spawnRemote = (node: number, state: object, behaviour: ActorCallback, time
             }
         });
 
-        setTimeout(() => reject(), timeout);
+        setTimeout(() => {reject()}, timeout);
     })
 }
 

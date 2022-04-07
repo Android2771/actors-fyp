@@ -1,9 +1,8 @@
-[39956:40019:0403/163913.395205:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
-[39997:39997:0403/163913.407004:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
-[39956:39956:0403/163913.467403:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
-[39997:39997:0403/163921.117235:ERROR:shared_image_manager.cc(227)] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
-[39956:39956:0403/163924.860684:INFO:CONSOLE(28)] "3694", source: http://localhost:3000/parallel/fjcreatenet.js (28)
-[39956:39956:0403/163928.311975:INFO:CONSOLE(28)] "3451", source: http://localhost:3000/parallel/fjcreatenet.js (28)
-[39956:39956:0403/163931.760342:INFO:CONSOLE(28)] "3449", source: http://localhost:3000/parallel/fjcreatenet.js (28)
-[39956:39956:0403/163935.242919:INFO:CONSOLE(28)] "3482", source: http://localhost:3000/parallel/fjcreatenet.js (28)
-[39956:39956:0403/163938.773304:INFO:CONSOLE(28)] "3531", source: http://localhost:3000/parallel/fjcreatenet.js (28)
+[17889:17915:0407/162649.309835:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
+[17930:17930:0407/162649.318549:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
+[17889:17889:0407/162649.387723:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[17889:17889:0407/162656.184075:INFO:CONSOLE(20)] "4391", source: http://localhost:3000/parallel/fjcreatenet.js (20)
+[17889:17889:0407/162700.138711:INFO:CONSOLE(20)] "3955", source: http://localhost:3000/parallel/fjcreatenet.js (20)
+[17889:17889:0407/162704.002522:INFO:CONSOLE(20)] "3864", source: http://localhost:3000/parallel/fjcreatenet.js (20)
+[17889:17889:0407/162707.920401:INFO:CONSOLE(20)] "3918", source: http://localhost:3000/parallel/fjcreatenet.js (20)
+[17889:17889:0407/162711.921473:INFO:CONSOLE(20)] "4001", source: http://localhost:3000/parallel/fjcreatenet.js (20)

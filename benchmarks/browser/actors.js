@@ -124,7 +124,8 @@ const closeConnection = () => {
 
 const spawn = (state, behaviour) => {
     const cleanedBehaviour = (typeof behaviour === "string") ?
-        behaviour = Function('init', 'spawn', 'spawnRemote', 'terminate', 'send', 'return ' + behaviour)(init, spawn, spawnRemote, terminate, send) : behaviour;
+        Function('init', 'spawn', 'spawnRemote', 'terminate', 'send', 'closeConnection', 'return ' + behaviour)(init, spawn, spawnRemote, terminate, send, closeConnection)
+        : behaviour;
 
     let name;
     do
@@ -133,7 +134,7 @@ const spawn = (state, behaviour) => {
 
     const actor = { name, node: yourNetworkNumber, state, behaviour: cleanedBehaviour, active: true };
     actors[name] = actor;
-
+    
     return { name: actor.name, node: actor.node };
 };
 
@@ -144,10 +145,10 @@ const spawnRemote = (node, state, behaviour, timeout = 0x7fffffff) => {
         forward(payload);
         on(name, () => {
             if (remoteActors[name]) {
-                resolve({ name: remoteActors[name], node })
+                resolve({ name: remoteActors[name], node });
             }
         });
-        setTimeout(() => reject(), timeout);
+        setTimeout(() => { reject(); }, timeout);
     });
 };
 
@@ -170,7 +171,7 @@ const send = (actor, message) => {
 
 const forward = (payload) => {
     const modifiedPayload = Object.assign({ from: yourNetworkNumber }, payload);
-    if ((Array.isArray(workers) && workers.includes(payload.to)) || workers[payload.to] || payload.to === primary)
+    if (workers[payload.to] || payload.to === primary)
         if (!isWorker())
             workers[payload.to].postMessage(modifiedPayload);
         else
@@ -182,7 +183,7 @@ const forward = (payload) => {
 const terminate = (actor, force = false) => {
     const localActor = actors[actor.name];
     if (localActor) {
-        removeListener(localActor.name)
+        removeListener(localActor.name);
         localActor.active = !force;
         delete actors[actor.name];
     }

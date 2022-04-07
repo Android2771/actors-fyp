@@ -1,8 +1,8 @@
-[41362:41387:0403/164804.842925:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
-[41402:41402:0403/164804.860964:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
-[41362:41362:0403/164804.912539:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
-[41362:41362:0403/164812.460054:INFO:CONSOLE(36)] "6426", source: http://localhost:3000/parallel/pingpongnet.js (36)
-[41362:41362:0403/164818.542777:INFO:CONSOLE(36)] "6083", source: http://localhost:3000/parallel/pingpongnet.js (36)
-[41362:41362:0403/164824.594186:INFO:CONSOLE(36)] "6052", source: http://localhost:3000/parallel/pingpongnet.js (36)
-[41362:41362:0403/164830.515946:INFO:CONSOLE(36)] "5921", source: http://localhost:3000/parallel/pingpongnet.js (36)
-[41362:41362:0403/164836.856893:INFO:CONSOLE(36)] "6341", source: http://localhost:3000/parallel/pingpongnet.js (36)
+[18299:18323:0407/162948.107338:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
+[18340:18340:0407/162948.131470:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
+[18299:18299:0407/162948.191507:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[18299:18299:0407/162951.145436:INFO:CONSOLE(36)] "1361", source: http://localhost:3000/parallel/pingpongnet.js (36)
+[18299:18299:0407/162952.413883:INFO:CONSOLE(36)] "1268", source: http://localhost:3000/parallel/pingpongnet.js (36)
+[18299:18299:0407/162953.670994:INFO:CONSOLE(36)] "1257", source: http://localhost:3000/parallel/pingpongnet.js (36)
+[18299:18299:0407/162954.934480:INFO:CONSOLE(36)] "1263", source: http://localhost:3000/parallel/pingpongnet.js (36)
+[18299:18299:0407/162956.168068:INFO:CONSOLE(36)] "1233", source: http://localhost:3000/parallel/pingpongnet.js (36)

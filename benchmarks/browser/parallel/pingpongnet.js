@@ -18,15 +18,15 @@ const pingBehaviour = (state, message, self) => {
     }
 };
 
-init('ws://localhost:8080', 0x7FFFFFFF, 2, './parallel/pingpongnet.js').then(ready => {
+init('ws://localhost:8080', 0x7FFFFFFF, 1, './parallel/pingpongnet.js').then(ready => {
     if (ready.yourNetworkNumber === 1) {
         const benchmarker = spawn({rounds}, async (state, message, self) => {
             switch(message.header){
                 case "start":                    
-                    state.start = new Date();
-                    state.ping = await spawnRemote(2, {benchmarker: self}, pingBehaviour);
-                    state.pong = await spawnRemote(3, {}, pongBehaviour);
+                    state.ping = spawn({benchmarker: self}, pingBehaviour);
+                    state.pong = await spawnRemote(2, {}, pongBehaviour);
                     send(state.ping, {val: N, sender: state.pong, benchmarker: self});
+                    state.start = new Date();
                 break;
                 case "end":
                     state.end = new Date();
