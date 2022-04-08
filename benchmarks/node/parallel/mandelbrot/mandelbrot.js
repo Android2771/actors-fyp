@@ -3,8 +3,8 @@ const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 import fs from 'fs';
 
 const constants = {
-    width: 400000,
-    height: 80,
+    width: 100000,
+    height: 200,
     realStart: -2,
     realEnd: 1,
     imaginaryStart: -1,
