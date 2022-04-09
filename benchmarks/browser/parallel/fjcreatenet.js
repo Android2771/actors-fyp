@@ -2,10 +2,11 @@
 import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 20000;  //Number of actors to spawn
+const N = 100000;  //Number of actors to spawn
 const rounds = 5;
 
-init('ws://localhost:8080', 0x7FFFFFFF, 1, './parallel/fjcreatenet.js').then(ready => {
+// init('ws://localhost:8080').then(ready => {                  //WebSocket
+init('ws://localhost:8080', 0x7FFFFFFF, 1, './parallel/fjcreatenet.js').then(ready => {     //WebWorker
     if (ready.yourNetworkNumber === 1) {
         const benchmarker = spawn({rounds}, async (state, message, self) => {
                 switch(message.header){

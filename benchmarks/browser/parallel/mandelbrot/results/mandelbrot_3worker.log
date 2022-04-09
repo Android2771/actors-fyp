@@ -1,8 +1,8 @@
-[26867:26925:0403/145708.645614:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
-[26909:26909:0403/145708.652224:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
-[26867:26867:0403/145708.708235:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
-[26867:26867:0403/145721.693680:INFO:CONSOLE(69)] "7495", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
-[26867:26867:0403/145729.061763:INFO:CONSOLE(69)] "7368", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
-[26867:26867:0403/145736.495606:INFO:CONSOLE(69)] "7434", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
-[26867:26867:0403/145743.970943:INFO:CONSOLE(69)] "7475", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
-[26867:26867:0403/145751.590439:INFO:CONSOLE(69)] "7620", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
+[31388:31452:0409/141034.129252:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
+[31430:31430:0409/141034.148587:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
+[31388:31388:0409/141034.218826:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[31388:31388:0409/141047.081793:INFO:CONSOLE(71)] "1828", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
+[31388:31388:0409/141048.879995:INFO:CONSOLE(71)] "1798", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
+[31388:31388:0409/141050.813203:INFO:CONSOLE(71)] "1933", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
+[31388:31388:0409/141052.582998:INFO:CONSOLE(71)] "1769", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
+[31388:31388:0409/141054.387246:INFO:CONSOLE(71)] "1804", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)

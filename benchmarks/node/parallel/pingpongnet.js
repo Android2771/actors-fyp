@@ -3,7 +3,7 @@ import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection} = actors
 
 const N = 100000;   //Number of sends
-const rounds = parseInt(process.argv.slice(2)[0]);    //Rounds of benchmark
+const rounds = 5;    //Rounds of benchmark
 
 const pongBehaviour = (state, message, self) => {
     if(!(message.val-1 < 0))
@@ -18,7 +18,8 @@ const pingBehaviour = (state, message, self) => {
     }
 };
 
-init('ws://localhost:8080', 0x7ffffffff, 1).then(ready => {
+// init('ws://localhost:8080').then(ready => {     //WebSocket
+init('ws://localhost:8080', 0x7fffffff, 1).then(ready => {     //Cluster
     if (ready.yourNetworkNumber === 1) {
         const benchmarker = spawn({rounds}, async (state, message, self) => {
             switch(message.header){

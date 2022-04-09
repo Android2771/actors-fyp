@@ -1,8 +1,8 @@
-[17400:17429:0407/162538.235956:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
-[17443:17443:0407/162538.253414:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
-[17400:17400:0407/162538.318558:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
-[17400:17400:0407/162540.897799:INFO:CONSOLE(20)] "665", source: http://localhost:3000/parallel/fjcreatenet.js (20)
-[17400:17400:0407/162541.609255:INFO:CONSOLE(20)] "711", source: http://localhost:3000/parallel/fjcreatenet.js (20)
-[17400:17400:0407/162542.310757:INFO:CONSOLE(20)] "701", source: http://localhost:3000/parallel/fjcreatenet.js (20)
-[17400:17400:0407/162543.077740:INFO:CONSOLE(20)] "767", source: http://localhost:3000/parallel/fjcreatenet.js (20)
-[17400:17400:0407/162543.895178:INFO:CONSOLE(20)] "817", source: http://localhost:3000/parallel/fjcreatenet.js (20)
+[15477:15506:0409/115815.872693:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
+[15518:15518:0409/115815.891823:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
+[15477:15477:0409/115815.947653:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[15477:15477:0409/115826.566075:INFO:CONSOLE(21)] "3159", source: http://localhost:3000/parallel/fjcreatenet.js (21)
+[15477:15477:0409/115829.860298:INFO:CONSOLE(21)] "3295", source: http://localhost:3000/parallel/fjcreatenet.js (21)
+[15477:15477:0409/115833.178357:INFO:CONSOLE(21)] "3318", source: http://localhost:3000/parallel/fjcreatenet.js (21)
+[15477:15477:0409/115836.492226:INFO:CONSOLE(21)] "3314", source: http://localhost:3000/parallel/fjcreatenet.js (21)
+[15477:15477:0409/115839.607266:INFO:CONSOLE(21)] "3115", source: http://localhost:3000/parallel/fjcreatenet.js (21)

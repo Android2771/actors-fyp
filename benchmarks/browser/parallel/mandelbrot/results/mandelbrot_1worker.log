@@ -1,9 +1,10 @@
-[25966:25966:0403/145227.096520:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
-[25924:25924:0403/145227.153571:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
-[25924:25990:0403/145227.234143:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
-[25924:25924:0403/145245.378241:WARNING:controller_impl.cc(1184)] Background download complete, client: 6, completion type: 0, file size:44872688
-[25924:25924:0403/145257.790530:INFO:CONSOLE(69)] "20094", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
-[25924:25924:0403/145317.788408:INFO:CONSOLE(69)] "19998", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
-[25924:25924:0403/145337.435956:INFO:CONSOLE(69)] "19647", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
-[25924:25924:0403/145356.840853:INFO:CONSOLE(69)] "19405", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
-[25924:25924:0403/145416.412544:INFO:CONSOLE(69)] "19572", source: http://localhost:3000/parallel/mandelbrot/mandelbrot_rows.js (69)
+[30179:30207:0409/140820.228292:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
+[30221:30221:0409/140820.245411:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
+[30179:30179:0409/140820.321927:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[30179:30179:0409/140843.431886:INFO:CONSOLE(71)] "4877", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
+[30179:30179:0409/140848.364423:INFO:CONSOLE(71)] "4932", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
+[30179:30179:0409/140853.187419:INFO:CONSOLE(71)] "4823", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
+[30179:30179:0409/140857.947082:INFO:CONSOLE(71)] "4759", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
+[30179:30179:0409/140902.660701:INFO:CONSOLE(71)] "4714", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
+[30222:30229:0409/140932.950437:WARNING:sqlite_persistent_store_backend_base.cc(165)] Failed to post task from FlushAndNotifyInBackground@net/extras/sqlite/sqlite_persistent_store_backend_base.cc:213 to client_task_runner_.
+[30179:30179:0409/140932.965608:WARNING:pref_notifier_impl.cc(40)] Pref observer for media_router.cast_allow_all_ips found at shutdown.

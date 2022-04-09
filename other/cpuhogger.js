@@ -1,3 +1,4 @@
+process.env.UV_THREADPOOL_SIZE=64
 let promisesQueued = false;
 
 console.log('Queuing up promises...')

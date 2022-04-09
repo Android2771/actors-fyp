@@ -1,11 +1,12 @@
 // Tests ahead of time actor creation and destruction
 import actors from '../../../src/actors.js';
-const { init, spawn, spawnRemote, terminate, send} = actors
+const { init, spawn, spawnRemote, terminate, send, closeConnection} = actors
 
 const N = 100000;  //Number of actors to spawn
 const rounds = 5;
 
-init('ws://localhost:8080', 0x7FFFFFFF, 1).then(ready => {
+init('ws://localhost:8080').then(ready => {                  //WebSocket
+// init('ws://localhost:8080', 0x7FFFFFFF, 1).then(ready => {      //Cluster
     if (ready.yourNetworkNumber === 1) {
         const benchmarker = spawn({rounds}, async (state, message, self) => {
                 switch(message.header){
@@ -20,9 +21,10 @@ init('ws://localhost:8080', 0x7FFFFFFF, 1).then(ready => {
                         console.log(time);
                         
                         state.rounds--;
-                        if(state.rounds != 0){
+                        if(state.rounds != 0)
                             send(self, {header: "start"});
-                        }
+                        else
+                            closeConnection()
                     break;
                 }
 
