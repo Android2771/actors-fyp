@@ -8,11 +8,27 @@
     <!-- <script type="module" src="./singlethread/fjthrput.js"></script> -->
     <!-- <script type="module" src="./singlethread/pingpong.js"></script> -->
     <!-- <script type="module" src="./singlethread/threadring.js"></script> -->
-    <script type="module" src="./parallel/mandelbrot/mandelbrot.js"></script>
+    <!-- <script type="module" src="./parallel/mandelbrot/mandelbrot.js"></script> -->
     <!-- <script type="module" src="./parallel/piprecision.js"></script> -->
     <!-- <script type="module" src="./parallel/trapezoid.js"></script> -->
     <!-- <script type="module" src="./parallel/pingpongnet.js"></script> -->
     <!-- <script type="module" src="./singlethread/pingpong.js"></script> -->
     <!-- <script type="module" src="./parallel/fjcreatenet.js"></script> -->
     <!-- <script type="module" src="./singlethread/fjcreate.js"></script> -->
+    <!-- <script>
+        let promisesQueued = false;
+
+        console.log('Queuing up promises...')
+        const start = new Date();
+        for(let i = 0; i < 14000000; i++){
+            Promise.resolve().then(() => {
+                if(!promisesQueued)
+                    console.log('Executing promises')
+                promisesQueued = true
+            })
+
+            if(i === 14000000 - 1)
+                console.log(new Date() - start)
+        }
+    </script> -->
 </body>
