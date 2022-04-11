@@ -18,29 +18,25 @@ const rounds = parseInt(process.argv.slice(2)[2]);
 const output = process.argv.slice(2)[3] === "true";
 
 const rowRendererBehaviour = (state, message, self) => {
-    const add = (x, y) => ({re: x.re + y.re, im: x.im + y.im});   
-    const mul = (x, y) => ({re: x.re*y.re - x.im*y.im, im: x.re*y.im + x.im*y.re}); 
-    const abs = z => Math.sqrt(z.re*z.re+z.im*z.im); 
-
-    const mandelbrot = c => {        
-        let z = {re: 0, im: 0};
-        let n = 0;
-        while(abs(z) <= 2 && n < state.iterations){
-            z = add(mul(z, z), c);
-            n++;
-        }
-        return n;
-    };
-
     const pixelRows = [];
 
     for(let y = message.start; y < message.end; y++){
         const row = [];
         for(let x = 0; x < state.width; x++){
-            const c = {re: state.realStart + (x / state.width) * (state.realEnd - state.realStart),
-                    im: state.imaginaryStart + (y / state.height) * (state.imaginaryEnd - state.imaginaryStart)};
-            const m = mandelbrot(c);
-            const colour = 255 - parseInt(m * 255 / state.iterations);
+            const cre = state.realStart + (x / state.width) * (state.realEnd - state.realStart);
+            const cim = state.imaginaryStart + (y / state.height) * (state.imaginaryEnd - state.imaginaryStart);
+            let zre = 0;
+            let zim = 0;
+            let n = 0;
+            while(Math.sqrt(zre*zre+zim*zim) <= 2 && n < state.iterations){
+                const zreOld = zre;
+                zre = zre*zre - zim*zim;
+                zim = zreOld*zim + zim*zreOld;
+                zre = zre+cre;
+                zim = zim+cim;
+                n++;
+            }
+            const colour = 255 - parseInt(n * 255 / state.iterations);
             row.push(colour);
         }
         pixelRows.push(row);

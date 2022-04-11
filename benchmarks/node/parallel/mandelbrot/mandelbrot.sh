@@ -6,7 +6,7 @@ export NODE_OPTIONS=--max-old-space-size=4192;
 run_benchmark(){
     node ../../../../src/network.js $(($1+1)) 100 &
     sleep 1
-    node mandelbrot.js $1 $2 $3 false #> results/mandelbrot_$1worker.txt
+    node mandelbrotnoharvest.js $1 $2 $3 false #> results/mandelbrot_$1worker.txt
     kill %%
 }
 
