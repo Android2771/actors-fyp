@@ -8,7 +8,7 @@ import re
 #Declare vars
 node_data = {}
 browser_data = {}
-node_directory = '../node/singlethread/results'
+node_directory = '../node/micro/results'
 
 #Scrape node results
 for filename in os.listdir(node_directory):
@@ -24,12 +24,12 @@ node_averages = [np.average(node_data[key]) for key in node_data.keys()]
 node_errors = [np.std(node_data[key])/np.sqrt(np.size(node_data[key])) for key in node_data.keys()]
 
 #Scrape browser results
-with open('../browser/singlethread/singlethread.log') as f:
+with open('../browser/micro/singlethread.log') as f:
     for line in f.readlines():
         sanitized_line = line.strip()
         if '.js ' in sanitized_line:
             #Get benchmark name
-            search = 'source: http://localhost:3000/singlethread/'
+            search = 'source: http://localhost:3000/micro/'
             benchmark = sanitized_line[sanitized_line.find(search)+len(search):]
             benchmark = benchmark[benchmark.find('/')+1:benchmark.find('.')].upper()
             reading = sanitized_line[sanitized_line.find('"')+1:sanitized_line.find('"', sanitized_line.find('"')+1)]
@@ -47,8 +47,8 @@ plt.bar(X_axis-0.1, node_averages, width, color='green', label='Node', yerr=node
 plt.bar(X_axis+0.1, browser_averages, width, color='blue', label='Browser', yerr=browser_errors)
 
 plt.xticks(X_axis, list(node_data.keys()), rotation=45)
-plt.title('Single Threaded Benchmarks Node.js and Browser Comparision')
+plt.title('Micro-Benchmarks Node.js and Browser Comparision')
 plt.xlabel('Benchmark')
 plt.ylabel('Time to execute (ms)')
 plt.legend()
-plt.savefig('singlethread.png')
+plt.savefig('micro.png')
