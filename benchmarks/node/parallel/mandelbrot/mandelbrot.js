@@ -3,8 +3,8 @@ const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 import fs from 'fs';
 
 const constants = {
-    width: 6000,
-    height: 4000,
+    width: 12000,
+    height: 8000,
     realStart: -2,
     realEnd: 1,
     imaginaryStart: -1,
@@ -85,12 +85,10 @@ init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {
                         else{
                             closeConnection();
                         }
-                    }else{   
-                        if(state.nextRow !== state.constants.height){           
+                    }else if(state.nextRow !== state.constants.height){           
                             const end = state.nextRow+step >= state.constants.height ? state.constants.height : state.nextRow+step  
                             send(message.from, {start: state.nextRow, end, sender: self});
                             state.nextRow = end;
-                        }
                     }
                 break;
             }

@@ -1,22 +1,28 @@
 import pandas
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 import numpy as np
 import os
 import re
 
 keys = [1,2,3,4]
-mandelbrot_data = {}
+mandelbrot_noharvest_data = {}
+mandelbrot_withharvest_data = {}
 piprecision_data = {}
 trapezoid_data = {}
 for processes in keys:
-    mandelbrot_data[processes] = []
+    mandelbrot_noharvest_data[processes] = []
+    mandelbrot_withharvest_data[processes] = []
     piprecision_data[processes] = []
     trapezoid_data[processes] = []
     
     #Scrape node data
+    with open(f'../node/parallel/mandelbrot/results/mandelbrotnoharvest_{processes}worker.txt') as f:
+        for line in f.readlines():
+            mandelbrot_noharvest_data[processes].append(int(line.strip()))
     with open(f'../node/parallel/mandelbrot/results/mandelbrot_{processes}worker.txt') as f:
         for line in f.readlines():
-            mandelbrot_data[processes].append(int(line.strip()))
+            mandelbrot_withharvest_data[processes].append(int(line.strip()))
     with open(f'../node/parallel/results/piprecision_{processes}worker.txt') as f:
         for line in f.readlines():
             piprecision_data[processes].append(int(line.strip()))
@@ -25,31 +31,38 @@ for processes in keys:
             trapezoid_data[processes].append(int(line.strip()))
             
             
-mandelbrot_speedup = [np.average(mandelbrot_data[1])/np.average(mandelbrot_data[key]) for key in keys]
+mandelbrot_noharvest_speedup = [np.average(mandelbrot_noharvest_data[1])/np.average(mandelbrot_noharvest_data[key]) for key in keys]
+mandelbrot_withharvest_speedup = [np.average(mandelbrot_withharvest_data[1])/np.average(mandelbrot_withharvest_data[key]) for key in keys]
 piprecision_speedup = [np.average(piprecision_data[1])/np.average(piprecision_data[key]) for key in keys]
 trapezoid_speedup = [np.average(trapezoid_data[1])/np.average(trapezoid_data[key]) for key in keys]
 
-fig, ax = plt.subplots()
+figure(figsize=(7.5, 6), dpi=80)
 
-ax.plot(keys, mandelbrot_speedup, '-o', color='blue',
+plt.plot(keys, mandelbrot_noharvest_speedup, '-o', color='blue',
         markersize=15, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='black',
-        markeredgewidth=1, label='Mandelbrot');
+        markeredgewidth=1, label='Mandelbrot no harvest');
 
-ax.plot(keys, piprecision_speedup, '-p', color='red',
+plt.plot(keys, mandelbrot_withharvest_speedup, '-h', color='purple',
+        markersize=15, linewidth=4,
+        markerfacecolor='white',
+        markeredgecolor='black',
+        markeredgewidth=1, label='Mandelbrot with harvest');
+
+plt.plot(keys, piprecision_speedup, '-p', color='red',
     markersize=15, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Pi Precision');
 
-ax.plot(keys, trapezoid_speedup, '-8', color='green',
+plt.plot(keys, trapezoid_speedup, '-8', color='green',
     markersize=15, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Trapezoid');
 
-legend = ax.legend(loc='upper left', shadow=True, fontsize='x-large')
+legend = plt.legend(loc='upper left', shadow=True, fontsize='x-large')
 
 plt.locator_params(axis="x", integer=True, tight=True)
 plt.title('Node Speedup for Parallel Benchmarks')
@@ -67,21 +80,28 @@ def scrape_log_line(line, search):
         return int(reading)
             
 
-mandelbrot_data = {}
+mandelbrot_noharvest_data = {}
+mandelbrot_withharvest_data = {}
 piprecision_data = {}
 trapezoid_data = {}
 
 for processes in keys:
-    mandelbrot_data[processes] = []
+    mandelbrot_noharvest_data[processes] = []
+    mandelbrot_withharvest_data[processes] = []
     piprecision_data[processes] = []
     trapezoid_data[processes] = []
     
-    #Scrape node data
+    #Scrape browser data
     with open(f'../browser/parallel/mandelbrot/results/mandelbrot_{processes}worker.log') as f:
         for line in f.readlines():
             reading = scrape_log_line(line, 'source: http://localhost:3000/parallel/mandelbrot/')
             if reading is not None:
-                mandelbrot_data[processes].append(reading)
+                mandelbrot_withharvest_data[processes].append(reading)
+    with open(f'../browser/parallel/mandelbrot/results/mandelbrotnoharvest_{processes}worker.log') as f:
+        for line in f.readlines():
+            reading = scrape_log_line(line, 'source: http://localhost:3000/parallel/mandelbrot/')
+            if reading is not None:
+                mandelbrot_noharvest_data[processes].append(reading)
     with open(f'../browser/parallel/results/piprecision_{processes}worker.log') as f:
         for line in f.readlines():            
             reading = scrape_log_line(line, 'source: http://localhost:3000/parallel/')
@@ -93,31 +113,39 @@ for processes in keys:
             if reading is not None:
                 trapezoid_data[processes].append(reading)
             
-mandelbrot_speedup = [np.average(mandelbrot_data[1])/np.average(mandelbrot_data[key]) for key in keys]
+mandelbrot_noharvest_speedup = [np.average(mandelbrot_noharvest_data[1])/np.average(mandelbrot_noharvest_data[key]) for key in keys]
+mandelbrot_withharvest_speedup = [np.average(mandelbrot_withharvest_data[1])/np.average(mandelbrot_withharvest_data[key]) for key in keys]
 piprecision_speedup = [np.average(piprecision_data[1])/np.average(piprecision_data[key]) for key in keys]
 trapezoid_speedup = [np.average(trapezoid_data[1])/np.average(trapezoid_data[key]) for key in keys]
 
-fig, ax = plt.subplots()
+figure(figsize=(7.5, 6), dpi=80)
 
-ax.plot(keys, mandelbrot_speedup, '-o', color='blue',
+print(mandelbrot_withharvest_data)
+plt.plot(keys, mandelbrot_noharvest_speedup, '-o', color='blue',
         markersize=15, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='black',
-        markeredgewidth=1, label='Mandelbrot');
+        markeredgewidth=1, label='Mandelbrot no harvest');
 
-ax.plot(keys, piprecision_speedup, '-p', color='red',
+plt.plot(keys, mandelbrot_withharvest_speedup, '-h', color='purple',
+        markersize=15, linewidth=4,
+        markerfacecolor='white',
+        markeredgecolor='black',
+        markeredgewidth=1, label='Mandelbrot with harvest');
+
+plt.plot(keys, piprecision_speedup, '-p', color='red',
     markersize=15, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Pi Precision');
 
-ax.plot(keys, trapezoid_speedup, '-8', color='green',
+plt.plot(keys, trapezoid_speedup, '-8', color='green',
     markersize=15, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Trapezoid');
 
-legend = ax.legend(loc='upper left', shadow=True, fontsize='x-large')
+legend = plt.legend(loc='upper left', shadow=True, fontsize='x-large')
 
 plt.locator_params(axis="x", integer=True, tight=True)
 plt.title('Browser Speedup for Parallel Benchmarks')

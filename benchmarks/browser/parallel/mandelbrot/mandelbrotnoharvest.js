@@ -1,6 +1,5 @@
-import actors from '../../../../src/actors.js';
+import actors from '../../../actors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
-import fs from 'fs';
 
 const constants = {
     width: 12000,
@@ -12,10 +11,9 @@ const constants = {
     iterations: 80
 }
 
-const K = parseInt(process.argv.slice(2)[0]);
-const step = parseInt(process.argv.slice(2)[1]);
-const rounds = parseInt(process.argv.slice(2)[2]);
-const output = process.argv.slice(2)[3] === "true";
+const K = 4;
+const step = 180;
+const rounds = 5;
 
 const rowRendererBehaviour = (state, message, self) => {
     const pixelRows = [];
@@ -41,7 +39,7 @@ const rowRendererBehaviour = (state, message, self) => {
     send(message.sender, {header: "ROWS", pixelRows, start: message.start, from: self});
 };
 
-init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {    
+init('ws://localhost:8080', 0x7FFFFFF, K, './parallel/mandelbrot/mandelbrotnoharvest.js').then(ready => {    
     if(ready.yourNetworkNumber === 1){
         const imageRenderer = spawn({rounds, constants, rowRendererBehaviour, responses: {}, image: [], receivedRows: 0, nextRow: 0, actors: []}, (state, message, self) => {
             switch(message.header){
@@ -67,9 +65,7 @@ init('ws://localhost:8080', 0x7FFFFFF, K).then(ready => {
                             for(const row of state.responses[i])
                                 state.image.push(row);
                         
-                        if(output)                            
-                            fs.writeFile("mandelbrot.json", JSON.stringify(state.image), err => {closeConnection()});                        
-                        else if(--state.rounds !== 0){
+                        if(--state.rounds !== 0){
                             state.responses = {};
                             state.image = [];
                             state.receivedRows = 0;

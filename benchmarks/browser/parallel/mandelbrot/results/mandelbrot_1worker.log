@@ -1,10 +1,8 @@
-[30179:30207:0409/140820.228292:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
-[30221:30221:0409/140820.245411:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
-[30179:30179:0409/140820.321927:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
-[30179:30179:0409/140843.431886:INFO:CONSOLE(71)] "4877", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
-[30179:30179:0409/140848.364423:INFO:CONSOLE(71)] "4932", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
-[30179:30179:0409/140853.187419:INFO:CONSOLE(71)] "4823", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
-[30179:30179:0409/140857.947082:INFO:CONSOLE(71)] "4759", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
-[30179:30179:0409/140902.660701:INFO:CONSOLE(71)] "4714", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (71)
-[30222:30229:0409/140932.950437:WARNING:sqlite_persistent_store_backend_base.cc(165)] Failed to post task from FlushAndNotifyInBackground@net/extras/sqlite/sqlite_persistent_store_backend_base.cc:213 to client_task_runner_.
-[30179:30179:0409/140932.965608:WARNING:pref_notifier_impl.cc(40)] Pref observer for media_router.cast_allow_all_ips found at shutdown.
+[10729:10759:0411/153218.356722:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
+[10776:10776:0411/153218.378574:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
+[10729:10729:0411/153218.439117:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[10729:10729:0411/153233.095019:INFO:CONSOLE(67)] "12734", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (67)
+[10729:10729:0411/153245.486363:INFO:CONSOLE(67)] "12391", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (67)
+[10729:10729:0411/153257.578317:INFO:CONSOLE(67)] "12092", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (67)
+[10729:10729:0411/153309.665149:INFO:CONSOLE(67)] "12086", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (67)
+[10729:10729:0411/153321.800053:INFO:CONSOLE(67)] "12134", source: http://localhost:3000/parallel/mandelbrot/mandelbrot.js (67)

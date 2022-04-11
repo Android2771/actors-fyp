@@ -1,9 +1,9 @@
-import actors from '../../actors.js';
+import actors from '../../../actors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 
 const constants = {
-    width: 6000,
-    height: 4000,
+    width: 12000,
+    height: 8000,
     realStart: -2,
     realEnd: 1,
     imaginaryStart: -1,
@@ -11,34 +11,30 @@ const constants = {
     iterations: 80
 }
 
-const K = 3;
-const step = 200;
-const rounds = 100;
+const K = 4;
+const step = 180;
+const rounds = 5;
 
 const rowRendererBehaviour = (state, message, self) => {
-    const add = (x, y) => ({re: x.re + y.re, im: x.im + y.im});   
-    const mul = (x, y) => ({re: x.re*y.re - x.im*y.im, im: x.re*y.im + x.im*y.re}); 
-    const abs = z => Math.sqrt(z.re*z.re+z.im*z.im); 
-
-    const mandelbrot = c => {        
-        let z = {re: 0, im: 0};
-        let n = 0;
-        while(abs(z) <= 2 && n < state.iterations){
-            z = add(mul(z, z), c);
-            n++;
-        }
-        return n;
-    };
-
     const pixelRows = [];
 
     for(let y = message.start; y < message.end; y++){
         const row = [];
         for(let x = 0; x < state.width; x++){
-            const c = {re: state.realStart + (x / state.width) * (state.realEnd - state.realStart),
-                    im: state.imaginaryStart + (y / state.height) * (state.imaginaryEnd - state.imaginaryStart)};
-            const m = mandelbrot(c);
-            const colour = 255 - parseInt(m * 255 / state.iterations);
+            const cre = state.realStart + (x / state.width) * (state.realEnd - state.realStart);
+            const cim = state.imaginaryStart + (y / state.height) * (state.imaginaryEnd - state.imaginaryStart);
+            let zre = 0;
+            let zim = 0;
+            let n = 0;
+            while(Math.sqrt(zre*zre+zim*zim) <= 2 && n < state.iterations){
+                const zreOld = zre;
+                zre = zre*zre - zim*zim;
+                zim = zreOld*zim + zim*zreOld;
+                zre = zre+cre;
+                zim = zim+cim;
+                n++;
+            }
+            const colour = 255 - parseInt(n * 255 / state.iterations);
             row.push(colour);
         }
         pixelRows.push(row);
@@ -85,12 +81,10 @@ init('ws://localhost:8080', 0x7FFFFFF, K, './parallel/mandelbrot/mandelbrot.js')
                         else{
                             closeConnection();
                         }
-                    }else{   
-                        if(state.nextRow !== state.constants.height){           
+                    }else if(state.nextRow !== state.constants.height){           
                             const end = state.nextRow+step >= state.constants.height ? state.constants.height : state.nextRow+step  
                             send(message.from, {start: state.nextRow, end, sender: self});
                             state.nextRow = end;
-                        }
                     }
                 break;
             }
