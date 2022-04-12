@@ -1,0 +1,8 @@
+[40409:40471:0412/125243.752705:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
+[40450:40450:0412/125243.770234:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
+[40409:40409:0412/125243.838297:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[40409:40409:0412/125249.901508:INFO:CONSOLE(62)] "1684", source: http://localhost:3000/parallel/mandelbrot/mandelbrotnoharvest.js (62)
+[40409:40409:0412/125251.557605:INFO:CONSOLE(62)] "1656", source: http://localhost:3000/parallel/mandelbrot/mandelbrotnoharvest.js (62)
+[40409:40409:0412/125253.213755:INFO:CONSOLE(62)] "1656", source: http://localhost:3000/parallel/mandelbrot/mandelbrotnoharvest.js (62)
+[40409:40409:0412/125254.784839:INFO:CONSOLE(62)] "1571", source: http://localhost:3000/parallel/mandelbrot/mandelbrotnoharvest.js (62)
+[40409:40409:0412/125256.414736:INFO:CONSOLE(62)] "1630", source: http://localhost:3000/parallel/mandelbrot/mandelbrotnoharvest.js (62)

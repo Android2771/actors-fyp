@@ -39,6 +39,7 @@ const rowRendererBehaviour = (state, message, self) => {
     send(message.sender, {header: "ROWS", pixelRows, start: message.start, from: self});
 };
 
+// init('ws://raspberrypi4:8080', 0x7FFFFFFF, 4, './parallel/mandelbrot/mandelbrotnoharvest.js').then(ready => {  
 init('ws://localhost:8080', 0x7FFFFFF, K, './parallel/mandelbrot/mandelbrotnoharvest.js').then(ready => {    
     if(ready.yourNetworkNumber === 1){
         const imageRenderer = spawn({rounds, constants, rowRendererBehaviour, responses: {}, image: [], receivedRows: 0, nextRow: 0, actors: []}, (state, message, self) => {
