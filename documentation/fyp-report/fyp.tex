@@ -292,8 +292,36 @@ Promise.resolve().then(() => {
 
 With this implementation, actors only process messages only when other actors are not in the middle of processing a message. When the developer chooses to send a message to an actor, JavaScript schedules a microtask to be executed before the end of the current event loop. When an actor sends a message to another, it also schedules a microtask. Since JavaScript will process the current microtask to completion before fetching the next, the implementation ensures that at most one actor is in the middle of processing a message.
 \chapter{Evaluation}
-\section{Single Threaded Performance}
+This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina~\cite{savina} is a benchmark suite defined for actor based systems which is partially implemented for this chapter. It defines micro-benchmarks which measures overheads introduced when using the framework's basic functionality, which will be the focus of the first section. It also defines parallel benchmarks which are expected to linearly increase performance with each added core, and will be the topic of interest in the second section.
+
+\section{Micro-Benchmark Performance}
+\subsection{Local}
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=250px]{../../benchmarks/visualisations/micro.png}
+        \caption{Micro-Benchmarks Node.js and Browser Comparision}
+    \end{centering}
+\end{figure}
+\subsection{Remote}
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=250px]{../../benchmarks/visualisations/link.png}
+        \caption{Comparision of Communication Links}
+    \end{centering}
+\end{figure}
 \section{Parallel Execution Performance}
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=250px]{../../benchmarks/visualisations/node_speedup.png}
+        \caption{Node Speedup for Parallel Benchmarks}
+    \end{centering}
+\end{figure}
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=250px]{../../benchmarks/visualisations/browser_speedup.png}
+        \caption{Browser Speedup for Parallel Benchmarks}
+    \end{centering}
+\end{figure}
 \chapter{Conclusion}
 
 \appendix
