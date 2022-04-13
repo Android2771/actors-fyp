@@ -89,7 +89,7 @@ your acknowledgements
 \end{acknowledgements}
        
 \begin{abstract}
-an abstract
+This dissertation explores the suitability of the actor model when used to bring concurrency and parallelism to JavaScript. Actors are concurrent isolated units of computation which process messages using their predefined behaviour. The implementation takes the form of API’s for both the Node.js and browser environments respectively, allowing developers to intuitively reason about engineering JavaScript programs through the spawning and sending of messages to actors. Isolated actors can be safely spawned on remote devices over a network as well as utilise multiple cores on a local processor.  This allows for distributed and parallel computation which shorten the time taken on executing computationally intensive tasks. A WebSocket server is used to connect a finite number of nodes and browsers hosting actors over the network. Faster communication links are explored using IPC when utilising multiple cores on a local device. The framework abstracts the adaptive use of different communication links and provides location transparency for remote actors. Benchmarks analyse the framework’s performance when used on a single instance using Node.js and a browser, as well as the reasonable speedup introduced when utilising additional local or distributed cores working on the same task. Providing an intuitive method to distribute computation across websites and server-side instances have wide-reaching applications. Websites can have actors running on visiting clients to assist in computationally intensive tasks. Nowadays, browsers are found on conventional devices as well devices such as smart fridges and TV’s, each of which able to run JavaScript defined behaviour for actors. The increasingly popular Node.js environment for server-side applications would be able to host actors which can communicate with actors hosted on browsers, enabling uniform and flexible scaling of applications. The limitations of the framework are discussed as well as its untapped potential when it comes to freezing and migrating actors across the web.
 \end{abstract}
 
 \tableofcontents
@@ -105,13 +105,16 @@ an abstract
 \chapter{Introduction}
 \section{Motivation}
 %Why JavaScript
-JavaScript~\cite{ecmascript} is widely used for client applications on the browser and benefits from a growing popularity of server-side applications using environments such as Node.js. It is a single threaded language which lacks an intuitive way to program in a parallel and distributed fashion. This dissertation presents a prototype that implements a JavaScript framework which allows developers to build actor-based systems. Developers can use actors as concurrent units of computation which can be deployed either locally or remotely on multiple node runtimes and browsers. This will allow developers to intuitively distribute work amongst multiple processors and devices to fully utilise the hardware usually available in servers and modern computers.
+JavaScript~\cite{ecmascript} is widely used for client applications on the browser and benefits from a growing popularity of server-side applications using environments such as Node.js. It is a single threaded language which lacks an intuitive way to program in a parallel and distributed fashion. This dissertation presents a prototype that implements a JavaScript framework which allows developers to build actor-based systems. Developers can use actors as concurrent units of computation which can be deployed either locally or remotely on multiple node runtimes and browsers. This will allow developers to intuitively distribute work amongst multiple processors and devices to fully utilise the hardware available in servers and modern computers.
 
 %Why Actors
-Actors~\cite{hewitt1973session}\cite{43years} communicate with each other through messages which are stored in the receiving actor's message queue. A message is processed by executing its defined actor behaviour. The Actor Model is a good fit for JavaScript's event loop~\cite{eventloopbrowser}\cite{eventloopnode} since they are both event driven. The Actor Model has already achieved success in the telecommunications industry and is more recently used for implementing distributed systems in languages such as Erlang and Scala/Akka~\cite{haller2012integration}.
+Actors~\cite{hewitt1973session}\cite{43years} communicate with each other through messages which are stored in the receiving actor's message queue. A message is processed by executing its defined actor behaviour. The Actor Model is a good fit for JavaScript's event loop~\cite{eventloopbrowser}\cite{eventloopnode} as they are both event driven. The Actor Model has already achieved success in the telecommunications industry and is more recently used for implementing distributed systems in languages such as Erlang and Scala/Akka~\cite{haller2012integration}.
+
+%The Framework
+JavaScript allows developers to import exported variables and functions from different files. The developed prototype takes the form of an API exposed through the use of exported functions. This will abstract the prototype's mechanisms required to spawn and interact with actors, allowing developers to intuitively make use of the actor model in their code. A framework will be provided for the browser and Node.js environment respectively
 
 \section{Objectives}
-This dissertation will explore the suitability of the Actor Model when used to reason about distributed and concurrent systems in JavaScript through the use of one or multiple prototypes. The framework's suitability is based on its performance, scalablity, and intuitiveness to use. The objectives of the artifact are as follows.
+This dissertation will explore the suitability of the Actor Model when used to reason about distributed and concurrent systems in JavaScript through the use of the developed prototypes. The framework's suitability is based on its performance, scalablity, and intuitiveness to use. The objectives of the artifact are as follows.
 \begin{enumerate}
     \item Allow developers to easily define and spawn actors through the framework API on Node.js or a browser. Actors should be able to send messages to other actors as well as spawn more actors. Full interoperability should be offered when using the framework across the two environments.
     \item Allow for spawning and interacting with actors on different Node.js processes through different network links. Node.js cluster\cite{cluster} can be used for IPC between node processes, while WebWorkers\cite{webworkers} can be used for communication between the primary thread and its spawned workers. When such communicaiton links are not available, the network stack is involved by using WebSockets for flexible communication to link remote processes and devices.
@@ -137,18 +140,16 @@ Nowadays, several variants of the actor model are used to fit the requirements o
 \section{Similar Work}
 Several JavaScript frameworks which implement the Actor model are already available on the node package manager (npm) and in public git repositories.
 
-Clooney~\cite{clooney} is described as an actor library for the browser by the Google Chrome team. It offers an API that takes in classes with functions inside which will be instantiated in a worker. Developers can call the defined functions inside the actors as if they were a regular class. This library acts more as an intuitive way around using the Web Worker API to offer parallelism rather than a fully fledged actor library. 
+\textbf{Clooney}~\cite{clooney} is described as an actor library for the browser by the Google Chrome team. It offers an API that takes in classes with functions inside which will be instantiated in a worker. Developers can call the defined functions inside the actors as if they were a regular class. This library acts more as an intuitive way around using the Web Worker API to offer parallelism rather than a fully fledged actor library. 
 
-Nact~\cite{nact} is a more faithful implementation to the Actor model as it relies on message passing for communication between isolated actors rather than Clooney's function calls. One spawns an actor by defining a function with the state, message and system context as the parameters. The function will be called for every message that is sent to the spawned actor. Network transparency has not been implemented for nact, making it more complex to have actors spawned on remote devices over the internet.
+\textbf{Nact}~\cite{nact} is a more faithful implementation to the Actor model as it relies on message passing for communication between isolated actors rather than Clooney's function calls. One spawns an actor by defining a function with the state, message and system context as the parameters. The function will be called for every message that is sent to the spawned actor. Network transparency has not been implemented for nact, making it more complex to have actors spawned on remote devices over the internet.
 
 \textbf{Akka.js}~\cite{stivan2015akka} allows developers to cross-compile Akka to JavaScript browsers and server-side runtimes. This framework allows developers to build distributed applications using separate browsers using WebRTC~. It also incentivises developers to only be knowledgeable with Scala to deploy actors on both the browser and the server.
 
 A project similar to this dissertation's prototype is called \textbf{Spiders.js}~\cite{spidersjs}. The paper identifies the problem of different API's being used for web workers and child processes, both of which are inspired by the actor model for constructing parallel systems using JavaScript. This project is focused on defining a single actor model API no matter if it's a client or server-side application. The paper benchmarks the usage of Spiders.js against JavaScript native web workers as well as the actor creation overhead for both. The results are in favour of using web workers for such tasks. This is no surprise as the project is an abstraction built on top web workers on the client side.
 
-TigerQuoll~\cite{tigerquoll} took a different approach when providing parallelism to the language. It acknowledged the actor model as too limited for the requirements of more complex patterns that occur in modern applications. Instead it allows developers to use regular event based programming to register events for parallel processing. Other popular implementations on GitHub are Drama~\cite{drama} and Comedy~\cite{comedy}, both of which allow for sending messages to spawned actors. The latter implementation allows for spawning of actors on remote machines.
+\textbf{TigerQuoll}~\cite{tigerquoll} took a different approach when providing parallelism to the language. It acknowledged the actor model as too limited for the requirements of more complex patterns that occur in modern applications. Instead it allows developers to use regular event based programming to register events for parallel processing. Other popular implementations on GitHub are \textbf{Drama}~\cite{drama} and \textbf{Comedy}~\cite{comedy}, both of which allow for sending messages to spawned actors. The latter implementation allows for spawning of actors on remote machines.
 \chapter{Design}
-The design chapter is split into three sections. The first section presents a high level overview of the API's features. The following section presents examples on how to use the framework's features through the use of code segments and explanations. The final section delves into the design decisions of the internal framework code which is abstracted by the API.
-\section{API Features}
 The API’s goal is to allow developers to intuitively engineer concurrent and parallel code in JavaScript through the actor model. The developer can define how an actor will process each message using a callback function, and spawn it on a JavaScript runtime. This runtime can be either local or remote, and it can run on a Node.js instance or any modern browser with full interoperability. Programs will be made up of multiple spawned isolated actors, similar to the micro-services approach adopted by the industry. Each actor will be serving incoming requests (messages) and can optionally send messages to other actors such as the sender. Furthermore, an actor can spawn other actors and send the reference to the newly spawned actors to other actors embedded inside a message.
 
 \begin{figure}[H]
@@ -176,77 +177,9 @@ The API also allows the developer to spawn Node.js Cluster processes and Web Wor
         \caption{WebSocket Connection Establishment with Spawned Workers}
     \end{centering}
 \end{figure}
-\section{Using the API}
-This section explores each of the functions that the framework exposes which developers will interact with to make use of the Actor Model in JavaScript. Using ES6 Modules the functions are imported as follows.
-\begin{lstlisting}
-import actors from './actors.js';
-const { init, spawn, spawnRemote, terminate, send} = actors
-\end{lstlisting}
-\subsection{Spawning Local Actors}
-When the developer calls the \textbf{spawn} function, they will pass in the actor's initial state as the first parameter. The actor will maintain this state throughout every processed message and it can be manipulated by its behaviour. As a second parameter the developer must specify the actor's behaviour which has the actor's current state, current processed message as well as the actor's self reference as parameters. Using these parameters, the developer can define how the behaviour should manipulate the actor's state or how the message contents should be processed. It also allows the actor to pass a reference of itself to other actors using the behaviour's third parameter.
 
-The example below defines the actor behaviour to print out each of the parameters. This function is used to spawn an actor with that behaviour, and a reference to that actor is returned.
-\begin{lstlisting}
-// Actor behaviour
-const pongBehaviour = (state, message, self) => {
-    console.log("My state object is " + state);
-    console.log("I'm processing the message object " + message);
-    console.log("Actor self reference " + self);
-};
-
-//Spawn an actor with the above behaviour and an initial state
-const pongReference = spawn({stateElement: "hello"}, pongBehaviour);
-\end{lstlisting}
-Note that with this implementation nothing is printed out, as the actor behaviour is only executed in response to a message which is sent to the spawned actor.
-\subsection{Sending Messages to Actors}
-The \textbf{send} function is used to send a message to an actor. It takes in the actor reference and message object to send as parameters.
-\begin{lstlisting}
-send(pongReference, {messageVal: "This is a message!"});
-\end{lstlisting}
-One of the framework's key features is location transparency. The framework internally identifies the fastest medium to use for message transportation and sends the message through that link.
-\subsection{Terminating Actors}
-An actor can be terminated using the \textbf{terminate} function. The function takes in the actor to terminate as the first parameter. The actor will process its remaining queued messages as these are events already queued in the browser or Node.js's event loop. To forcefully terminate an actor, the second parameter can be set to true which will deactivate the actor. When the events are processed, the actor will perform minimal work ignoring the messages.
-\begin{lstlisting}
-terminate(pingReferece, false)      //forceful termination
-terminate(pongReference, false)     //non-forceful termination
-\end{lstlisting}
-\subsection{Connecting Processes to the Network}
-The \textbf{init} function handles the spawning of worker processes as well as connections with other Node.js and browser runtimes through WebSockets.
-\begin{lstlisting}
-//Connect to local WebSocket server and spawn four processes. Wait 10000ms for all processes to connect
-init('ws://localhost:8080', 10000, 4).then(ready => {
-    if (ready.yourNetworkNumber === 1) {
-        //Code for node 1 to execute
-    }
-})
-\end{lstlisting}
- 
-The first parameter takes in the url of the WebSocket server. The second parameter is the timeout, which defines how long the client will wait for all clients to connect to the network. The third and final parameter is the number of workers that are to be spawned. Each of these workers will connect to the WebSocket server.
-
-Once all clients connect to the server, the server broadcasts a message indicating that it is ready to receive and forward communication to connected clients. This message has embedded within it information about the connected clients' IP addresses and unique incrementally assigned network numbers, as well as the network number assigned to the client receiving the message. In the example above, four processes are spawned (given network numbers 2 to 5), so an if statement is used to define logic only executed by the primary process possessing network number 1.
-
-\subsection{Remotely Spawning Actors}
-After invoking \textbf{init}, the developer can use \textbf{spawnRemote} to remotely spawn actors in other connected clients. This function takes the network number of the client to spawn the actor in as the first parameter, the initial state as the second parameter and the actor behaviour as the final parameter.
-\begin{lstlisting}
-const pingPongBehaviour = (state, message, self) => {
-    console.log(message.val);
-    if(!(message.val-1 < 0))
-        send(message.replyTo, {val: message.val-1, replyTo: self});
-};
-//Specify timeout and number of workers to spawn
-init('ws://localhost:8080', 10000, 2).then(async ready => {
-    //The primary node always connects first
-    if(ready.yourNetworkNumber === 1){
-        const ping = await spawnRemote(2, {}, pingPongBehaviour);
-        const pong = await spawnRemote(3, {}, pingPongBehaviour);
-        //Send ping a message. Output will be decrementing values from 5 to 0
-        send(ping, {replyTo: pong, val: 5})
-    }
-});
-\end{lstlisting}
-In the example above, nodes 2 and 3 are the workers that the primary node spawned. Node 1 sends requests to the spawned workers to spawn actors. The \textbf{spawnRemote} function returns a Promise which is resolved once the actor is remotely spawned and an acknowledgement is returned. The promise resolves into an actor reference which has embedded information indicating that this is a remote node. This enables location transparency when sending to the actor, as the developer need not be aware of whether the actor reference points to a local or remote actor. Instead, communication is handled internally by the framework.
-\section{Internal Framework Logic}
-\subsection{Composition of an Actor}
+\chapter{Implementation}
+\section{Composition of an Actor}
 The first decision taken when designing the actor framework is what an actor is composed of. An actor takes the form of an object which contains its maintained state as well as its behaviour as an executable function. Each actor stores a name so that it can be uniquely identified when sending messages to. The network node it resides in as well as whether it is accepting messages are also stored. For every spawned actor, the following information is stored.
 \begin{lstlisting}
 //TypeScript object interface for an Actor
@@ -265,7 +198,7 @@ interface ActorFacade {
     node: number    //finds the client
 }
 \end{lstlisting}
-\subsection{Communicating with an Actor}
+\section{Communicating with an Actor}
 Using the returned ActorFacade object from the \textbf{spawn}, an actor can be uniquely identified across the web. The developer puts in the actor reference insied the \textbf{send} function to send that actor a message. Internally, the framework looks at the actor reference's node number. If it matches the client's network number it resides in, then it will queue the local actor's behaviour on the runtime's event loop. 
 
 If the actor resides in a remote node, it creates a payload to send over the network. When the \textbf{init} function is used, the developer can choose to spawn a number of child processes or web workers. Each of the spawned workers will send to the spawner (primary node) their network number assigned by the WebSocket network. The primary node will then inform each of the spawned workers of their neighbouring spawned processes. This is so that spawned processes can communicate with each other through the primary node using the cluster or web worker API instead of the WebSocket network to avoid the network stack. If the actor resides on a separate device or group of spawned processes, it resorts to using the WebSocket network.
@@ -275,11 +208,11 @@ If the actor resides in a remote node, it creates a payload to send over the net
         \caption{Choosing the Communication Link Flowchart}
     \end{centering}
 \end{figure}
-\subsection{Remote Spawning Mechanism}
+\section{Remote Spawning Mechanism}
 The \textbf{spawnRemote} function sends a request to spawn an actor to the remote node. The request has embedded within it the string representation of its behaviour which is reconstructed as a function on the recipient end. Just like the \textbf{send} function, it chooses the fastest transport mechanism to send the spawn request. The primary node is internally aware of the network numbers of the worker nodes it spawned, so it will make use of Cluster IPC to send these requests rather than the slower established WebSocket link through the network.
 
 On the recipient side, the node will spawn an actor with that behaviour. It locally generates the spawned actor's name, and sends an acknowledgement to the remote spawner. Once this acknowledgement is received by the spawner, it constructs the actor reference using the received actor name and resolves the promise. This allows developers to use JavaScript async/await to suspend the function until the actor is spawned remotely, or use Promise.then to have a callback function execute once this acknowledgement is received. The developer is not allowed to interact with the remote actor until the acknowledgement is received. 
-\subsection{Actor Runtime}
+\section{Actor Runtime}
 The JavaScript event loop is responsible for executing the application code. The runtime has a queue of messages where each message is mapped to a function which processes that message. The event loop waits for the arrival of a message and processes the queue of messages when there is a backlog. Each message is processed to completion before other messages are processed. The Actor Model also maps messages onto functions which act as message handlers. Therefore, the framework's implementation takes advantage of the similar philosophies between the JavaScript runtime and the Actor Model.
 
 The actors maintain their own message queue in an array. Once a message is received by an actor, it will schedule the processing of the message on the JavaScript event loop. This is done by scheduling a microtask which executes before the start of the next event loop~\cite{eventloopbrowser}\cite{eventloopnode}. The microtask is scheduled by creating a promise which is immediately resolved. This behaviour is similar to using Node.js' \textbf{process.nextTick()}~\cite{nexttick}. This is more efficient than using the JavaScript \textbf{setTimeout()} function as that is scheduled as a macrotask which would execute in the following event loop.
@@ -322,17 +255,79 @@ This chapter evaluates the developed prototype's performance when executing comp
         \caption{Browser Speedup for Parallel Benchmarks}
     \end{centering}
 \end{figure}
-\chapter{Conclusion}
+\chapter{Conclusions and Future Work}
 
 \appendix
 
-\chapter{This chapter is in the appendix}
-\section{These are some details}
-%%example of the code environment
+\chapter{Manual}
+This section explores each of the functions that the framework exposes which developers will interact with to make use of the Actor Model in JavaScript. Using ES6 Modules the functions are imported as follows.
 \begin{lstlisting}
-this is some code;
-I hope you found this template useful.
+import actors from './actors.js';
+const { init, spawn, spawnRemote, terminate, send} = actors
 \end{lstlisting}
+\section{Spawning Local Actors}
+When the developer calls the \textbf{spawn} function, they will pass in the actor's initial state as the first parameter. The actor will maintain this state throughout every processed message and it can be manipulated by its behaviour. As a second parameter the developer must specify the actor's behaviour which has the actor's current state, current processed message as well as the actor's self reference as parameters. Using these parameters, the developer can define how the behaviour should manipulate the actor's state or how the message contents should be processed. It also allows the actor to pass a reference of itself to other actors using the behaviour's third parameter.
+
+The example below defines the actor behaviour to print out each of the parameters. This function is used to spawn an actor with that behaviour, and a reference to that actor is returned.
+\begin{lstlisting}
+// Actor behaviour
+const pongBehaviour = (state, message, self) => {
+    console.log("My state object is " + state);
+    console.log("I'm processing the message object " + message);
+    console.log("Actor self reference " + self);
+};
+
+//Spawn an actor with the above behaviour and an initial state
+const pongReference = spawn({stateElement: "hello"}, pongBehaviour);
+\end{lstlisting}
+Note that with this implementation nothing is printed out, as the actor behaviour is only executed in response to a message which is sent to the spawned actor.
+\section{Sending Messages to Actors}
+The \textbf{send} function is used to send a message to an actor. It takes in the actor reference and message object to send as parameters.
+\begin{lstlisting}
+send(pongReference, {messageVal: "This is a message!"});
+\end{lstlisting}
+One of the framework's key features is location transparency. The framework internally identifies the fastest medium to use for message transportation and sends the message through that link.
+\section{Terminating Actors}
+An actor can be terminated using the \textbf{terminate} function. The function takes in the actor to terminate as the first parameter. The actor will process its remaining queued messages as these are events already queued in the browser or Node.js's event loop. To forcefully terminate an actor, the second parameter can be set to true which will deactivate the actor. When the events are processed, the actor will perform minimal work ignoring the messages.
+\begin{lstlisting}
+terminate(pingReferece, false)      //forceful termination
+terminate(pongReference, false)     //non-forceful termination
+\end{lstlisting}
+\section{Connecting Processes to the Network}
+The \textbf{init} function handles the spawning of worker processes as well as connections with other Node.js and browser runtimes through WebSockets.
+\begin{lstlisting}
+//Connect to local WebSocket server and spawn four processes. Wait 10000ms for all processes to connect
+init('ws://localhost:8080', 10000, 4).then(ready => {
+    if (ready.yourNetworkNumber === 1) {
+        //Code for node 1 to execute
+    }
+})
+\end{lstlisting}
+ 
+The first parameter takes in the url of the WebSocket server. The second parameter is the timeout, which defines how long the client will wait for all clients to connect to the network. The third and final parameter is the number of workers that are to be spawned. Each of these workers will connect to the WebSocket server.
+
+Once all clients connect to the server, the server broadcasts a message indicating that it is ready to receive and forward communication to connected clients. This message has embedded within it information about the connected clients' IP addresses and unique incrementally assigned network numbers, as well as the network number assigned to the client receiving the message. In the example above, four processes are spawned (given network numbers 2 to 5), so an if statement is used to define logic only executed by the primary process possessing network number 1.
+
+\section{Remotely Spawning Actors}
+After invoking \textbf{init}, the developer can use \textbf{spawnRemote} to remotely spawn actors in other connected clients. This function takes the network number of the client to spawn the actor in as the first parameter, the initial state as the second parameter and the actor behaviour as the final parameter.
+\begin{lstlisting}
+const pingPongBehaviour = (state, message, self) => {
+    console.log(message.val);
+    if(!(message.val-1 < 0))
+        send(message.replyTo, {val: message.val-1, replyTo: self});
+};
+//Specify timeout and number of workers to spawn
+init('ws://localhost:8080', 10000, 2).then(async ready => {
+    //The primary node always connects first
+    if(ready.yourNetworkNumber === 1){
+        const ping = await spawnRemote(2, {}, pingPongBehaviour);
+        const pong = await spawnRemote(3, {}, pingPongBehaviour);
+        //Send ping a message. Output will be decrementing values from 5 to 0
+        send(ping, {replyTo: pong, val: 5})
+    }
+});
+\end{lstlisting}
+In the example above, nodes 2 and 3 are the workers that the primary node spawned. Node 1 sends requests to the spawned workers to spawn actors. The \textbf{spawnRemote} function returns a Promise which is resolved once the actor is remotely spawned and an acknowledgement is returned. The promise resolves into an actor reference which has embedded information indicating that this is a remote node. This enables location transparency when sending to the actor, as the developer need not be aware of whether the actor reference points to a local or remote actor. Instead, communication is handled internally by the framework.
 
 
 \bibliomatter

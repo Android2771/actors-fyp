@@ -199,8 +199,8 @@ plt.plot(keys, mandelbrot_browser_speedup, '-p', color='red',
     markeredgecolor='black',
     markeredgewidth=1, label='Browser');
 
-legend = plt.legend(loc='upper left', shadow=True, fontsize='x-large')
-
+plt.axvline(x=4, ymin=0, ymax=10, color='black', label='Local up to here')
+legend = plt.legend(loc='lower right', shadow=True, fontsize='x-large')
 plt.locator_params(axis="x", integer=True, tight=True)
 plt.title('Distributed Speedup for Mandelbrot Benchmark without Harvesting')
 plt.xlabel('Number of cores')
