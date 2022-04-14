@@ -65,5 +65,6 @@ plt.title('Comparision of Communication Links')
 plt.xlabel('Benchmark')
 plt.ylabel('Time to execute benchmark (ms)')
 plt.legend()
+plt.grid()
 
 plt.savefig('link.png')
