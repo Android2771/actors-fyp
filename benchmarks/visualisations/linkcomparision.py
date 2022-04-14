@@ -1,8 +1,6 @@
-import pandas
 import matplotlib.pyplot as plt
 import numpy as np
-import os
-import re
+from scipy.stats import sem    
 
 def get_node_average(path):  
     data = []  
@@ -10,7 +8,7 @@ def get_node_average(path):
         for line in f.readlines():
             data.append(int(line.strip()))
     
-    return np.average(data), np.std(data)/np.sqrt(np.size(data))
+    return np.average(data), sem(data)
 
 def get_browser_average(path):
     data = []
@@ -21,7 +19,7 @@ def get_browser_average(path):
                 reading = sanitized_line[sanitized_line.find('"')+1:sanitized_line.find('"', sanitized_line.find('"')+1)]
                 data.append(int(reading))
                 
-    return np.average(data), np.std(data)/np.sqrt(np.size(data))
+    return np.average(data), sem(data)
     
 keys = ['PINGPONG', 'FJCREATE']
 data = []

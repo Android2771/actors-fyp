@@ -1,9 +1,8 @@
-import pandas
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 import numpy as np
 import os
-import re
+from scipy.stats import sem    
 
 #Declare vars
 node_data = {}
@@ -21,7 +20,7 @@ for filename in os.listdir(node_directory):
 
 #Compute node results to put on graph
 node_averages = [np.average(node_data[key]) for key in node_data.keys()]
-node_errors = [np.std(node_data[key])/np.sqrt(np.size(node_data[key])) for key in node_data.keys()]
+node_errors = [sem(node_data[key]) for key in node_data.keys()]
 
 #Scrape browser results
 with open('../browser/micro/singlethread.log') as f:
@@ -37,7 +36,7 @@ with open('../browser/micro/singlethread.log') as f:
             
 #Compute browser results to put on graph
 browser_averages = [np.average(browser_data[key]) for key in browser_data.keys()]
-browser_errors = [np.std(browser_data[key])/np.sqrt(np.size(browser_data[key])) for key in browser_data.keys()] 
+browser_errors = [sem(browser_data[key]) for key in browser_data.keys()] 
 
 X_axis = np.arange(len(node_averages))
 width=0.2

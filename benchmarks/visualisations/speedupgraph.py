@@ -31,23 +31,37 @@ for processes in keys:
         for line in f.readlines():
             trapezoid_data[processes].append(int(line.strip()))
     
-sample_speedup_data = []
-for n in np.arange(0, len(mandelbrot_noharvest_data[1])):
-    sample_speedup_data.append(mandelbrot_noharvest_data[1][n]/mandelbrot_noharvest_data[2][n])
-    
-mandelbrot_noharvest_speedup = [np.average(mandelbrot_noharvest_data[1])/np.average(mandelbrot_noharvest_data[key]) for key in keys]
-mandelbrot_withharvest_speedup = [np.average(mandelbrot_withharvest_data[1])/np.average(mandelbrot_withharvest_data[key]) for key in keys]
-piprecision_speedup = [np.average(piprecision_data[1])/np.average(piprecision_data[key]) for key in keys]
-trapezoid_speedup = [np.average(trapezoid_data[1])/np.average(trapezoid_data[key]) for key in keys]
-figure(figsize=(7.5, 6), dpi=80)
+mandelbrot_noharvest_speedup_data = []
+mandelbrot_withharvest_speedup_data = []
+piprecision_speedup_data = []
+trapezoid_speedup_data = []
 
+#Calculate speedup by dividing each element of 1 with the corresponding n processes element
+#This will make it possible to get approximate speedup with the standard error
+for n in np.arange(1, len(mandelbrot_noharvest_data)+1):
+    mandelbrot_noharvest_speedup_data.append(np.array(mandelbrot_noharvest_data[1])/np.array(mandelbrot_noharvest_data[n]))
+    mandelbrot_withharvest_speedup_data.append(np.array(mandelbrot_withharvest_data[1])/np.array(mandelbrot_withharvest_data[n]))
+    piprecision_speedup_data.append(np.array(piprecision_data[1])/np.array(piprecision_data[n]))
+    trapezoid_speedup_data.append(np.array(trapezoid_data[1])/np.array(trapezoid_data[n]))
+    
+mandelbrot_noharvest_speedup = [np.average(el) for el in mandelbrot_noharvest_speedup_data]
+mandelbrot_withharvest_speedup = [np.average(el) for el in mandelbrot_withharvest_speedup_data]
+piprecision_speedup = [np.average(el) for el in piprecision_speedup_data]
+trapezoid_speedup = [np.average(el) for el in trapezoid_speedup_data]
+
+mandelbrot_noharvest_speedup_err = [sem(el) for el in mandelbrot_noharvest_speedup_data]
+mandelbrot_withharvest_speedup_err = [sem(el) for el in mandelbrot_withharvest_speedup_data]
+piprecision_speedup_err = [sem(el) for el in piprecision_speedup_data]
+trapezoid_speedup_err = [sem(el) for el in trapezoid_speedup_data]
+
+figure(figsize=(7.5, 6), dpi=80)
 plt.plot(keys, mandelbrot_noharvest_speedup, '-s', color='blue',
         markersize=15, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='black',
         markeredgewidth=1, label='Mandelbrot no harvest');
 
-# plt.errorbar(keys, mandelbrot_noharvest_speedup, yerr = mandelbrot_noharvest_error,fmt='o',ecolor ='blue',color='blue')
+plt.errorbar(keys, mandelbrot_noharvest_speedup, yerr = mandelbrot_noharvest_speedup_err,fmt='o',ecolor ='blue',color='blue')
 
 plt.plot(keys, mandelbrot_withharvest_speedup, '-P', color='purple',
         markersize=15, linewidth=4,
@@ -55,6 +69,7 @@ plt.plot(keys, mandelbrot_withharvest_speedup, '-P', color='purple',
         markeredgecolor='black',
         markeredgewidth=1, label='Mandelbrot with harvest');
 
+plt.errorbar(keys, mandelbrot_withharvest_speedup, yerr = mandelbrot_withharvest_speedup_err,fmt='o',ecolor ='purple',color='purple')
 
 plt.plot(keys, piprecision_speedup, '-D', color='red',
     markersize=15, linewidth=4,
@@ -62,11 +77,15 @@ plt.plot(keys, piprecision_speedup, '-D', color='red',
     markeredgecolor='black',
     markeredgewidth=1, label='Pi Precision');
 
+plt.errorbar(keys, piprecision_speedup, yerr = piprecision_speedup_err,fmt='o',ecolor ='red',color='red')
+
 plt.plot(keys, trapezoid_speedup, '-8', color='green',
     markersize=15, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Trapezoid');
+
+plt.errorbar(keys, trapezoid_speedup, yerr = trapezoid_speedup_err, fmt='o',ecolor ='green',color='green')
 
 legend = plt.legend(loc='upper left', shadow=True, fontsize='x-large')
 
@@ -127,18 +146,37 @@ for processes in keys:
             if reading is not None:
                 trapezoid_data[processes].append(reading)
             
-mandelbrot_noharvest_speedup = [np.average(mandelbrot_noharvest_data[1])/np.average(mandelbrot_noharvest_data[key]) for key in keys]
-mandelbrot_withharvest_speedup = [np.average(mandelbrot_withharvest_data[1])/np.average(mandelbrot_withharvest_data[key]) for key in keys]
-piprecision_speedup = [np.average(piprecision_data[1])/np.average(piprecision_data[key]) for key in keys]
-trapezoid_speedup = [np.average(trapezoid_data[1])/np.average(trapezoid_data[key]) for key in keys]
+mandelbrot_noharvest_speedup_data = []
+mandelbrot_withharvest_speedup_data = []
+piprecision_speedup_data = []
+trapezoid_speedup_data = []
+
+#Calculate speedup by dividing each element of 1 with the corresponding n processes element
+#This will make it possible to get approximate speedup with the standard error
+for n in np.arange(1, len(mandelbrot_noharvest_data)+1):
+    mandelbrot_noharvest_speedup_data.append(np.array(mandelbrot_noharvest_data[1])/np.array(mandelbrot_noharvest_data[n]))
+    mandelbrot_withharvest_speedup_data.append(np.array(mandelbrot_withharvest_data[1])/np.array(mandelbrot_withharvest_data[n]))
+    piprecision_speedup_data.append(np.array(piprecision_data[1])/np.array(piprecision_data[n]))
+    trapezoid_speedup_data.append(np.array(trapezoid_data[1])/np.array(trapezoid_data[n]))
+    
+mandelbrot_noharvest_speedup = [np.average(el) for el in mandelbrot_noharvest_speedup_data]
+mandelbrot_withharvest_speedup = [np.average(el) for el in mandelbrot_withharvest_speedup_data]
+piprecision_speedup = [np.average(el) for el in piprecision_speedup_data]
+trapezoid_speedup = [np.average(el) for el in trapezoid_speedup_data]
+
+mandelbrot_noharvest_speedup_err = [sem(el) for el in mandelbrot_noharvest_speedup_data]
+mandelbrot_withharvest_speedup_err = [sem(el) for el in mandelbrot_withharvest_speedup_data]
+piprecision_speedup_err = [sem(el) for el in piprecision_speedup_data]
+trapezoid_speedup_err = [sem(el) for el in trapezoid_speedup_data]
 
 figure(figsize=(7.5, 6), dpi=80)
-
 plt.plot(keys, mandelbrot_noharvest_speedup, '-s', color='blue',
         markersize=15, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='black',
         markeredgewidth=1, label='Mandelbrot no harvest');
+
+plt.errorbar(keys, mandelbrot_noharvest_speedup, yerr = mandelbrot_noharvest_speedup_err,fmt='o',ecolor ='blue',color='blue')
 
 plt.plot(keys, mandelbrot_withharvest_speedup, '-P', color='purple',
         markersize=15, linewidth=4,
@@ -146,17 +184,23 @@ plt.plot(keys, mandelbrot_withharvest_speedup, '-P', color='purple',
         markeredgecolor='black',
         markeredgewidth=1, label='Mandelbrot with harvest');
 
+plt.errorbar(keys, mandelbrot_withharvest_speedup, yerr = mandelbrot_withharvest_speedup_err,fmt='o',ecolor ='purple',color='purple')
+
 plt.plot(keys, piprecision_speedup, '-D', color='red',
     markersize=15, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Pi Precision');
 
+plt.errorbar(keys, piprecision_speedup, yerr = piprecision_speedup_err,fmt='o',ecolor ='red',color='red')
+
 plt.plot(keys, trapezoid_speedup, '-8', color='green',
     markersize=15, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Trapezoid');
+
+plt.errorbar(keys, trapezoid_speedup, yerr = trapezoid_speedup_err, fmt='o',ecolor ='green',color='green')
 
 legend = plt.legend(loc='upper left', shadow=True, fontsize='x-large')
 
@@ -175,17 +219,17 @@ plt.savefig('browser_speedup.png')
 #DISTRIBUTED
 #############
 keys = [1,2,3,4,5,6,7,8,9,10]
-mandelbrot_noharvest_data = {}
+mandelbrot_node_data = {}
 mandelbrot_browser_data = {}
 
 for processes in keys:
-    mandelbrot_noharvest_data[processes] = []
+    mandelbrot_node_data[processes] = []
     mandelbrot_browser_data[processes] = []
     
     #Scrape node data
     with open(f'../node/parallel/mandelbrot/distributed-results/mandelbrotnoharvest_{processes}worker.txt') as f:
         for line in f.readlines():
-            mandelbrot_noharvest_data[processes].append(int(line.strip()))
+            mandelbrot_node_data[processes].append(int(line.strip()))
             
     #Scrape browser data
     with open(f'../browser/parallel/mandelbrot/distributed-results/mandelbrotnoharvest_{processes}worker.log') as f:
@@ -195,22 +239,36 @@ for processes in keys:
                 mandelbrot_browser_data[processes].append(reading)
             
             
-mandelbrot_noharvest_speedup = [np.average(mandelbrot_noharvest_data[1])/np.average(mandelbrot_noharvest_data[key]) for key in keys]
-mandelbrot_browser_speedup = [np.average(mandelbrot_browser_data[1])/np.average(mandelbrot_browser_data[key]) for key in keys]
+mandelbrot_node_speedup_data = []
+mandelbrot_browser_speedup_data = []
+
+for n in np.arange(1, len(mandelbrot_node_data)+1):
+    mandelbrot_node_speedup_data.append(np.array(mandelbrot_node_data[1])/np.array(mandelbrot_node_data[n]))
+    mandelbrot_browser_speedup_data.append(np.array(mandelbrot_browser_data[1])/np.array(mandelbrot_browser_data[n]))
+    
+mandelbrot_node_speedup = [np.average(el) for el in mandelbrot_node_speedup_data]
+mandelbrot_browser_speedup = [np.average(el) for el in mandelbrot_browser_speedup_data]
+
+mandelbrot_node_speedup_err = [sem(el) for el in mandelbrot_node_speedup_data]
+mandelbrot_browser_speedup_err = [sem(el) for el in mandelbrot_browser_speedup_data]
 
 figure(figsize=(7.5, 6), dpi=80)
 
-plt.plot(keys, mandelbrot_noharvest_speedup, '-s', color='blue',
+plt.plot(keys, mandelbrot_node_speedup, '-s', color='blue',
         markersize=15, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='black',
         markeredgewidth=1, label='Node');
+
+plt.errorbar(keys, mandelbrot_node_speedup, yerr = mandelbrot_node_speedup_err,fmt='o',ecolor ='blue',color='blue')
 
 plt.plot(keys, mandelbrot_browser_speedup, '-D', color='red',
     markersize=15, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Browser');
+
+plt.errorbar(keys, mandelbrot_browser_speedup, yerr = mandelbrot_browser_speedup_err,fmt='o',ecolor ='red',color='red')
 
 plt.axvline(x=4, ymin=0, ymax=10, color='black', label='Local up to here')
 legend = plt.legend(loc='lower right', shadow=True, fontsize='x-large')
