@@ -2,7 +2,7 @@
 import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 15000000;  //Successive messages to be sent
+const N = process.argv.slice(2)[1] ? parseInt(process.argv.slice(2)[1]) : 15000000;  //Successive messages to be sent
 const rounds = parseInt(process.argv.slice(2)[0]);   //Rounds
 
 const counterBehaviour = (state, message, self) => {

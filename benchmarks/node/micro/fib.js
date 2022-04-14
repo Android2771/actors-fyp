@@ -2,7 +2,7 @@
 import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 31;    //fibonnachi index
+const N = process.argv.slice(2)[1] ? parseInt(process.argv.slice(2)[1]) : 30;    //fibonnachi index
 const rounds = parseInt(process.argv.slice(2)[0]);
 
 const behaviour = (state, message, self) => {
