@@ -61,7 +61,7 @@ plt.plot(keys, mandelbrot_noharvest_speedup, '-s', color='blue',
         markeredgecolor='black',
         markeredgewidth=1, label='Mandelbrot no harvest');
 
-plt.errorbar(keys, mandelbrot_noharvest_speedup, yerr = mandelbrot_noharvest_speedup_err,fmt='o',ecolor ='blue',color='blue')
+plt.errorbar(keys, mandelbrot_noharvest_speedup, yerr = mandelbrot_noharvest_speedup_err,fmt='none',ecolor ='blue',color='blue')
 
 plt.plot(keys, mandelbrot_withharvest_speedup, '-P', color='purple',
         markersize=15, linewidth=4,
@@ -69,7 +69,7 @@ plt.plot(keys, mandelbrot_withharvest_speedup, '-P', color='purple',
         markeredgecolor='black',
         markeredgewidth=1, label='Mandelbrot with harvest');
 
-plt.errorbar(keys, mandelbrot_withharvest_speedup, yerr = mandelbrot_withharvest_speedup_err,fmt='o',ecolor ='purple',color='purple')
+plt.errorbar(keys, mandelbrot_withharvest_speedup, yerr = mandelbrot_withharvest_speedup_err,fmt='none',ecolor ='purple',color='purple')
 
 plt.plot(keys, piprecision_speedup, '-D', color='red',
     markersize=15, linewidth=4,
@@ -77,7 +77,7 @@ plt.plot(keys, piprecision_speedup, '-D', color='red',
     markeredgecolor='black',
     markeredgewidth=1, label='Pi Precision');
 
-plt.errorbar(keys, piprecision_speedup, yerr = piprecision_speedup_err,fmt='o',ecolor ='red',color='red')
+plt.errorbar(keys, piprecision_speedup, yerr = piprecision_speedup_err,fmt='none',ecolor ='red',color='red')
 
 plt.plot(keys, trapezoid_speedup, '-8', color='green',
     markersize=15, linewidth=4,
@@ -85,7 +85,7 @@ plt.plot(keys, trapezoid_speedup, '-8', color='green',
     markeredgecolor='black',
     markeredgewidth=1, label='Trapezoid');
 
-plt.errorbar(keys, trapezoid_speedup, yerr = trapezoid_speedup_err, fmt='o',ecolor ='green',color='green')
+plt.errorbar(keys, trapezoid_speedup, yerr = trapezoid_speedup_err, fmt='none',ecolor ='green',color='green')
 
 legend = plt.legend(loc='upper left', shadow=True, fontsize='x-large')
 
@@ -176,7 +176,7 @@ plt.plot(keys, mandelbrot_noharvest_speedup, '-s', color='blue',
         markeredgecolor='black',
         markeredgewidth=1, label='Mandelbrot no harvest');
 
-plt.errorbar(keys, mandelbrot_noharvest_speedup, yerr = mandelbrot_noharvest_speedup_err,fmt='o',ecolor ='blue',color='blue')
+plt.errorbar(keys, mandelbrot_noharvest_speedup, yerr = mandelbrot_noharvest_speedup_err,fmt='none',ecolor ='blue',color='blue')
 
 plt.plot(keys, mandelbrot_withharvest_speedup, '-P', color='purple',
         markersize=15, linewidth=4,
@@ -184,7 +184,7 @@ plt.plot(keys, mandelbrot_withharvest_speedup, '-P', color='purple',
         markeredgecolor='black',
         markeredgewidth=1, label='Mandelbrot with harvest');
 
-plt.errorbar(keys, mandelbrot_withharvest_speedup, yerr = mandelbrot_withharvest_speedup_err,fmt='o',ecolor ='purple',color='purple')
+plt.errorbar(keys, mandelbrot_withharvest_speedup, yerr = mandelbrot_withharvest_speedup_err,fmt='none',ecolor ='purple',color='purple')
 
 plt.plot(keys, piprecision_speedup, '-D', color='red',
     markersize=15, linewidth=4,
@@ -192,7 +192,7 @@ plt.plot(keys, piprecision_speedup, '-D', color='red',
     markeredgecolor='black',
     markeredgewidth=1, label='Pi Precision');
 
-plt.errorbar(keys, piprecision_speedup, yerr = piprecision_speedup_err,fmt='o',ecolor ='red',color='red')
+plt.errorbar(keys, piprecision_speedup, yerr = piprecision_speedup_err,fmt='none',ecolor ='red',color='red')
 
 plt.plot(keys, trapezoid_speedup, '-8', color='green',
     markersize=15, linewidth=4,
@@ -200,7 +200,7 @@ plt.plot(keys, trapezoid_speedup, '-8', color='green',
     markeredgecolor='black',
     markeredgewidth=1, label='Trapezoid');
 
-plt.errorbar(keys, trapezoid_speedup, yerr = trapezoid_speedup_err, fmt='o',ecolor ='green',color='green')
+plt.errorbar(keys, trapezoid_speedup, yerr = trapezoid_speedup_err, fmt='none',ecolor ='green',color='green')
 
 legend = plt.legend(loc='upper left', shadow=True, fontsize='x-large')
 
@@ -253,6 +253,7 @@ mandelbrot_node_speedup_err = [sem(el) for el in mandelbrot_node_speedup_data]
 mandelbrot_browser_speedup_err = [sem(el) for el in mandelbrot_browser_speedup_data]
 
 figure(figsize=(7.5, 6), dpi=80)
+plt.axvline(x=4, ymin=0, ymax=10, color='black', label='Local up to here')
 
 plt.plot(keys, mandelbrot_node_speedup, '-s', color='blue',
         markersize=15, linewidth=4,
@@ -260,7 +261,7 @@ plt.plot(keys, mandelbrot_node_speedup, '-s', color='blue',
         markeredgecolor='black',
         markeredgewidth=1, label='Node');
 
-plt.errorbar(keys, mandelbrot_node_speedup, yerr = mandelbrot_node_speedup_err,fmt='o',ecolor ='blue',color='blue')
+plt.errorbar(keys, mandelbrot_node_speedup, yerr = mandelbrot_node_speedup_err,fmt='none',ecolor ='blue',color='blue')
 
 plt.plot(keys, mandelbrot_browser_speedup, '-D', color='red',
     markersize=15, linewidth=4,
@@ -268,9 +269,8 @@ plt.plot(keys, mandelbrot_browser_speedup, '-D', color='red',
     markeredgecolor='black',
     markeredgewidth=1, label='Browser');
 
-plt.errorbar(keys, mandelbrot_browser_speedup, yerr = mandelbrot_browser_speedup_err,fmt='o',ecolor ='red',color='red')
+plt.errorbar(keys, mandelbrot_browser_speedup, yerr = mandelbrot_browser_speedup_err,fmt='none',ecolor ='red',color='red')
 
-plt.axvline(x=4, ymin=0, ymax=10, color='black', label='Local up to here')
 legend = plt.legend(loc='lower right', shadow=True, fontsize='x-large')
 plt.locator_params(axis="x", integer=True, tight=True)
 plt.title('Distributed Speedup for Mandelbrot Benchmark without Harvesting')
