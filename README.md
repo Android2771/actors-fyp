@@ -193,3 +193,13 @@ The following diagram is a scenario which uses all communication links abstracte
   <img src="documentation/readme-diagrams/network.svg" />
 </p>
 
+# Visualisations
+This goes through instructions on how to reproduce the diagrams shown in the write-up
+
+## Micro Comparision
+
+## Parallel Speedup
+
+## Micro Benchmark Scaling
+
+## Link Comparision
