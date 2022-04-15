@@ -2,7 +2,7 @@
 import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 15000000;  //Successive messages to be sent
+const N = 10000000;  //Successive messages to be sent
 const rounds = 5;   //Rounds
 
 const counterBehaviour = (state, message, self) => {

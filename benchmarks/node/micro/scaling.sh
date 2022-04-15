@@ -3,16 +3,16 @@
 mkdir scaling-results
 export NODE_OPTIONS=--max-old-space-size=8192
 
-node count.js 5 2000000 > scaling-results/count1x.txt
-node count.js 5 4000000 > scaling-results/count2x.txt
-node count.js 5 6000000 > scaling-results/count3x.txt
-node count.js 5 8000000 > scaling-results/count4x.txt
-node count.js 5 10000000 > scaling-results/count5x.txt
-node count.js 5 12000000 > scaling-results/count6x.txt
-node count.js 5 14000000 > scaling-results/count7x.txt
-node count.js 5 16000000 > scaling-results/count8x.txt
-node count.js 5 18000000 > scaling-results/count9x.txt
-node count.js 5 20000000 > scaling-results/count10x.txt
+node count.js 5 1000000 > scaling-results/count1x.txt
+node count.js 5 2000000 > scaling-results/count2x.txt
+node count.js 5 3000000 > scaling-results/count3x.txt
+node count.js 5 4000000 > scaling-results/count4x.txt
+node count.js 5 5000000 > scaling-results/count5x.txt
+node count.js 5 6000000 > scaling-results/count6x.txt
+node count.js 5 7000000 > scaling-results/count7x.txt
+node count.js 5 8000000 > scaling-results/count8x.txt
+node count.js 5 9000000 > scaling-results/count9x.txt
+node count.js 5 10000000 > scaling-results/count10x.txt
 
 node pingpong.js 5 10000000  > scaling-results/pingpong1x.txt
 node pingpong.js 5 20000000  > scaling-results/pingpong2x.txt

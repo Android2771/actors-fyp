@@ -1,6 +1,11 @@
 [12881:12947:0415/140901.729708:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
 [12922:12922:0415/140901.748165:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
 [12881:12881:0415/140901.801845:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[21769:21769:0415/153858.874498:INFO:CONSOLE(35)] "8522", source: http://localhost:3000/micro/count.js (35)
+[21769:21769:0415/153908.294927:INFO:CONSOLE(35)] "9420", source: http://localhost:3000/micro/count.js (35)
+[21769:21769:0415/153918.179532:INFO:CONSOLE(35)] "9885", source: http://localhost:3000/micro/count.js (35)
+[21769:21769:0415/153928.191756:INFO:CONSOLE(35)] "10012", source: http://localhost:3000/micro/count.js (35)
+[21769:21769:0415/153937.754698:INFO:CONSOLE(35)] "9563", source: http://localhost:3000/micro/count.js (35)
 [12881:12881:0415/140916.833303:INFO:CONSOLE(56)] "13200", source: http://localhost:3000/micro/big.js (56)
 [12881:12881:0415/140930.943407:INFO:CONSOLE(56)] "14109", source: http://localhost:3000/micro/big.js (56)
 [12881:12881:0415/140945.644444:INFO:CONSOLE(56)] "14700", source: http://localhost:3000/micro/big.js (56)
