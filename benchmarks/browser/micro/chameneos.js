@@ -2,7 +2,7 @@
 import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 1200000;  //Number of meetings
+const N = 2000000;  //Number of meetings
 const C = 10;      //Number of chameneos
 const rounds = 5;
 

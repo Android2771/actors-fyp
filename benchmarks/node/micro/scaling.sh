@@ -58,17 +58,6 @@ node fjthrput.js 5 8  > scaling-results/fjthrput8x.txt
 node fjthrput.js 5 9  > scaling-results/fjthrput9x.txt
 node fjthrput.js 5 10 > scaling-results/fjthrput10x.txt
 
-node fib.js 5 24 > scaling-results/fib25.txt
-node fib.js 5 25 > scaling-results/fib26.txt
-node fib.js 5 26 > scaling-results/fib27.txt
-node fib.js 5 27 > scaling-results/fib28.txt
-node fib.js 5 28 > scaling-results/fib29.txt
-node fib.js 5 29 > scaling-results/fib30.txt
-node fib.js 5 30 > scaling-results/fib31.txt
-node fib.js 5 31 > scaling-results/fib32.txt
-node fib.js 5 32 > scaling-results/fib33.txt
-node fib.js 5 33 > scaling-results/fib34.txt
-
 node chameneos.js 5 200000  > scaling-results/chameneos1x.txt
 node chameneos.js 5 400000  > scaling-results/chameneos2x.txt
 node chameneos.js 5 600000  > scaling-results/chameneos3x.txt
