@@ -271,7 +271,7 @@ plt.plot(keys, mandelbrot_browser_speedup, '-D', color='red',
 
 plt.errorbar(keys, mandelbrot_browser_speedup, yerr = mandelbrot_browser_speedup_err,fmt='none',ecolor ='red',color='red')
 
-legend = plt.legend(loc='lower right', shadow=True, fontsize='x-large')
+plt.legend(loc='lower right', shadow=True, fontsize='x-large')
 plt.locator_params(axis="x", integer=True, tight=True)
 plt.title('Distributed Speedup for Mandelbrot Benchmark without Harvesting')
 plt.xlabel('Number of cores')
