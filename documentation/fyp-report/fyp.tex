@@ -183,7 +183,7 @@ send = (actor: ActorReference, message: object): void
 The API will return an actor reference when one is spawned, which can then be fed into the send function as a parameter. The actor behaviour will be invoked when processing every received message and may manipulate the state first defined as a parameter in the spawn function. The actor behaviour may also call the functions to spawn and communicate with other actors. The implementation of these two functions on the Node.js and browser environment will fulfil the first defined objective in the introduction section. 
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=\textwidth]{resources/actors.png}
+        \includegraphics[width=270px]{resources/actors.png}
         \caption{Spawning Actors and Sending Messages}
     \end{centering}
 \end{figure}
@@ -200,7 +200,7 @@ The WebSocket server expects a finite number of connected clients before it star
 
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=\textwidth]{resources/websocketconnection.png}
+        \includegraphics[width=350px]{resources/websocketconnection.png}
         \caption{WebSocket Server Connecting Node.js Instance to a Browser}
     \end{centering}
 \end{figure}
@@ -219,7 +219,7 @@ The WebSocket server provides distribution for any Node.js or browser client wis
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=\textwidth]{resources/websocketconnectioncomplex.png}
-        \caption{WebSocket Server Connecting Node.js Instance to a Browser with Workers}
+        \caption{WebSocket Server Connecting Different Types of Processes}
     \end{centering}
 \end{figure}
 
@@ -239,7 +239,7 @@ Using this, the send function should determine which communication link to use b
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=\textwidth]{resources/communication.png}
-        \caption{Flowchart for which Link to Choose based on Actor Location}
+        \caption{Flowchart for Choosing which Link based on Actor Location}
     \end{centering}
 \end{figure}
 Using the above decision tree, the framework can internally use the fastest available link when given the node in which the actor resides in.
@@ -278,13 +278,6 @@ interface ActorFacade {
 Using the returned ActorFacade object from the \textbf{spawn}, an actor can be uniquely identified across the web. The developer puts in the actor reference insied the \textbf{send} function to send that actor a message. Internally, the framework looks at the actor reference's node number. If it matches the client's network number it resides in, then it will queue the local actor's behaviour on the runtime's event loop. 
 
 If the actor resides in a remote node, it creates a payload to send over the network. When the \textbf{init} function is used, the developer can choose to spawn a number of child processes or web workers. Each of the spawned workers will send to the spawner (primary node) their network number assigned by the WebSocket network. The primary node will then inform each of the spawned workers of their neighbouring spawned processes. This is so that spawned processes can communicate with each other through the primary node using the cluster or web worker API instead of the WebSocket network to avoid the network stack. If the actor resides on a separate device or group of spawned processes, it resorts to using the WebSocket network.
-\begin{figure}[H]
-    \begin{centering}
-        \includegraphics[width=\textwidth]{resources/communication.png}
-        \caption{Choosing the Communication Link Flowchart}
-    \end{centering}
-\end{figure}
-
 \subsection{Remote Spawning Mechanism}
 The \textbf{spawnRemote} function sends a request to spawn an actor to the remote node. The request has embedded within it the string representation of its behaviour which is reconstructed as a function on the recipient end. Just like the \textbf{send} function, it chooses the fastest transport mechanism to send the spawn request. The primary node is internally aware of the network numbers of the worker nodes it spawned, so it will make use of Cluster IPC to send these requests rather than the slower established WebSocket link through the network.
 
