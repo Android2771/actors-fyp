@@ -36,21 +36,21 @@ const emit = (name: string) => {
  * code is not limited to any behaviour and is free to manipulate the state and
  * message object accordingly
  */
-interface ActorCallback {
-    (state: object, message: object, self: ActorFacade): void
+interface ActorBehaviour {
+    (state: object, message: object, self: ActorReference): void
 }
 
 //Actor object interface
 interface Actor {
     name: string,
     state: { [key: string]: any },
-    behaviour: ActorCallback,
+    behaviour: ActorBehaviour,
     node: number,
     active: boolean
 }
 
 //Actor facade interface
-interface ActorFacade {
+interface ActorReference {
     name: string,
     node: number
 }
@@ -173,7 +173,7 @@ const closeConnection = () => {
  * @param behaviour The behaviour of the actor in response to a message
  * @returns A reference to the spawned actor
  */
-const spawn = (state: object, behaviour: ActorCallback | string | Function): ActorFacade => {
+const spawn = (state: object, behaviour: ActorBehaviour | string): ActorReference => {
     const cleanedBehaviour = (typeof behaviour === "string") ?
         Function('init', 'spawn', 'spawnRemote', 'terminate', 'send', 'closeConnection', 'return ' + behaviour)(init, spawn, spawnRemote, terminate, send, closeConnection)
         : behaviour;
@@ -200,7 +200,7 @@ const spawn = (state: object, behaviour: ActorCallback | string | Function): Act
  * @param timeout How long to wait to receive an acknowledgement for the remotely spawned actor
  * @returns A promise which resolves into a reference to the remote actor
  */
-const spawnRemote = (node: number, state: object, behaviour: ActorCallback, timeout: number = 0x7fffffff): Promise<ActorFacade> => {
+const spawnRemote = (node: number, state: object, behaviour: ActorBehaviour, timeout: number = 0x7fffffff): Promise<ActorReference> => {
     return new Promise((resolve, reject) => {
         const name = uuidv4()
         const payload = { header: "SPAWN", to: node, remoteActorId: name, behaviour: behaviour.toString().trim().replace(/\n/g, ''), state }
@@ -220,7 +220,7 @@ const spawnRemote = (node: number, state: object, behaviour: ActorCallback, time
  * @param actor The actor to send the message to
  * @param message The message object to send to an actor
  */
-const send = (actor: ActorFacade, message: object): void => {
+const send = (actor: ActorReference, message: object): void => {
     if (actor.node === yourNetworkNumber) {
         const localActor = actors[actor.name]
         //Local send
@@ -259,7 +259,7 @@ const forward = (payload: any): void => {
  * @param actor The actor to terminate
  * @param force True to immediately stop the actor, false to let it process remaining messages and terminate safely
  */
-const terminate = (actor: ActorFacade, force: boolean = false) => {
+const terminate = (actor: ActorReference, force: boolean = false) => {
     const localActor = actors[actor.name];
     if (localActor) {
         removeListener(localActor.name)

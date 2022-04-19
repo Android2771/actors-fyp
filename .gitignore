@@ -391,3 +391,4 @@ mandelbrot.json
 documentation/*/*.log
 *:Zone.Identifier
 output.png
+benchmarks/visualisations/*.png
