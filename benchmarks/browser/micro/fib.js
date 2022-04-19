@@ -2,7 +2,7 @@
 import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 30;    //fibonnachi index
+const N = 30;    //fibonacci index
 const rounds = 5;
 
 const behaviour = (state, message, self) => {

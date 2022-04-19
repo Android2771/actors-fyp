@@ -2,37 +2,39 @@
 import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 4000000;  //Number of actors to spawn
-const rounds = 5;
+const N = 1000000;  //Number of actors to spawn
+const rounds = 10;
 
 const benchmarker = spawn({rounds}, (state, message, self) => {
-        switch(message.header){
-            case "start":
-                state.start = new Date();
-                for(let i = 0; i < N-1; i++)
-                    send(spawn({}, (state, message, self) => {
-                        terminate(self)
-                    }), {});
-        
-                //Final spawned actor replies to benchmarker
+    switch(message.header){
+        case "start":
+            state.start = new Date();
+            for(let i = 0; i < N-1; i++)
                 send(spawn({}, (state, message, self) => {
-                    send(message.sender, {header: "end"});
-                    terminate(self);
-                }), {sender: self});
-            break;
-            case "end":
-                state.end = new Date()
-                const time = state.end.getTime() - state.start.getTime()
-                console.log(time);
-                
-                state.rounds--;
-                if(state.rounds != 0){
-                    send(self, {header: "start"});
-                }
-            break;
-        }
-
+                    const sint = Math.sin(37.2);
+                    const res = sint * sint;
+                    terminate(self)
+                }), {});
+    
+            //Final spawned actor replies to benchmarker
+            send(spawn({}, (state, message, self) => {
+                send(message.sender, {header: "end"});
+                terminate(self);
+            }), {sender: self});
+        break;
+        case "end":
+            state.end = new Date()
+            const time = state.end.getTime() - state.start.getTime()
+            console.log(time);
+            
+            state.rounds--;
+            if(state.rounds != 0){
+                send(self, {header: "start"});
+            }
+        break;
     }
+
+}
 );
 
 send(benchmarker, {header: "start"})

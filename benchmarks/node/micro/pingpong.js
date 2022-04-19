@@ -2,7 +2,7 @@
 import actors from '../../../src/actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = process.argv.slice(2)[1] ? parseInt(process.argv.slice(2)[1]) : 100000000;   //Number of sends
+const N = process.argv.slice(2)[1] ? parseInt(process.argv.slice(2)[1]) : 10000000;   //Number of sends
 const rounds = parseInt(process.argv.slice(2)[0]);    //Rounds of benchmark
 
 const pongBehaviour = (state, message, self) => {
