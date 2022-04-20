@@ -24,7 +24,7 @@ node_averages = [np.average(node_data[key]) for key in node_data.keys()]
 node_errors = [sem(node_data[key]) for key in node_data.keys()]
 
 #Scrape browser results
-with open('../browser/micro/singlethread.log') as f:
+with open('../browser/micro/micro.log') as f:
     for line in f.readlines():
         sanitized_line = line.strip()
         if '.js ' in sanitized_line:

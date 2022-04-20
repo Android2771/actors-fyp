@@ -2,8 +2,8 @@
 import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 1000000;  //Number of actors to spawn
-const rounds = 10;
+const N = 1500000;  //Number of actors to spawn
+const rounds = 5;
 
 const benchmarker = spawn({rounds}, (state, message, self) => {
     switch(message.header){
