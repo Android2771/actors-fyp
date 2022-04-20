@@ -1,0 +1,13 @@
+[5609:5668:0420/191737.305690:WARNING:external_pref_loader.cc(299)] You are using an old-style extension deployment method (external_extensions.json), which will soon be deprecated. (see http://developer.chrome.com/extensions/external_extensions.html)
+[5650:5650:0420/191737.320680:ERROR:sandbox_linux.cc(377)] InitializeSandbox() called with multiple threads in process gpu-process.
+[5609:5609:0420/191737.389906:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[5609:5609:0420/191738.676559:INFO:CONSOLE(27)] "292", source: http://localhost:3000/ (27)
+[5609:5609:0420/191748.842099:INFO:CONSOLE(27)] "398", source: http://localhost:3000/ (27)
+[5609:5609:0420/191757.584116:INFO:CONSOLE(27)] "635", source: http://localhost:3000/ (27)
+[5609:5609:0420/191807.794390:INFO:CONSOLE(27)] "908", source: http://localhost:3000/ (27)
+[5609:5609:0420/191812.424721:INFO:CONSOLE(27)] "1275", source: http://localhost:3000/ (27)
+[5609:5609:0420/191817.292031:INFO:CONSOLE(27)] "1633", source: http://localhost:3000/ (27)
+[5609:5609:0420/191822.500635:INFO:CONSOLE(27)] "1981", source: http://localhost:3000/ (27)
+[5609:5609:0420/191828.543369:INFO:CONSOLE(27)] "2331", source: http://localhost:3000/ (27)
+[5609:5609:0420/191834.250408:INFO:CONSOLE(27)] "2543", source: http://localhost:3000/ (27)
+[5609:5609:0420/191839.587588:INFO:CONSOLE(27)] "2933", source: http://localhost:3000/ (27)

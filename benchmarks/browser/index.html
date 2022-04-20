@@ -1,13 +1,13 @@
 <body>
     <h1>ActorsFYP</h1>
-    <script type="module" src="./micro/big.js"></script>
-    <script type="module" src="./micro/chameneos.js"></script>
-    <script type="module" src="./micro/count.js"></script>
-    <script type="module" src="./micro/fib.js"></script>/
-    <script type="module" src="./micro/fjcreate.js"></script>
-    <script type="module" src="./micro/fjthrput.js"></script>
-    <script type="module" src="./micro/pingpong.js"></script>
-    <script type="module" src="./micro/threadring.js"></script>
+    <!-- <script type="module" src="./micro/big.js"></script> -->
+    <!-- <script type="module" src="./micro/chameneos.js"></script> -->
+    <!-- <script type="module" src="./micro/count.js"></script> -->
+    <!-- <script type="module" src="./micro/fib.js"></script>/ -->
+    <!-- <script type="module" src="./micro/fjcreate.js"></script> -->
+    <!-- <script type="module" src="./micro/fjthrput.js"></script> -->
+    <!-- <script type="module" src="./micro/pingpong.js"></script> -->
+    <!-- <script type="module" src="./micro/threadring.js"></script> -->
     <!-- <script type="module" src="./parallel/mandelbrot/mandelbrot.js"></script> -->
     <!-- <script type="module" src="./parallel/mandelbrot/mandelbrotnoharvest.js"></script> -->
     <!-- <script type="module" src="./parallel/piprecision.js"></script> -->
@@ -16,20 +16,12 @@
     <!-- <script type="module" src="./micro/pingpong.js"></script> -->
     <!-- <script type="module" src="./parallel/fjcreatenet.js"></script> -->
     <!-- <script type="module" src="./micro/fjcreate.js"></script> -->
-    <!-- <script>
-        let promisesQueued = false;
-
-        console.log('Queuing up promises...')
+    <script>
         const start = new Date();
-        for(let i = 0; i < 14000000; i++){
-            Promise.resolve().then(() => {
-                if(!promisesQueued)
-                    console.log('Executing promises')
-                promisesQueued = true
-            })
+        for(let i = 0; i < 10000000; i++)
+            Promise.resolve().then(() => {})
 
-            if(i === 14000000 - 1)
-                console.log(new Date() - start)
-        }
-    </script> -->
+        console.log(new Date() - start)
+    </script>
+    
 </body>
