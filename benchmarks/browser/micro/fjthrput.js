@@ -2,7 +2,7 @@
 import actors from '../actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = 1500000;  //total messages to send to each actor
+const N = 1000000;  //total messages to send to each actor
 const K = 10;       //total number of actors to spawn
 const rounds = 5;
 
