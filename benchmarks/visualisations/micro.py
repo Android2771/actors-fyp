@@ -8,13 +8,14 @@ from scipy.stats import sem
 node_data = {}
 browser_data = {}
 node_directory = '../node/micro/results'
+micro_benchmarks = ['pingpong', 'threadring', 'count', 'fjthrput', 'fjcreate', 'fib', 'chameneos', 'big']
 
 #Scrape node results
-for filename in os.listdir(node_directory):
-    name = filename.split('.')[0].upper()
+for benchmark in micro_benchmarks:
+    name = benchmark.upper()
     node_data[name] = []
     browser_data[name] = []
-    with open(f'{node_directory}/{filename}') as f:
+    with open(f'{node_directory}/{benchmark}.js.txt') as f:
         for line in f.readlines():
             node_data[name].append(int(line.strip()))
 
