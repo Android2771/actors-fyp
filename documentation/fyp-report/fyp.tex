@@ -43,6 +43,7 @@
   stringstyle=\color{purple},
   breaklines=true,
   breakatwhitespace=true,
+  showstringspaces=false,
   tabsize=3,
   numbers=left
 }
@@ -62,15 +63,10 @@
 \newtheorem{theorem}{Theorem}[section]
 %%you can delete till here if you dont need the code and proofs environments
 
-
-
 \setlength{\headheight}{15pt}
 %\overfullrule=15pt
 
-
 \begin{document}
-
-
 
 %%make sure to enter this information
 \title{JavaScript Framework for Actor-Based Programming}
@@ -82,7 +78,6 @@
 \submitdate{May 20, 2022} 
 
 \frontmatter
-
 
 \begin{acknowledgements}
 your acknowledgements
@@ -101,10 +96,6 @@ Nowadays, browsers are found on devices such as smart fridges and TV’s, each o
 \tableofcontents
 
 \listoffigures
-
-\listoftables
-
-
 
 \mainmatter
 
@@ -293,13 +284,127 @@ Promise.resolve().then(() => {
 
 With this implementation, only one actor processes a message at a time on a local instasnce. When the actor receives a message, the framework schedules a microtask on the event loop to allow the actor to process the message at the end of the event loop's iteration. Since JavaScript only has one microtask event queue, the order in which messages are sent matches the order in which they are processed by the set of receiving actors. Since JavaScript processes microtasks to completion before processing the next, the implementation ensures that at most one actor is processing a message at any point in time in a single process.
 \chapter{Evaluation}
-This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina~\cite{savina} is a benchmark suite defined for actor based systems which is partially implemented for this chapter. It defines micro-benchmarks which measures overheads introduced when using the framework's basic functionality, which will be the focus of the first section. It also defines parallel benchmarks which are expected to linearly increase performance with each added core, and will be the topic of interest in the second section.
+This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina is a benchmark suite defined for actor-based systems which is partially implemented for this chapter. The first section will explore each of Savina’s micro-benchmarks which measure overheads introduced when using the framework's basic functionality. The second section explores parallel benchmarks which are expected to linearly increase performance with each added core. 
+
+Unless otherwise stated, the following hardware and software was used to run the benchmarks.
+\begin{itemize}
+    \item OS - Ubuntu 20.04 focal (64 bit)
+    \item CPU – Intel Core i7-1065G7. 4 cores up to 3.9GHz with hyper-threading disabled
+    \item RAM – LPDDR4 16GB (2x8GB) at 4267MHz
+    \item Node.js – v16.14.0
+    \item Google Chrome v100.0.4896.88 (Official Build)
+\end{itemize}
 
 \section{Micro-Benchmark Performance}
+\subsection{Comparing Local Node.js to Browser Performance}
+The Savina benchmark suite define micro-benchmarks which test specific actor runtime features. The diagram below shows the execution times between the browser and Node.js implementations of Savina's micro-benchmarks. The diagram is followed by an explanation and analysis of each of the executed benchmarks from left to right.
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=\textwidth]{resources/micro.png}
+        \caption{Node.js and Browser Comparision for Micro-Benchmarks}
+    \end{centering}
+\end{figure}
+\begin{itemize}
+    \item Ping Pong – Two actors are spawned which will send messages to each other. Every time one actor receives the message, it decrements the integer value it receives and sends it back to the sender. This mainly tests the send functionality on a local instance with Node.js being slightly faster at sending the same load of messages.
+    \item Thread Ring – Similar to Ping Pong, the token containing the decrementing integer is now forwarded across N actors. Instead of the message being forwarded back and forth, it is now forwarded to the next actor on the ring. The performance is nearly identical to that of Ping Pong as the framework does not perform context switching between actors. The JavaScript event loop merely executes the queued functions which process actors’ messages. N was set to 10 actors and the initial decrementing integer value (which determines the load) was set to the same as the ping pong benchmark.
+    \item Count – This benchmark sends N messages to a single actor and waits for the actor to process all of the sent messages. It tests the time taken for N messages to be sent and processed by an actor. Since the framework relies on the event loop, each sent message gets queued on the event queue. Node is considerably slower than the browser implementation with a high standard deviation on both sides. This may be due to the operating system having to allocate a considerable amount of memory in a short amount of time when queuing a large number of messages.
+    \item Fork Join (Throughput) – Similar to the count benchmark, it starts by sending N messages. However, they are sent to K actors in a round robin fashion instead of one counter actor. Similar performance is achieved to that of the count benchmark when sending the same number of messages.
+    \item Fork Join (create) – This benchmark creates N actors and sends each spawned actor a single message. It tests the spawning, sending and terminate functionality of the framework by spawning actors and sending messages which will self-destruct them. When the actor processes the message its set to terminate. The performance is similar between the two environments with the browser being slightly slower.
+    \item Fibonacci – This benchmark is similar to fork join (create) as it creates new actors to recursively compute the n’th iteration of the Fibonacci sequence. It differs from fork join as the actors spawned earlier in the recursive loop live much longer than those which spawn near the base case. Despite this, similar relative performance is achieved between Node.js and browser
+    \item Chameneos – This benchmark spawns a single mall actor and N chamaneos actors. Chameneos actors send to the mall actor to request to be matched with another chameneos, and then sends a message to themselves to send a message to the mall again. This creates a scenario where Chameneos are constantly sending messages to the mall actor as well as sending messages to themselves. The benchmark tests contention on the mall actor, as it needs to match pairs of Chameneos while they create a lot of noise in the event queue. The mall then matches two Chameneos which sent a request, which will then exchange a state between each other. A lot of queued messages are involved, making this benchmark memory intensive, which may be the reason why node is significantly slower than browser similar to the count and fork join (throughput) benchmarks.
+    \item Big – This benchmark involves N actors picking random actors to send messages to. The recipient of the actor will then reply to the sender with a reply message. This tests many to many actors passing messages to each other, with node achieving slower performance than browser.
+\end{itemize}
+The Chameneos benchmark tests many actors sending messages to one actor, while big has many actors sending messages to random actors. This does not make a difference to the actor framework model as the concept of an actor is merely an abstraction. The framework acts as a wrapper around the runtime’s single threaded event loop and queue. Rather than all actors having their own mailbox and thread of control, a single JavaScript application is executing functions on a single queue with the actor’s state and received message as the context of its behaviour. Similar performance is achieved for both benchmarks.
+
+Ping Pong and Thread Ring is another pair of benchmarks that effectively result in the same benchmark for the framework. The Thread Ring benchmark tests for any overhead introduced by having more actors forwarding the message. However, each actor is merely a saved object in the framework which stores the actor’s state and behaviour and does not have any bearing on its runtime performance when processing messages.
+\subsection{Node.js and Browse Load Scaling}
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=\textwidth]{resources/load_scaling.png}
+        \caption{Node.js and Browser Comparision for Micro-Benchmark Load Scaling}
+    \end{centering}
+\end{figure}
+One can observe that big, chameneos, count and fjthrput have the worst scaling when increasing load over both environments. All four of these involve large message queues, suggesting that the event queue performs slower when more messages are queued. The browser demonstrated approximately twice the slowdown for some of the benchmarks, which may be the result of less RAM being available on a browser instance than that of Node when queuing a large number of messages.
+\subsection{Comparing Communication Links}
+The ping pong and fork join (create) benchmarks were tested on a network using different links. In this comparison, the fork join benchmark only involves the remote spawning of actors without them executing any behaviour such as terminating. This way the comparison narrows down the performance to sending (ping pong) and remote spawning (fork join).
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=\textwidth]{resources/link.png}
+        \caption{Comparision of Communication Links}
+    \end{centering}
+\end{figure}
+Across both benchmarks, cluster and web workers are nearly identical in performance. Node.js uses an npm package to interface with the WebSocket server while the browser uses the available WebSocket functionality on JavaScript. The browser is slower when communicating through the WebSocket link in both cases. 
+
+The WebSocket links are slower than the IPC alternative (cluster and web workers) since they involve the network stack. Due to how the framework is implemented, the WebSocket link involves an additional hop over the WebSocket server which creates a star network of connected instances. Cluster or web workers use a direct link which is made between the spawner and the spawned worker; hence the message is never forwarded by a third party. Better performance would be expected from the WebSocket links if a peer-to-peer system between distributed instances was used.
+
+Furthermore, the number of actors which are remotely spawned in fork join create is the same as the number of messages sent in the ping pong benchmark. The fork join benchmark is about twice as slow since it involves sending two messages over the network. The first one is a request sent to the remote instance to remotely spawn an actor. When the remote instance spawns the actor locally, it sends an acknowledgement with the actor’s address. This is significantly more traffic generated on the network than a single message being passed and processed by the remote end.
+\subsection{Comparing with other Implementations}
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=\textwidth]{resources/savina.png}
+        \caption{Comparision with Other Implementations}
+    \end{centering}
+\end{figure}
+\section{Parallel Performance}
+\subsection{Shared Memory Parallelism}
+This sub-section first demonstrates the parallel nature of the benchmarks and its results, followed by a mathematical explanation of each of the benchmarks.
+\subsubsection{Performance Results}
+The Savina benchmark suite includes parallel benchmarks where multiple actors perform computation in parallel to complete a task. Each of the explored parallel benchmarks benefit from master-worker parallelism, where a master actor farms tasks to worker actors which will start execution in parallel. The workers then report their results to the master which will aggregate the collected data, producing the final result. The framework is tested by first executing the benchmark using only one master and one worker on separate runtimes, the worker being limited by JavaScript’s single threaded nature.  Next, two workers are spawned on separate runtimes, each of which ideally assigned half of the computational load by the master. Since the system the framework is tested on has four cores, the benchmarks are scaled up to four worker runtimes running in parallel. The amount of speedup introduced over running one worker is tested and plotted below.
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=\textwidth]{resources/speedup.png}
+        \caption{Node.js and Browser Comparision for Shared Memory Speedup}
+    \end{centering}
+\end{figure}
+\subsubsection{Mandelbrot}
+The Mandelbrot benchmark is not part of the Savina benchmark suite. Generating the Mandelbrot set is highly parallelisable as each pixel can be independently computed when only given a set of constants. 
+\begin{itemize}
+    \item The worker actors execute iterations of $z_{n+1}$ = $z_{n}^{2}+c$ where $z_0 = 0 + 0i$
+    \item $c, z \in \mathbb{C}$. $n \in \mathbb{Z},$ $n \ge 0$
+    \item $c$ is determined by the position of the pixel
+    \item If $|z_n|> 2$ it is said to be unbounded and will generate a lighter pixel colour inversely proportional to $n$’s iteration. If it performs a set number of iterations and it is still bounded $(|z_n| \le 2)$, it will yield a black colour.
+\end{itemize}
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=\textwidth]{resources/mandelbrot.png}
+        \caption{Mandelbrot Image Generated using Distributed Actors}
+    \end{centering}
+\end{figure}
+Black pixels take longer to compute than white as the maximum number of iterations need to be performed to verify that it remains bounded. For this reason, Mandelbrot could not be split into even chunks amongst workers as chunks which have more black pixels would take considerably longer to execute, resulting in some workers finishing faster than others and thus reducing efficiency. The master could compose each task to be a single row where once a worker is finished with a row it is assigned the next required row. However, this would result in considerable message overhead as the number of messages exchanged between the master and its workers would be twice the image’s height. A balance is struck between minimising message overhead and distributing even work by assigning smaller chunks to each worker. When the worker reports back it will be assigned the next required chunk.
+
+When workers do not report back the generated pixels to the master, the speedup goes up to 3.5 with 4 running workers. The slowdown may be attributed to the fact that the master is running on its own process (thus using five processes on four cores) as well as any other processes and daemons running on the operating system which may have prevented the benchmark from fully utilising the CPU. The distributed chunk sizes may not have been optimal resulting in some workers finishing earlier than others, and there were instances where workers were idle while waiting for the next task to be assigned by the master. When harvesting the data one can note that Node.js had more significant slowdown than the browser on four worker processes.
+\subsubsection{Pi Precision and Trapezoidal Approximation}
+The value of pi computation as well as the trapezoidal approximation benchmarks involve a master actor distributing iterations of mathematical computation to worker actors.
+
+The value of pi is approximated using the following summation which is defined by the Savina benchmark suite. The iterations of the summation can be distributed and parallelised amongst multiple worker actors.
+\begin{equation}
+\sum_{n=0}^{\infty}(\frac{4}{8n+1}-\frac{2}{8n+4}-\frac{1}{8n+5}-\frac{1}{8n+6})(\frac{1}{16})^n
+\end{equation}
+Trapezoidal approximation can also be distributed to perform the approximate integral of the following function.
+\begin{equation}
+f(x)=\frac{1}{x+1}\cdot\sqrt{1+e^{\sqrt{2x}}}\cdot sin(x^3-1)
+\end{equation}
+This is done by executing the following equation with respect to $f(x)$. Each worker will execute smaller bounds of the integral of $f(x)$ which will be added up by the master to compute the full integral.
+\begin{equation}
+\int_{a}^{b}f(x)dx=\frac{b-a}{N}\left[ \frac{f(a)+f(b)}{2}+\sum_{k=1}^{N-1}f\left( a+k\cdot\frac{b-a}{N} \right) \right]
+\end{equation}
+\subsection{Distributed Memory Parallelism}
+The following benchmark experiments with having actors hosted on a distributed memory. A Raspberry Pi 4 is used to host a WebSocket server which the device that has been used so far connects to. The scaling of the Mandelbrot benchmark without harvesting over Node.js and cluster has already been explored up to four worker instances. The diagram below shows the speedup introduced when connecting a new device on the network with the following specifications.
+\begin{itemize}
+    \item OS - Windows 10 Home (64 bit)
+    \item CPU – Intel Core i5-10500 6 cores up to 3.10GHz with hyper-threading enabled
+    \item RAM - DDR4 32GB (4x8GB) at 2666MHz
+\end{itemize}
+In addition to the four workers and master hosted on the four-core device, new workers are incrementally added and connected to the web socket server from the other device. While avoiding data harvesting to minimise the network dependency, one can observe a consistent speedup when adding another worker on the second device, with node achieving slightly better speedup with a larger number of workers. Despite network overhead being introduced when distributing actors over the network, the second device makes up for it with its faster processing time.
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=\textwidth]{resources/mandelbrot.png}
+        \caption{Node.js and Browser Comparision for Distributed Memory Speedup}
+    \end{centering}
+\end{figure}
 \chapter{Conclusions and Future Work}
 
 \appendix
-
 \chapter{Manual}
 This section explores each of the functions that the framework exposes which developers will interact with to make use of the Actor Model in JavaScript. Using ES6 Modules the functions are imported as follows.
 \begin{lstlisting}
@@ -372,8 +477,6 @@ In the example above, nodes 2 and 3 are the workers that the primary node spawne
 
 
 \bibliomatter
-
-
 
 \bibliographystyle{ieeetr}
 \bibliography{references}
