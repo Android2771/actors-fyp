@@ -353,7 +353,7 @@ This sub-section first demonstrates the parallel nature of the benchmarks and it
 The Savina benchmark suite includes parallel benchmarks where multiple actors perform computation in parallel to complete a task. Each of the explored parallel benchmarks benefit from master-worker parallelism, where a master actor farms tasks to worker actors which will start execution in parallel. The workers then report their results to the master which will aggregate the collected data, producing the final result. The framework is tested by first executing the benchmark using only one master and one worker on separate runtimes, the worker being limited by JavaScript’s single threaded nature.  Next, two workers are spawned on separate runtimes, each of which ideally assigned half of the computational load by the master. Since the system the framework is tested on has four cores, the benchmarks are scaled up to four worker runtimes running in parallel. The amount of speedup introduced over running one worker is tested and plotted below.
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=\textwidth]{resources/shared_memory_speedup.png}
+        \includegraphics[width=390px]{resources/shared_memory_speedup.png}
         \caption{Node.js and Browser Comparision for Shared Memory Speedup}
     \end{centering}
 \end{figure}
@@ -363,7 +363,7 @@ The Mandelbrot benchmark is not part of the Savina benchmark suite. Generating t
     \item The worker actors execute iterations of $z_{n+1}$ = $z_{n}^{2}+c$ where $z_0 = 0 + 0i$
     \item $c, z \in \mathbb{C}$. $n \in \mathbb{Z},$ $n \ge 0$
     \item $c$ is determined by the position of the pixel
-    \item If $|z_n|> 2$ it is said to be unbounded and will generate a lighter pixel colour inversely proportional to $n$’s iteration. If it performs a set number of iterations and it is still bounded $(|z_n| \le 2)$, it will yield a black colour.
+    \item If $|z_n|> 2$ it is said to be unbounded and will generate a lighter pixel colour if $n$ is small. If it performs a set number of iterations and it is still bounded $(|z_n| \le 2)$, it will yield a darker colour.
 \end{itemize}
 \begin{figure}[H]
     \begin{centering}
