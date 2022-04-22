@@ -22,6 +22,7 @@
 \usepackage{rotating}
 \usepackage{float}
 \usepackage{tikz}
+\usepackage{url}
 
 \definecolor{OliveGreen}{rgb}{0,0.6,0}
 
@@ -116,16 +117,16 @@ This dissertation will explore the suitability of the Actor Model when used to r
     \item Allow developers to easily define and spawn actors through the framework API on Node.js or a browser. Actors should be able to send messages to other actors as well as spawn more actors. Full interoperability should be offered when using the framework across the two environments.
     \item Allow for spawning and interacting with actors on different Node.js processes through different network links. Node.js cluster\cite{cluster} can be used for IPC between node processes, while WebWorkers\cite{webworkers} can be used for communication between the primary thread and its spawned workers. When such communicaiton links are not available, the network stack is involved by using WebSockets for flexible communication to link remote processes and devices.
     \item Provide location transparency when dealing with actor references. Interacting with a local actor should be the same as interacting with a remote actor when using the API
-    \item Benchmark the performance and scalability of the developed prototype.
+    \item Benchmark the performance and scalability of the developed prototype as well as evaluate its practicality.
 \end{enumerate}
 
-Section 2 contains the Background and literature review. The design and implementation details are covered in section 3, and the implementation is benchmarked and evaluated in section 4. Section 5 contains the conclusions and future work.
+Chapter 2 contains the background and literature review. The design and implementation details are covered in Chapter 3, followed by benchmarks and evaluation in Chapter 4. Chapter 5 contains the conclusions and future work.
 
 \chapter{Background and Literature Review}
 \section{Concurrency and Parallelism on JavaScript}
 Concurrency allows one to switch the order of the execution of tasks without yielding an incorrect output. Since the order in which a program is executed would not an issue, one can run these code segments in parallel, reducing the time taken to solve a particular problem. JavaScript and Node.js rely on a single threaded non-blocking event loop~\cite{eventloopbrowser}\cite{eventloopnode} which do not support parallel execution of such tasks, raising an issue when high performance computing~\cite{highperformance} is required. If JavaScript had to block when input or output was required, it would stop a page from being responsive. Instead, JavaScript handles I/O using events and callbacks which were posted on the event queue. The runtime will eventually process all the messages in a FIFO order, where each event has a corresponding callback or event listener function to execute. Each message is processed to completion without pre-emption by the processing of a different message, allowing for predictable concurrency of code. Web Workers\cite{webworkers} and child processes\cite{cluster} can be used to bring parallel computation to JavaScript~\cite{concurrencyjs}\cite{spidersjs} and uses a similar philosophy to that of the actor model. Both involve independently running tasks which communicate through messaging in order to allow for collaboration in solving a particular problem.
 
-JavaScript is an implementation of the ECMAScript design. The ECMA-262 (ECMAScript 2021) language has multiple published editions, each of which serving as the blueprint for JavaScript’s next stable release. ECMAScript 8 provides the SharedArrayBuffer~\cite{es8}\cite{sharedarraybuffer} constructor which allows for concurrent access for a set of bytes. This allows for memory to be shared across agents in different cluster processes or webworkers. The process which created the SharedArrayBuffer need only pass the object to the workers to allow them to access and manipulate the same data block. SharedArrayBuffers allow for different workers to have access to the same memory which promotes collaboration when working on the same data points. However, parallel code accessing the same data may lead to data races and additional care must be taken by the developer.
+JavaScript is an implementation of the ECMAScript design. The ECMA-262 (ECMAScript 2021) language has multiple published editions, each of which serving as the blueprint for JavaScript’s next stable release. ECMAScript 8~\cite{ecmascript} provides the SharedArrayBuffer~\cite{sharedarraybuffer} constructor which allows for concurrent access for a set of bytes. This allows for memory to be shared across agents in different cluster processes or webworkers. The process which created the SharedArrayBuffer need only pass the object to the workers to allow them to access and manipulate the same data block. SharedArrayBuffers allow for different workers to have access to the same memory which promotes collaboration when working on the same data points. However, parallel code accessing the same data may lead to data races and additional care must be taken by the developer.
 
 \section{The History of the Actor Model}
 The Actor Model was first introduced by Carl Hewitt~\cite{hewitt1973session}\cite{43years} in 1973 for research in artificial intelligence. It defines actors as computational agents which execute a uniform behaviour when sent a message. Hewitt argued that the actor metaphor can be applied to processes and daemons amongst other things. Two years later, Carl Hewitt helped in writing a draft of PLASMA, the first Actor Model language. In this language, actors communicate with each other using messages. The receiver processes the received message using its pre-defined computation. Based on the message’s contents, the actor may choose one from different behaviours which may involve sending messages to other actors.
@@ -244,7 +245,7 @@ send = (actor: ActorReference, message: object): void
 terminate = (actor: ActorReference, force: boolean = false)
 \end{lstlisting}
 \section{Implementation}
-\subsection{Composition of an Actor}
+\subsection{Anatomy of an Actor}
 The internal composition of an actor inside the framework is at the heart of the API's features. An actor takes the form of an object which contains its maintained state as well as its behaviour as an executable function. Each actor stores a name so that it can be uniquely identified when sending messages to. The network node it resides in as well as whether it is accepting messages are also stored. For every spawned actor, the following information is stored.
 \begin{lstlisting}
 //TypeScript object interface for an Actor
@@ -284,7 +285,7 @@ Promise.resolve().then(() => {
 
 With this implementation, only one actor processes a message at a time on a local instasnce. When the actor receives a message, the framework schedules a microtask on the event loop to allow the actor to process the message at the end of the event loop's iteration. Since JavaScript only has one microtask event queue, the order in which messages are sent matches the order in which they are processed by the set of receiving actors. Since JavaScript processes microtasks to completion before processing the next, the implementation ensures that at most one actor is processing a message at any point in time in a single process.
 \chapter{Evaluation}
-This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina is a benchmark suite defined for actor-based systems which is partially implemented for this chapter. The first section will explore each of Savina’s micro-benchmarks which measure overheads introduced when using the framework's basic functionality. The second section explores parallel benchmarks which are expected to linearly increase performance with each added core. 
+This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina is a benchmark suite defined for actor-based systems which is partially implemented for this chapter. Section 1 will explore each of Savina’s micro-benchmarks which measure overheads introduced when using the framework's basic functionality. Section 2 explores parallel benchmarks which are expected to linearly increase performance with each added core. 
 
 Unless otherwise stated, the following hardware and software was used to run the benchmarks.
 \begin{itemize}
@@ -378,15 +379,15 @@ The value of pi computation as well as the trapezoidal approximation benchmarks 
 
 The value of pi is approximated using the following summation which is defined by the Savina benchmark suite. The iterations of the summation can be distributed and parallelised amongst multiple worker actors.
 \begin{equation}
-\sum_{n=0}^{\infty}(\frac{4}{8n+1}-\frac{2}{8n+4}-\frac{1}{8n+5}-\frac{1}{8n+6})(\frac{1}{16})^n
+\pi\approx\sum_{n=0}^{\infty}(\frac{4}{8n+1}-\frac{2}{8n+4}-\frac{1}{8n+5}-\frac{1}{8n+6})(\frac{1}{16})^n
 \end{equation}
-Trapezoidal approximation can also be distributed to perform the approximate integral of the following function.
+Trapezoidal approximation can also be distributed to perform the approximate integral of the following function specified by the Savina benchmark.
 \begin{equation}
 f(x)=\frac{1}{x+1}\cdot\sqrt{1+e^{\sqrt{2x}}}\cdot sin(x^3-1)
 \end{equation}
 This is done by executing the following equation with respect to $f(x)$. Each worker will execute smaller bounds of the integral of $f(x)$ which will be added up by the master to compute the full integral.
 \begin{equation}
-\int_{a}^{b}f(x)dx=\frac{b-a}{N}\left[ \frac{f(a)+f(b)}{2}+\sum_{k=1}^{N-1}f\left( a+k\cdot\frac{b-a}{N} \right) \right]
+\int_{a}^{b}f(x)dx\approx\frac{b-a}{N}\left[ \frac{f(a)+f(b)}{2}+\sum_{k=1}^{N-1}f\left( a+k\cdot\frac{b-a}{N} \right) \right]
 \end{equation}
 \subsection{Distributed Memory Parallelism}
 The following benchmark experiments with having actors hosted on a distributed memory. A Raspberry Pi 4 is used to host a WebSocket server which the device that has been used so far connects to. The scaling of the Mandelbrot benchmark without harvesting over Node.js and cluster has already been explored up to four worker instances. The diagram below shows the speedup introduced when connecting a new device on the network with the following specifications.
@@ -477,7 +478,7 @@ In the example above, nodes 2 and 3 are the workers that the primary node spawne
 
 
 \bibliomatter
-
+\raggedright
 \bibliographystyle{ieeetr}
 \bibliography{references}
  
