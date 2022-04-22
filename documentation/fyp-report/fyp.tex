@@ -300,7 +300,7 @@ Unless otherwise stated, the following hardware and software was used to run the
 The Savina benchmark suite define micro-benchmarks which test specific actor runtime features. The diagram below shows the execution times between the browser and Node.js implementations of Savina's micro-benchmarks. The diagram is followed by an explanation and analysis of each of the executed benchmarks from left to right.
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=\textwidth]{resources/micro.png}
+        \includegraphics[width=350px]{resources/micro.png}
         \caption{Node.js and Browser Comparision for Micro-Benchmarks}
     \end{centering}
 \end{figure}
@@ -329,7 +329,7 @@ One can observe that big, chameneos, count and fjthrput have the worst scaling w
 The ping pong and fork join (create) benchmarks were tested on a network using different links. In this comparison, the fork join benchmark only involves the remote spawning of actors without them executing any behaviour such as terminating. This way the comparison narrows down the performance to sending (ping pong) and remote spawning (fork join).
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=\textwidth]{resources/link.png}
+        \includegraphics[width=300px]{resources/link.png}
         \caption{Comparision of Communication Links}
     \end{centering}
 \end{figure}
@@ -352,7 +352,7 @@ This sub-section first demonstrates the parallel nature of the benchmarks and it
 The Savina benchmark suite includes parallel benchmarks where multiple actors perform computation in parallel to complete a task. Each of the explored parallel benchmarks benefit from master-worker parallelism, where a master actor farms tasks to worker actors which will start execution in parallel. The workers then report their results to the master which will aggregate the collected data, producing the final result. The framework is tested by first executing the benchmark using only one master and one worker on separate runtimes, the worker being limited by JavaScript’s single threaded nature.  Next, two workers are spawned on separate runtimes, each of which ideally assigned half of the computational load by the master. Since the system the framework is tested on has four cores, the benchmarks are scaled up to four worker runtimes running in parallel. The amount of speedup introduced over running one worker is tested and plotted below.
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=\textwidth]{resources/speedup.png}
+        \includegraphics[width=\textwidth]{resources/shared_memory_speedup.png}
         \caption{Node.js and Browser Comparision for Shared Memory Speedup}
     \end{centering}
 \end{figure}
@@ -366,7 +366,7 @@ The Mandelbrot benchmark is not part of the Savina benchmark suite. Generating t
 \end{itemize}
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=\textwidth]{resources/mandelbrot.png}
+        \includegraphics[width=250px]{resources/mandelbrot.png}
         \caption{Mandelbrot Image Generated using Distributed Actors}
     \end{centering}
 \end{figure}
@@ -398,7 +398,7 @@ The following benchmark experiments with having actors hosted on a distributed m
 In addition to the four workers and master hosted on the four-core device, new workers are incrementally added and connected to the web socket server from the other device. While avoiding data harvesting to minimise the network dependency, one can observe a consistent speedup when adding another worker on the second device, with node achieving slightly better speedup with a larger number of workers. Despite network overhead being introduced when distributing actors over the network, the second device makes up for it with its faster processing time.
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=\textwidth]{resources/mandelbrot.png}
+        \includegraphics[width=330px]{resources/distributed_memory_speedup.png}
         \caption{Node.js and Browser Comparision for Distributed Memory Speedup}
     \end{centering}
 \end{figure}
