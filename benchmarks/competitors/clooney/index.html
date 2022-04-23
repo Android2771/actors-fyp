@@ -1,0 +1,90 @@
+<script src="./clooney.js"></script>
+<!-- <script>
+  (async function() {
+    class PingActor {
+        ping(val, sender, benchmarker){
+            console.log(val)
+            if(benchmarker)
+                this.benchmarker = benchmarker;
+            if(val-1 < 0){
+                this.benchmarker.benchmark('end')
+            }else{
+                await sender.pong(val-1, this);
+            }
+        }
+    }
+
+    class PongActor{
+        async pong(val, sender){
+            if(!(val-1 < 0)){
+                await sender.ping(val-1, this);
+            }       
+        }
+    }
+
+    class BenchmarkerActor{
+        async benchmark(header, pingRef, pongRef, n, rounds){
+            switch(header){
+                case "start":
+                    this.ping = pingRef;
+                    this.pong = pongRef
+                    this.n = n;
+                    this.rounds = rounds;
+    
+                    this.start = new Date();
+                    console.log(pingRef)
+                    await pingRef.ping(5, pingRef);
+                break;
+                case "end":    
+                    this.end = new Date();
+                    const time = this.end.getTime() - this.start.getTime()
+                    console.log(time);
+                    
+                    this.rounds--;
+                    if(this.rounds != 0)
+                        this.benchmark('start', this.ping, this.pong, this.n, this.rounds)
+                break;
+            }
+        }
+    }    
+
+    const benchmarkerRef = await Clooney.spawn(BenchmarkerActor);
+    const pingRef = await Clooney.spawn(PingActor);
+    const pongRef = await Clooney.spawn(PongActor);
+    await benchmarkerRef.benchmark('start', pingRef, pongRef, 10, 1);
+  })();
+</script> -->
+
+<!-- <script>
+    (async function () {
+        class InstanceTwo {
+            test(ref) {
+
+            }
+        }
+
+        class MyRemoteClass {
+            doExpensiveCalculation(a, b, instance, instanceTwo) {
+                instanceTwo.test(instance)    //Can't pass the same actor ref for some reason
+                return a + b;
+            }
+        }
+
+        const instance = await Clooney.spawn(MyRemoteClass);
+        const instanceTwo = await Clooney.spawn(InstanceTwo);
+        console.log(await instance.doExpensiveCalculation(5, 23, instance, instanceTwo));
+    })();
+</script> -->
+
+<script>
+    (async function() {
+        class MyRemoteClass {
+
+        }
+    
+        for(let i = 0; i < 1000000; i++){
+            await Clooney.spawn(MyRemoteClass);
+            console.log('spawned')
+        }
+    })();
+</script>
