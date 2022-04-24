@@ -1,6 +1,6 @@
 import spiders from 'spiders.js'
 
-const N = process.argv.slice(2)[1] ? parseInt(process.argv.slice(2)[1]) : 10000;   //Number of sends
+const N = process.argv.slice(2)[1] ? parseInt(process.argv.slice(2)[1]) : 1000;   //Number of sends
 const rounds = parseInt(process.argv.slice(2)[0]);    //Rounds of benchmark
 
 class PingPongApp extends spiders.Application{

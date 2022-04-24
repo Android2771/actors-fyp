@@ -2,7 +2,7 @@ import nact from 'nact';
 const { start, dispatch, stop, spawn, spawnStateless } = nact;
 import { v4 as uuidv4 } from 'uuid';
 
-const N = process.argv.slice(2)[1] ? parseInt(process.argv.slice(2)[1]) : 1500000;  //Number of actors to spawn
+const N = process.argv.slice(2)[1] ? parseInt(process.argv.slice(2)[1]) : 1000000;  //Number of actors to spawn
 const rounds = parseInt(process.argv.slice(2)[0]);
 
 const system = start();
@@ -29,11 +29,10 @@ const benchmarker = spawn(system, (state={rounds}, message, ctx) => {
             const time = end.getTime() - state.start.getTime()
             console.log(time);
             
-            state.rounds--;
-            if(state.rounds != 0){
+            if(--state.rounds != 0){
                 dispatch(ctx.self, {header: "start"});
             }
-        break;
+            return state;
     }
 });
 

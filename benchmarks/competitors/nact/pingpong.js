@@ -1,7 +1,7 @@
 import nact from 'nact';
 const { start, dispatch, stop, spawn, spawnStateless } = nact;
 
-const N = process.argv.slice(2)[1] ? parseInt(process.argv.slice(2)[1]) : 100000000;   //Number of sends
+const N = process.argv.slice(2)[1] ? parseInt(process.argv.slice(2)[1]) : 10000000;   //Number of sends
 const rounds = parseInt(process.argv.slice(2)[0]);    //Rounds of benchmark
 
 const system = start();
@@ -32,10 +32,11 @@ const benchmarker = spawn(system, (state = {rounds}, message, ctx) => {
             const end = new Date();
             const time = end.getTime() - state.start.getTime()
             console.log(time);
-            
-            state.rounds--;
-            if(state.rounds != 0)
+
+            console.log(state.rounds)
+            if(--state.rounds != 0)
                 dispatch(ctx.self, {header: "start"})
+            return state
     }
 })
 
