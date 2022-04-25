@@ -14,13 +14,17 @@ import spiders from 'spiders.js'
      }
  
      pong(pongRef){
-         if(++this.pings === 5000000)
+        console.log('pong')
+         if(++this.pings >= 1){
             console.log(new Date() - this.start)
+            return;
+         }
          pongRef.ping(this)
      }
  }
  class PongActor extends spiders.Actor{
      ping(pingRef){
+         console.log('ping')
          pingRef.pong(this)
      }
  }
