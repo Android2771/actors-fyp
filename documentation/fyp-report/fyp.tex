@@ -339,7 +339,7 @@ Across both benchmarks, cluster and web workers are nearly identical in performa
 The WebSocket links are slower than the IPC alternative (cluster and web workers) since they involve the network stack. Due to how the framework is implemented, the WebSocket link involves an additional hop over the WebSocket server which creates a star network of connected instances. Cluster or web workers use a direct link which is made between the spawner and the spawned worker; hence the message is never forwarded by a third party. Better performance would be expected from the WebSocket links if a peer-to-peer system between distributed instances was used.
 
 Furthermore, the number of actors which are remotely spawned in fork join create is the same as the number of messages sent in the ping pong benchmark. The fork join benchmark is about twice as slow since it involves sending two messages over the network. The first one is a request sent to the remote instance to remotely spawn an actor. When the remote instance spawns the actor locally, it sends an acknowledgement with the actor’s address. This is significantly more traffic generated on the network than a single message being passed and processed by the remote end.
-\subsection{Comparing with other Implementations}
+\subsection{Comparing with Existing Implementations}
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=\textwidth]{resources/savina.png}
