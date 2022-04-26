@@ -383,11 +383,11 @@ The value of pi computation as well as the trapezoidal approximation benchmarks 
 
 The value of pi is approximated using the following summation which is defined by the Savina benchmark suite. The iterations of the summation can be distributed and parallelised amongst multiple worker actors.
 \begin{equation}
-\pi\approx\sum_{n=0}^{\infty}(\frac{4}{8n+1}-\frac{2}{8n+4}-\frac{1}{8n+5}-\frac{1}{8n+6})(\frac{1}{16})^n
+\pi\approx\sum_{n=0}^{\infty}\left(\frac{4}{8n+1}-\frac{2}{8n+4}-\frac{1}{8n+5}-\frac{1}{8n+6}\right)\left(\frac{1}{16}\right)^n
 \end{equation}
 Trapezoidal approximation can also be distributed to perform the approximate integral of the following function specified by the Savina benchmark.
 \begin{equation}
-f(x)=\frac{1}{x+1}\cdot\sqrt{1+e^{\sqrt{2x}}}\cdot sin(x^3-1)
+f(x)=\frac{1}{x+1}\cdot\sqrt{1+e^{\sqrt{2x}}}\cdot sin\left(x^3-1\right)
 \end{equation}
 This is done by executing the following equation with respect to $f(x)$. Each worker will execute smaller bounds of the integral of $f(x)$ which will be added up by the master to compute the full integral.
 \begin{equation}
