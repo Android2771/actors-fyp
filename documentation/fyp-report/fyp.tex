@@ -81,7 +81,7 @@
 \frontmatter
 
 \begin{acknowledgements}
-I thank Prof. Kevin Vella for his continuous support, patience, and advice which allowed me to complete the objectives of this project.
+I thank Prof.\ Kevin Vella for his continuous support, patience, and advice which allowed me to complete the objectives of this project.
 
 I also extend my gratitude to my family for their investment which allowed me to pursue my studies.
 
@@ -256,11 +256,11 @@ The internal composition of an actor inside the framework is at the heart of the
 \begin{lstlisting}
 //TypeScript object interface for an Actor
 interface Actor {
-    name: string,                   //generated using uuidv4
-    node: number,                   //found in global variable
-    state: { [key: string]: any },  //given by developer
-    behaviour: ActorCallback,       //given by developer
-    active: boolean                 //starts with true
+    name: string,                       //generated using uuidv4
+    node: number,                       //found in global variable
+    state: { [key: string]: any },      //given by developer
+    behaviour: ActorCallback,           //given by developer
+    active: boolean                     //starts with true
 }
 \end{lstlisting}
 When spawning an actor, the state and behaviour are defined by the developer. The name is automatically generated using a uuidv4 package~\cite{uuidv4}. All actors start off as active to indicate that they accept messages. When returning the actor reference to the developer, an issue arises if the whole actor object is returned. Not only does it contain redundant information such as returning the state and behaviour that were just defined by the developer, it also undermines the concept of actor isolation. Since objects are passed by reference in JavaScript, the developer or other actors would be able to modify the actor's state and behaviour through its reference. To protect these attributes, only a subset of them are returned, defined by the ActorReference TypeScript interface.
