@@ -297,9 +297,9 @@ This chapter evaluates the developed prototype's performance when executing comp
 
 Unless otherwise stated, the following hardware and software was used to run the benchmarks.
 \begin{itemize}
-    \item OS - Ubuntu 20.04 focal (64 bit)
-    \item CPU – Intel Core i7-1065G7. 4 cores up to 3.9GHz with hyper-threading disabled
-    \item RAM – LPDDR4 16GB (2x8GB) at 4267MHz
+    \item OS --- Ubuntu 20.04 focal (64 bit)
+    \item CPU --- Intel Core i7--1065G7. 4 cores up to 3.9GHz with hyper-threading disabled
+    \item RAM --- LPDDR4 16GB (2$\times$8GB) at 4267MHz
     \item Node.js – v16.14.0
     \item Google Chrome v100.0.4896.88 (Official Build)
 \end{itemize}
@@ -358,12 +358,12 @@ Our framework performs the fastest when messages are sent between actors. This i
 
 The framework does not perform as well when spawning actors, ranking in the fourth worst when compared with the JVM implementations and Nact.  Spawning actors in Nact ran much slower then our framework due to Nact's more complex logic involved when creating an actor which may be attributed to Nact's support for hierarchies of actors. Meanwhile our framework simply keeps record of the actor in a global object and returns the reference to that actor. Akka performed the slowest from JVM's category which is in line with the benchmarks executed in Savina's paper.  However, no reasons have been given for Akka's slow actor creation.
 
-These benchmarks were also implemented for Spiders.js, as the Savina benchmark implementations for their framework were not provided in the project's git repository. Spiders.js failed to create the number of actors spawned when benchmarking Fork Join Create (one million actors). This is due to the framework creating a new child process for each spawned actor to grant them their own thread of control, causing each actor to be memory intensive. Spiders.js was also dramatically slower when running the ping pong benchmark compared to its JavaScript and JVM counterparts. A modified version of a provided ping pong example was used to implement this benchmark, and poor processor utilisation was observed when sending messages between the actors involved. Running the benchmark also slowly and continuously allocated a considerable amount of RAM, which should not be the case when the number of actors is constant and not more than one message is queued at a time.
+These benchmarks were also implemented for Spiders.js. This framework failed to create the number of actors spawned when benchmarking Fork Join Create (one million actors). This is due to the framework creating a new child process for each spawned actor to grant them their own thread of control, causing each actor to be memory intensive. Spiders.js was also dramatically slower when running the ping pong benchmark compared to its JavaScript and JVM counterparts. A modified version of a provided ping pong example was used to implement this benchmark, and poor processor utilisation was observed when sending messages between the actors involved. Running the benchmark also slowly and continuously allocated a considerable amount of RAM, which should not be the case when the number of actors is constant and not more than one message is queued at a time.
 \section{Parallel Performance}
 \subsection{Shared Memory Parallelism}
-This sub-section first demonstrates the parallel nature of the benchmarks and its results, followed by a mathematical explanation of each of the benchmarks.
+This subsection first demonstrates the parallel nature of the benchmarks and its results, followed by a mathematical explanation of each of the benchmarks.
 \subsubsection{Performance Results}
-The Savina benchmark suite includes parallel benchmarks where multiple actors perform computation in parallel to complete a task. Each of the explored parallel benchmarks benefit from master-worker parallelism, where a master actor farms tasks to worker actors which will start execution in parallel. The workers then report their results to the master which will aggregate the collected data, producing the final result. The framework is tested by first executing the benchmark using only one master and one worker on separate runtimes, the worker being limited by JavaScript's single-threaded nature.  Next, two workers are spawned on separate runtimes, each of which ideally assigned half of the computational load by the master. Since the system the framework is tested on has four cores, the benchmarks are scaled up to four worker runtimes running in parallel. The amount of speedup introduced over running one worker is tested and plotted below.
+The Savina benchmark suite includes parallel benchmarks where multiple actors perform computation in parallel to complete a task. Each of the explored parallel benchmarks benefit from master-worker parallelism, where a master actor farms tasks to worker actors which will start execution in parallel. The workers then report their results to the master which will aggregate the collected data, producing the final result. The framework is tested by first executing the benchmark using only one master and one worker in separate runtimes, where the worker is limited by JavaScript's single-threaded nature.  Next, two workers are spawned on separate runtimes, each of which ideally assigned half of the computational load by the master. Since the framework is tested on a system which houses four cores, the benchmarks are scaled up to four worker runtimes running in parallel. The amount of speedup introduced over running on one worker is tested and plotted below.
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=390px]{resources/shared_memory_speedup.png}
@@ -371,39 +371,39 @@ The Savina benchmark suite includes parallel benchmarks where multiple actors pe
     \end{centering}
 \end{figure}
 \subsubsection{Mandelbrot}
-The Mandelbrot benchmark is not part of the Savina benchmark suite. Generating the Mandelbrot set is highly parallelisable as each pixel can be independently computed when only given a set of constants. 
+The Mandelbrot benchmark is not part of the Savina benchmark suite. Generating the Mandelbrot set is highly parallelisable as each pixel can be independently computed using a set of provided constants. 
 \begin{itemize}
     \item The worker actors execute iterations of $z_{n+1}$ = $z_{n}^{2}+c$ where $z_0 = 0 + 0i$
     \item $c, z \in \mathbb{C}$. $n \in \mathbb{Z},$ $n \ge 0$
     \item $c$ is determined by the position of the pixel
     \item If $|z_n|> 2$ it is said to be unbounded and will generate a lighter pixel colour if $n$ is small. If it performs a set number of iterations and it is still bounded $(|z_n| \le 2)$, it will yield a darker colour.
 \end{itemize}
-Black pixels take longer to compute than white as the maximum number of iterations need to be performed to verify that it remains bounded. For this reason, Mandelbrot could not be split into even chunks amongst workers as chunks which have more black pixels would take considerably longer to execute, resulting in some workers finishing faster than others and thus reducing efficiency. The master could compose each task to be a single row where once a worker is finished with a row it is assigned the next required row. However, this would result in considerable message overhead as the number of messages exchanged between the master and its workers would be twice the image's height. A balance is struck between minimising message overhead and distributing even work by assigning smaller chunks to each worker. When the worker reports back it will be assigned the next required chunk.
+Black pixels take longer to compute than white as the maximum number of iterations need to be performed to verify that it remains bounded. For this reason, Mandelbrot could not be split into even chunks amongst workers as chunks which have more black pixels would take considerably longer to execute, resulting in some workers finishing faster than others and thus reducing efficiency. The master could compose each task to be a single row where once a worker is finished with a row it is assigned the next required row. However, this would result in considerable message overhead as the number of messages exchanged between the master and its workers would be twice the image's height. A balance is struck between minimising message overhead and distributing even chunks by assigning smaller chunks to each worker. When the worker reports the results back it will be assigned the next required chunk.
 
-When workers do not report back the generated pixels to the master, the speedup goes up to 3.5 with 4 running workers. The slowdown may be attributed to the fact that the master is running on its own process (thus using five processes on four cores) as well as any other processes and daemons running on the operating system which may have prevented the benchmark from fully utilising the CPU. The distributed chunk sizes may not have been optimal resulting in some workers finishing earlier than others, and there were instances where workers were idle while waiting for the next task to be assigned by the master. When harvesting the data one can note that Node.js had more significant slowdown than the browser on four worker processes.
+When workers do not report back the generated pixels to the master, the speedup goes up to 3.5 with 4 running workers. The slowdown may be attributed to the fact that the master is running on its own process (thus using five processes on four cores) as well as any other processes and daemons running on the operating system which may have prevented the benchmark from fully utilising the CPU. The distributed chunk sizes may not have been optimal resulting in some workers finishing earlier than others, and there were instances where workers were idle while waiting for the next task to be assigned by the master. When harvesting the chunk's pixel data from the workers one can note that Node.js had more significant slowdown than the browser on four worker processes.
 \subsubsection{Pi Precision and Trapezoidal Approximation}
 The value of pi computation as well as the trapezoidal approximation benchmarks involve a master actor distributing iterations of mathematical computation to worker actors.
 
-The value of pi is approximated using the following summation which is defined by the Savina benchmark suite. The iterations of the summation can be distributed and parallelised amongst multiple worker actors.
-\begin{equation}
-\pi\approx\sum_{n=0}^{\infty}\left(\frac{4}{8n+1}-\frac{2}{8n+4}-\frac{1}{8n+5}-\frac{1}{8n+6}\right)\left(\frac{1}{16}\right)^n
+The value of pi is approximated using Equation~\ref{eq:1} which is defined by the Savina benchmark suite. The iterations of the summation can be distributed and parallelised amongst multiple worker actors.
+\begin{equation} \label{eq:1}
+\pi\approx\sum_{n=0}^{\infty}\left(\frac{4}{8n+1}-\frac{2}{8n+4}-\frac{1}{8n+5}-\frac{1}{8n+6}\right) \left(\frac{1}{16} \right)^n
 \end{equation}
 Trapezoidal approximation can also be distributed to perform the approximate integral of the following function specified by the Savina benchmark.
-\begin{equation}
-f(x)=\frac{1}{x+1}\cdot\sqrt{1+e^{\sqrt{2x}}}\cdot sin\left(x^3-1\right)
+\begin{equation} \label{eq:2}
+f(x)=\frac{1}{x+1}\cdot\sqrt{1+e^{\sqrt{2x}}}\cdot \sin\left(x^3-1\right)
 \end{equation}
-This is done by executing the following equation with respect to $f(x)$. Each worker will execute smaller bounds of the integral of $f(x)$ which will be added up by the master to compute the full integral.
-\begin{equation}
+This is done by executing Equation~\ref{eq:3} with respect to $f(x)$. Each worker will execute smaller bounds of the integral of $f(x)$ which will be added up by the master to compute the full integral.
+\begin{equation} \label{eq:3}
 \int_{a}^{b}f(x)dx\approx\frac{b-a}{N}\left[ \frac{f(a)+f(b)}{2}+\sum_{k=1}^{N-1}f\left( a+k\cdot\frac{b-a}{N} \right) \right]
 \end{equation}
 \subsection{Distributed Memory Parallelism}
-The following benchmark experiments with having actors hosted on a distributed memory. A Raspberry Pi 4 is used to host a WebSocket server which the device that has been used so far connects to. The scaling of the Mandelbrot benchmark without harvesting over Node.js and cluster has already been explored up to four worker instances. The diagram below shows the speedup introduced when connecting a new device on the network with the following specifications.
+The following benchmark experiments with having actors hosted on a distributed memory. A Raspberry Pi 4 is used to host a WebSocket server which will handle the forwarding of messages between remote devices. The scaling of the Mandelbrot benchmark without harvesting pixel data over Node.js and browsers has already been explored up to four worker instances over shared memory. The diagram below shows the speedup introduced when connecting a new device on the network with the following specifications.
 \begin{itemize}
-    \item OS - Windows 10 Home (64 bit)
-    \item CPU – Intel Core i5-10500 6 cores up to 3.10GHz with hyper-threading enabled
-    \item RAM - DDR4 32GB (4x8GB) at 2666MHz
+    \item OS --- Windows 10 Home (64 bit)
+    \item CPU --- Intel Core i5--10500 6 cores up to 3.10GHz with hyper-threading enabled
+    \item RAM --- DDR4 32GB (4$\times$8GB) at 2666MHz
 \end{itemize}
-In addition to the four workers and master hosted on the four-core device, new workers are incrementally added and connected to the web socket server from the other device. While avoiding data harvesting to minimise the network dependency, one can observe a consistent speedup when adding another worker on the second device, with node achieving slightly better speedup with a larger number of workers. Despite network overhead being introduced when distributing actors over the network, the second device makes up for it with its faster processing time.
+In addition to the four workers and master hosted on the four-core device, new workers are incrementally added and connected to the WebSocket server on the new device. While avoiding data harvesting to minimise the network dependency, one can observe a consistent speedup when adding more workers on the second device, with node achieving slightly better speedup with a larger number of workers. Despite network overhead being introduced when distributing actors over the network, the second device makes up for this with its faster processing time.
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=300px]{resources/distributed_memory_speedup.png}
@@ -411,11 +411,11 @@ In addition to the four workers and master hosted on the four-core device, new w
     \end{centering}
 \end{figure}
 \section{Case Study}
-While the qualitative analysis of the framework yielded sane results, the framework's ease of use is important to developers making use of the API when engineering actor-based systems. This section focuses on two case studies when making use of the framework to create two communicating actors on a single instance as well as over a distributed network. The examples presented below work for both the Node.js and browser environments due to their implementations being fully interoperable.
+While the qualitative analysis of the framework yielded sane results, the framework's ease of use is important for the developers making use of the API when engineering actor-based systems. This section focuses on two case studies which make use of the framework to create two communicating actors on a single instance as well as over a distributed network. The examples presented below work for both the Node.js and browser environments due to the framework implementations being fully interoperable.
 
 The code segments below assume that the functions have been imported and that the actor behaviour is defined as follows.
 \begin{lstlisting}    
-import actors from '../../src/actors.js';
+import actors from 'actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const pingPongBehaviour = (state, message, self) => {
@@ -426,18 +426,19 @@ const pingPongBehaviour = (state, message, self) => {
         console.log(message.val);
 };
 \end{lstlisting}
+This code segment first imports the framework by using JavaScript ES6 imports. Lines 4--9 defines an actor behaviour which immediately sends a message to the sender including a reference to itself as well as the value it received subtracted by 1. It then checks if the value it received is less than 0, and if so the actor will terminate itself. Otherwise, it will output the received value. 
 \subsection{Single Instance Actor Based System}
-When making use of actors on a single instance, the developer is required to make use of three API functions taking in two parameters each. These functions allow the developer to \textbf{spawn} actors, \textbf{send} messages to them and \textbf{terminate} them when done. The example below will make use of these three API functions to build two communicating actors for a specified load. 
+When making use of actors on a single instance, the developer is required to make use of three API functions taking in two parameters each. These functions allow the developer to \textbf{spawn} actors, \textbf{send} messages to them and \textbf{terminate} them to free up memory. The example below will make use of these three API functions to build two communicating actors for a specified load. Further information about using the API can be found in Appendix A.
 \begin{lstlisting}    
 const pingActorRef = spawn({}, pingPongBehaviour);
 const pongActorRef = spawn({}, pingPongBehaviour);
 send(pingActorRef, {replyTo: pongActorRef, val: 5});
 \end{lstlisting}
-The example above first imports the framework by using JavaScript ES6 imports. Lines 3-9 defines an actor behaviour which immediately sends a message to the sender including a reference to itself as well as the value it received subtracted by 1. It then checks if the value it received is less than 0, and if so the actor will terminate itself. Otherwise, it will output the received value. Two actors are spawned with this behaviour, and the system is initialised by sending one of the actors (line 10) the reference of the other actor (line 11) as well as a value of 5. The first actor will output the values 5, 3 and 1 while the second actor will output the values 4 and 2, as they send each other decrementing values until both of which terminate when receiving a value of 0 or less.
+Two actors are spawned with this behaviour, and the system is initialised by sending one of the actors the reference of the other actor as well as a value of 5. The first actor will output the values 5, 3 and 1 while the second actor will output the values 4 and 2, as they send each other decrementing values until both of which terminate when receiving a value of 0 or less.
 \subsection{Distributing Parallel Actors over a Network}
-The functionality demonstrated above can be replicated using function calls and JavaScript Promises. However, by using the actor framework API one can distribute the ping and pong actors across separate machines with minimal change in the code's logic. The provided WebSocket server needs to be started and set to expect three connected clients. 
+The functionality demonstrated above can be replicated without the framework using function calls and JavaScript Promises. However, by using the actor framework API one can distribute the ping and pong actors across separate machines with minimal change in the code's logic. The provided WebSocket server needs to be started and set to expect three connected clients. 
 
-One machine connects to the WebSocket server and uses the \textbf{spawnRemote} function over \textbf{spawn}, which requires an additional parameter to specify which remote machine will spawn the actor.
+One machine connects to the WebSocket server and uses the \textbf{spawnRemote} function instead of \textbf{spawn}, which requires an additional parameter to specify which remote machine will spawn the actor.
 \begin{lstlisting}
 init('ws://localhost:8080').then(async ready => {
     const pingActorRef = await spawnRemote(2, {}, pingPongBehaviour);
@@ -451,9 +452,9 @@ The two machines which will host ping and pong respectively will simply connect 
 init('ws://localhost:8080')
 \end{lstlisting}
 
-Once all clients connect to the server, the server will lift the barrier and thus resolve the promise on the first machine. The first machine will send requests to spawn actors on the remote machines who only need to connect to the server. Due to location transparency, the \textbf{pingPongBehaviour} function remains unchanged, as the framework internally resolves which communication link needs to be used when replying to the actor. In this case, the actors will communicate each other over the WebSocket link.
+Once all clients connect to the server, the server will lift the barrier and thus resolves the promise on the first machine. The first machine will send requests to spawn actors on the remote machines who only need to connect to the server. Due to location transparency, the \textbf{pingPongBehaviour} function remains unchanged, as the framework internally resolves which communication link needs to be used when replying to the actor. In this case, the actors will communicate with each other over the WebSocket link.
 
-The developer can pass in additional parameters to specify the timeout to wait for the server to lift the barrier, as well as how many additional Web Workers or Node.js Child Processes it should spawn and connect to the WebSocket network. The code segment below spawns the ping actor on one spawned worker and the pong actor or another. This is done by passing additional parameters to the \textbf{init} function. The spawned workers take the form of Web Workers or Child Processes depending on the environment it is run on.
+The developer can pass in additional parameters to specify the timeout to wait for the server to lift the barrier, as well as how many additional Web Workers or Node.js Child Processes it should spawn and connect to the WebSocket network. The code segment below spawns the ping actor on one spawned worker and the pong actor on another. This is done by passing additional parameters to the \textbf{init} function. The spawned workers take the form of Web Workers or Child Processes depending on the environment it is run on.
 \begin{lstlisting}
 init('ws://localhost:8080', 10000, 2).then(async ready => {
     if(ready.yourNetworkNumber === 1){
@@ -465,30 +466,31 @@ init('ws://localhost:8080', 10000, 2).then(async ready => {
 \end{lstlisting}
 With this simple change, the actors now communicate through each other using IPC through the primary node to avoid the WebSocket server additional hop and network stack. An if statement is placed as each spawned worker will run the same code segment, and only one node should be remote spawning to other nodes.
 
-This section demonstrates the minimal code changes required to scale an application from a single instance to using a distributed network or a multicore system through the use of five API functions.
+This section demonstrates the minimal code changes required to scale an application from a single instance to using a distributed network or a multicore system through the use of only five API functions.
 \chapter{Conclusions and Future Work}
 The prototype successfully provides an intuitive, scalable, and fairly performant JavaScript implementation of the actor model for both the Node.js and browser environments. The functionality is exposed through an API as a collection of functions which abstract the concept of actors as well as the use of numerous communication links for distributed and parallel programming. The developed framework exploits the similarities between Gul Agha's~\cite{agha1985actors} definition of the actor model and JavaScript's event loop~\cite{eventloopbrowser}\cite{eventloopnode} to minimise the slowdown introduced when utilising the framework. 
 
-Each of the dissertation's four objectives have been fully completed, allowing developers to spawn and send messages to actors which are processed through the execution of a predefined behaviour on both Node.js and browser instances (objective 1). Using several web technologies, developers are not limited to a single instance when spawning actors, as they can remotely spawn actors on remote browsers and Node.js instances (objective 2). Once actors are spawned either locally or remotely, the framework internally handles local and remote communication without additional input required by the user (objective 3, location transparency).
+Each of the dissertation's four objectives have been fully completed. The two frameworks allow developers to spawn and send messages to actors on local Node.js and browser instances respectively. Messages are processed through the execution of the predefined behaviour of actors (objective 1). Using several web technologies, developers are not limited to a single instance when spawning actors, as they can remotely spawn actors on remote browsers and Node.js instances (objective 2). Once actors are spawned either locally or remotely, the framework internally handles local and remote communication without additional input required by the user (objective 3, location transparency).
 
-Qualitative benchmarks yielded sane results when comparing the framework to its competitors and met expectations (objective 4) when using the Savina actor benchmark suite~\cite{savina}. The separate Node.js and browser frameworks demonstrated similar performance in most cases with reasonable standard error. The provided communication links perform consistently across different benchmarks. The performance of the prototype is compared with existing JavaScript and JVM implementations, achieving the fastest times for sending a large number of messages between actors and having the messages processed. The speedup of parallel actors has been observed to be close to the ideal linear speedup when utilising up to four cores and achieves a reasonable speedup when distributed actors are introduced. 
+Qualitative benchmarks yielded sane results when using the Savina actor benchmark suite~\cite{savina}. The separate Node.js and browser frameworks demonstrated similar performance in most cases with reasonable standard error, and the provided communication links perform consistently across the different benchmarks. The performance of the prototype is compared with existing JavaScript and JVM implementations, achieving the fastest times for sending messages between actors and having them subsequently processed. The speedup of parallel actors was observed to be close to the ideal linear speedup when utilising up to four cores and achieves a reasonable speedup when distributed actors are introduced. 
 
-The developed actor framework is not without its limitations. Distributed clients must connect to a provided WebSocket server to communicate with each other. Each client must wait for the expected number of clients to connect before being allowed to communicate with each other, and communication over the server introduces an intermediary network hop. The distribution of actors could be done using peer-to-peer WebSocket connections at the cost of more complex synchronisation and requiring each client to listen for connections.
+The developed actor framework is not without its limitations. Distributed clients must connect to a provided WebSocket server to communicate with their peers. Each client must wait for the expected number of clients to connect before being allowed to communicate with each other, and communication over the server introduces an intermediary network hop. The distribution of actors could be done using peer-to-peer WebSocket connections at the cost of more complex synchronisation and requiring each client to listen for connections.
 
 The framework also lacks quality of life features such as the ability to freeze actors and persist them to a file. Persisted actors could then be spun up in different environments or runtimes or serve as backup for when an actor reaches an undefined state. The framework could also provide means to implement a hierarchy of actors, where the termination of an actor would automatically terminate its children, or have actors supervise other actors to provide fault tolerance.
 
 Grounded in the actor model's theory, the prototype compliments the internet's distributed environment made up of machines hosting multicore processors, while taking advantage of JavaScript's far-reaching availability through the use of server-side applications and browsers. It provides a solution for developers to fully utilise the hardware present in multiple devices running vastly different operating systems with varying restrictions, given that a compatible browser is present.
 \appendix
 \chapter{Manual}
-This section explores each of the functions that the framework exposes which developers will interact with to make use of the Actor Model in JavaScript. Using ES6 Modules the functions are imported as follows.
+This section explores each of the functions that the framework exposes which developers will interact with to make use of the actor model in JavaScript. Using ES6 Modules the functions are imported as follows.
 \begin{lstlisting}
-import actors from './actors.js';
+import actors from 'actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 \end{lstlisting}
 \section{Spawning Local Actors}
 When the developer calls the \textbf{spawn} function, they will pass in the actor's initial state as the first parameter. The actor will maintain this state throughout every processed message and it can be manipulated by its behaviour. As a second parameter the developer must specify the actor's behaviour which has the actor's current state, current processed message as well as the actor's self reference as parameters. Using these parameters, the developer can define how the behaviour should manipulate the actor's state or how the message contents should be processed. It also allows the actor to pass a reference of itself to other actors using the behaviour's third parameter.
 
 The example below defines the actor behaviour to print out each of the parameters. This function is used to spawn an actor with that behaviour, and a reference to that actor is returned.
+\newpage
 \begin{lstlisting}
 // Actor behaviour
 const pongBehaviour = (state, message, self) => {
@@ -508,7 +510,7 @@ send(pongReference, {messageVal: "This is a message!"});
 \end{lstlisting}
 One of the framework's key features is location transparency. The framework internally identifies the fastest medium to use for message transportation and sends the message through that link.
 \section{Terminating Actors}
-An actor can be terminated using the \textbf{terminate} function. The function takes in the actor to terminate as the first parameter. The actor will process its remaining queued messages as these are events already queued in the browser or Node.js's event loop. To forcefully terminate an actor, the second parameter can be set to true which will deactivate the actor. When the events are processed, the actor will perform minimal work ignoring the messages.
+An actor can be terminated using the \textbf{terminate} function. The function takes in the actor to terminate as the first parameter. The actor will process its remaining queued messages as these are events already queued in the browser or Node.js's event loop. To forcefully terminate an actor, the second parameter can be set to true which will deactivate the actor. When the remaining messages are processed, the actor will perform minimal work ignoring the messages.
 \begin{lstlisting}
 terminate(pingReferece, false)      //forceful termination
 terminate(pongReference, false)     //non-forceful termination
@@ -526,10 +528,11 @@ init('ws://localhost:8080', 10000, 4).then(ready => {
  
 The first parameter takes in the URL of the WebSocket server. The second parameter is the timeout, which defines how long the client will wait for all clients to connect to the network. The third and final parameter is the number of workers that are to be spawned. Each of these workers will connect to the WebSocket server.
 
-Once all clients connect to the server, the server broadcasts a message indicating that it is ready to receive and forward communication to connected clients. This message has embedded within it information about the connected clients' IP addresses and unique incrementally assigned network numbers, as well as the network number assigned to the client receiving the message. In the example above, four processes are spawned (given network numbers 2 to 5), so an if statement is used to define logic only executed by the primary process possessing network number 1.
+Once all clients connect to the server, the server broadcasts a message indicating that it is ready to receive and forward communication between connected clients. This message has embedded within it information about the connected clients' IP addresses and unique incrementally assigned network numbers, as well as the network number assigned to the client receiving the message. In the example above, four processes are spawned (given network numbers 2 to 5), so an if statement is used to define logic only executed by the primary process possessing network number 1.
 
 \section{Remotely Spawning Actors}
-After invoking \textbf{init}, the developer can use \textbf{spawnRemote} to remotely spawn actors in other connected clients. This function takes the network number of the client to spawn the actor in as the first parameter, the initial state as the second parameter and the actor behaviour as the final parameter.
+After invoking \textbf{init}, the developer can use \textbf{spawnRemote} to remotely spawn actors in other connected clients. This function takes the network number of the client to spawn the actor on as the first parameter, the initial state as the second parameter and the actor behaviour as the final parameter.
+\newpage
 \begin{lstlisting}
 const pingPongBehaviour = (state, message, self) => {
     console.log(message.val);
@@ -547,7 +550,7 @@ init('ws://localhost:8080', 10000, 2).then(async ready => {
     }
 });
 \end{lstlisting}
-In the example above, nodes 2 and 3 are the workers that the primary node spawned. Node 1 sends requests to the spawned workers to spawn actors. The \textbf{spawnRemote} function returns a Promise which is resolved once the actor is remotely spawned and an acknowledgement is returned. The promise resolves into an actor reference which has embedded information indicating that this is a remote node. This enables location transparency when sending to the actor, as the developer need not be aware of whether the actor reference points to a local or remote actor. Instead, communication is handled internally by the framework.
+In the example above, nodes 2 and 3 are the workers that the primary node spawned. Node 1 sends requests to its peers to spawn actors with a specific behaviour and initial state. The \textbf{spawnRemote} function returns a Promise which is resolved once the actor is remotely spawned and an acknowledgement is returned. The promise resolves into an actor reference which has embedded information indicating that this is a remote node. This enables location transparency when sending to the actor, as the developer need not be aware of whether the actor reference points to a local or remote actor, as communication is handled internally by the framework.
 
 
 \bibliomatter
