@@ -46,9 +46,9 @@ def compare(directory, title, output):
                 hatch='xx', label='JS Other')
     plt.rcParams['hatch.linewidth'] = 0.5
     plt.xticks(np.arange(len(averages)), list(data.keys()), rotation=45)
-    plt.title(title)
-    plt.xlabel('Environment')
-    plt.ylabel('Time to execute (ms)')
+    plt.title(title, fontsize=15)
+    plt.xlabel('Environment', fontsize=16)
+    plt.ylabel('Time to execute (ms)', fontsize=16)
     plt.grid()
     plt.legend(shadow=True, prop={'size': 18})
     plt.savefig(output)

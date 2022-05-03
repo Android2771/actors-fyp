@@ -338,7 +338,7 @@ One can observe that big, chameneos, count and fork join throughput have the wor
 The Ping Pong and Fork Join (create) benchmarks were tested on a network using different links. In this comparison, the fork join benchmark only involves the remote spawning of actors without them executing any behaviour such as terminating. This way the comparison narrows down the performance to sending (ping pong) and remote spawning (fork join).
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=270px]{resources/link.png}
+        \includegraphics[width=320px]{resources/link.png}
         \caption{Comparison of Communication Links}
     \end{centering}
 \end{figure}
@@ -366,7 +366,7 @@ This subsection first demonstrates the parallel nature of the benchmarks and its
 The Savina benchmark suite includes parallel benchmarks where multiple actors perform computation in parallel to complete a task. Each of the explored parallel benchmarks benefit from master-worker parallelism, where a master actor farms tasks to worker actors which will start execution in parallel. The workers then report their results to the master which will aggregate the collected data, producing the final result. The framework is tested by first executing the benchmark using only one master and one worker in separate runtimes, where the worker is limited by JavaScript's single-threaded nature.  Next, two workers are spawned on separate runtimes, each of which ideally assigned half of the computational load by the master. Since the framework is tested on a system which houses four cores, the benchmarks are scaled up to four worker runtimes running in parallel. The amount of speedup introduced over running on one worker is tested and plotted below.
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=390px]{resources/shared_memory_speedup.png}
+        \includegraphics[width=\textwidth]{resources/shared_memory_speedup.png}
         \caption{Node.js and Browser Comparison for Shared Memory Speedup}
     \end{centering}
 \end{figure}

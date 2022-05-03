@@ -64,7 +64,7 @@ trapezoid_speedup_err = [sem(el) for el in trapezoid_speedup_data]
 
 figure(figsize=(7.5, 6), dpi=80)
 plt.plot(keys, mandelbrot_noharvest_speedup, '-s', color='blue',
-         linewidth=3,
+         linewidth=4.5,
          markersize=10,
          markerfacecolor='blue',
          markeredgecolor='blue',
@@ -74,7 +74,7 @@ plt.fill_between(keys, np.array(mandelbrot_noharvest_speedup) - np.array(mandelb
                  np.array(mandelbrot_noharvest_speedup) + np.array(mandelbrot_noharvest_speedup_err), color='blue', alpha=0.2)
 
 plt.plot(keys, mandelbrot_withharvest_speedup, '-*', color='purple',
-         linewidth=3,
+         linewidth=4.5,
          markersize=16,
          markerfacecolor='purple',
          markeredgecolor='purple',
@@ -84,7 +84,7 @@ plt.fill_between(keys, np.array(mandelbrot_withharvest_speedup) - np.array(mande
                  np.array(mandelbrot_withharvest_speedup) + np.array(mandelbrot_withharvest_speedup_err), color='purple', alpha=0.2)
 
 plt.plot(keys, piprecision_speedup, '-D', color='red',
-         linewidth=3,
+         linewidth=4.5,
          markersize=10,
          markerfacecolor='red',
          markeredgecolor='red',
@@ -94,7 +94,7 @@ plt.fill_between(keys, np.array(piprecision_speedup) - np.array(piprecision_spee
                  np.array(piprecision_speedup) + np.array(piprecision_speedup_err), color='red', alpha=0.2)
 
 plt.plot(keys, trapezoid_speedup, '-8', color='green',
-         linewidth=3,
+         linewidth=4.5,
          markersize=10,
          markerfacecolor='green',
          markeredgecolor='green',
@@ -203,7 +203,7 @@ trapezoid_speedup_err = [sem(el) for el in trapezoid_speedup_data]
 
 figure(figsize=(7.5, 6), dpi=80)
 plt.plot(keys, mandelbrot_noharvest_speedup, '-s', color='blue',
-         linewidth=3,
+         linewidth=4.5,
          markersize=10,
          markerfacecolor='blue',
          markeredgecolor='blue',
@@ -213,7 +213,7 @@ plt.fill_between(keys, np.array(mandelbrot_noharvest_speedup) - np.array(mandelb
                  np.array(mandelbrot_noharvest_speedup) + np.array(mandelbrot_noharvest_speedup_err), color='blue', alpha=0.2)
 
 plt.plot(keys, mandelbrot_withharvest_speedup, '-*', color='purple',
-         linewidth=3,
+         linewidth=4.5,
          markersize=16,
          markerfacecolor='purple',
          markeredgecolor='purple',
@@ -223,7 +223,7 @@ plt.fill_between(keys, np.array(mandelbrot_withharvest_speedup) - np.array(mande
                  np.array(mandelbrot_withharvest_speedup) + np.array(mandelbrot_withharvest_speedup_err), color='purple', alpha=0.2)
 
 plt.plot(keys, piprecision_speedup, '-D', color='red',
-         linewidth=3,
+         linewidth=4.5,
          markersize=10,
          markerfacecolor='red',
          markeredgecolor='red',
@@ -233,7 +233,7 @@ plt.fill_between(keys, np.array(piprecision_speedup) - np.array(piprecision_spee
                  np.array(piprecision_speedup) + np.array(piprecision_speedup_err), color='red', alpha=0.2)
 
 plt.plot(keys, trapezoid_speedup, '-8', color='green',
-         linewidth=3,
+         linewidth=4.5,
          markersize=10,
          markerfacecolor='green',
          markeredgecolor='green',
@@ -302,7 +302,7 @@ figure(figsize=(7.5, 6), dpi=80)
 plt.axvline(x=4, ymin=0, ymax=10, color='black', label='Local up to here')
 
 plt.plot(keys, mandelbrot_node_speedup, '-*', color='blue',
-         linewidth=3,
+         linewidth=4.5,
          markersize=16,
          markerfacecolor='blue',
          markeredgecolor='blue',
@@ -312,7 +312,7 @@ plt.fill_between(keys, np.array(mandelbrot_node_speedup) - np.array(mandelbrot_n
                  np.array(mandelbrot_node_speedup) + np.array(mandelbrot_node_speedup_err), color='blue', alpha=0.2)
 
 plt.plot(keys, mandelbrot_browser_speedup, '-D', color='red',
-         linewidth=3,
+         linewidth=4.5,
          markersize=10,
          markerfacecolor='red',
          markeredgecolor='red',
