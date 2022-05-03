@@ -35,19 +35,20 @@ def compare(directory, title, output):
     averages = [np.average(data[key]) for key in data.keys()]
     errors = [sem(data[key]) for key in data.keys()]
     figure(figsize=(8, 10.5), dpi=80)
-    plt.bar(data.keys(), averages, yerr=errors, label='JVM')
+    plt.bar(data.keys(), averages, yerr=errors, hatch='//', color='steelblue', label='JVM')
     colour = [averages[0],averages[1]]
     colour.extend(np.zeros(len(averages)-len(colour)))
-    plt.bar(data.keys(), colour, color='green', label='JS FYP')
+    plt.bar(data.keys(), colour, hatch='\\\\', color='green', label='JS FYP')
     if 'NACT' in data.keys():
         colour = [0,0,averages[2],0,0,0,0,0,0,0,0]
-        plt.bar(data.keys(), colour, color='darkorange', label='JS Other')
+        plt.bar(data.keys(), colour, color='darkorange', hatch='xx', label='JS Other')
+    plt.rcParams['hatch.linewidth'] = 0.5
     plt.xticks(np.arange(len(averages)), list(data.keys()), rotation=45)
     plt.title(title)
     plt.xlabel('Environment')
     plt.ylabel('Time to execute (ms)')
     plt.grid()
-    plt.legend(shadow=True, fontsize='x-large')
+    plt.legend(shadow=True, prop={'size': 18})
     plt.savefig(output)
     
 compare('../node/micro/fibonacci-comparision', 'Fibonacci Execution compared with Savina Benchmark Suite', 'fibonacci.png')

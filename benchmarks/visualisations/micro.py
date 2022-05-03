@@ -41,15 +41,16 @@ browser_errors = [sem(browser_data[key]) for key in browser_data.keys()]
 
 X_axis = np.arange(len(node_averages))
 width=0.2
-figure(figsize=(8, 7.5), dpi=80)
+figure(figsize=(8.5, 9.8), dpi=80)
 
-plt.bar(X_axis-0.1, node_averages, width, color='green', label='Node', yerr=node_errors)
-plt.bar(X_axis+0.1, browser_averages, width, color='blue', label='Browser', yerr=browser_errors)
+plt.bar(X_axis-0.1, node_averages, width, color='green', hatch='//', label='Node', yerr=node_errors)
+plt.bar(X_axis+0.1, browser_averages, width, color='steelblue', hatch='\\\\', label='Browser', yerr=browser_errors)
 
+plt.rcParams['hatch.linewidth'] = 0.5
 plt.xticks(X_axis, list(node_data.keys()), rotation=45)
-plt.title('Micro-Benchmarks Node.js and Browser Comparision')
-plt.xlabel('Benchmark')
-plt.ylabel('Time to execute (ms)')
+plt.title('Micro-Benchmarks Node.js and Browser Comparision', fontsize=16)
+plt.xlabel('Benchmark', fontsize=16)
+plt.ylabel('Time to execute (ms)', fontsize=16)
 plt.grid()
-plt.legend()
+plt.legend(prop={'size': 16})
 plt.savefig('micro.png')

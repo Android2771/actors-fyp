@@ -56,15 +56,15 @@ trapezoid_speedup_err = [sem(el) for el in trapezoid_speedup_data]
 
 figure(figsize=(7.5, 6), dpi=80)
 plt.plot(keys, mandelbrot_noharvest_speedup, '-s', color='blue',
-        markersize=15, linewidth=4,
+        markersize=13, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='black',
         markeredgewidth=1, label='Mandelbrot no harvest');
 
 plt.errorbar(keys, mandelbrot_noharvest_speedup, yerr = mandelbrot_noharvest_speedup_err,fmt='none',ecolor ='blue',color='blue')
 
-plt.plot(keys, mandelbrot_withharvest_speedup, '-P', color='purple',
-        markersize=15, linewidth=4,
+plt.plot(keys, mandelbrot_withharvest_speedup, '-*', color='purple',
+        markersize=20, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='black',
         markeredgewidth=1, label='Mandelbrot with harvest');
@@ -72,7 +72,7 @@ plt.plot(keys, mandelbrot_withharvest_speedup, '-P', color='purple',
 plt.errorbar(keys, mandelbrot_withharvest_speedup, yerr = mandelbrot_withharvest_speedup_err,fmt='none',ecolor ='purple',color='purple')
 
 plt.plot(keys, piprecision_speedup, '-D', color='red',
-    markersize=15, linewidth=4,
+    markersize=13, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Pi Precision');
@@ -80,7 +80,7 @@ plt.plot(keys, piprecision_speedup, '-D', color='red',
 plt.errorbar(keys, piprecision_speedup, yerr = piprecision_speedup_err,fmt='none',ecolor ='red',color='red')
 
 plt.plot(keys, trapezoid_speedup, '-8', color='green',
-    markersize=15, linewidth=4,
+    markersize=13, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Trapezoid');
@@ -90,9 +90,9 @@ plt.errorbar(keys, trapezoid_speedup, yerr = trapezoid_speedup_err, fmt='none',e
 legend = plt.legend(loc='upper left', shadow=True, fontsize='x-large')
 
 plt.locator_params(axis="x", integer=True, tight=True)
-plt.title('Node Speedup for Parallel Benchmarks')
-plt.xlabel('Number of Child Processes')
-plt.ylabel('Speedup (over running on one core)')
+plt.title('Node Speedup for Parallel Benchmarks', fontsize=15)
+plt.xlabel('Number of Child Processes', fontsize=15)
+plt.ylabel('Speedup (over running on one child process)', fontsize=14)
 ax = plt.gca()
 ax.set_ylim([0.7, 4])
 plt.grid()
@@ -171,15 +171,15 @@ trapezoid_speedup_err = [sem(el) for el in trapezoid_speedup_data]
 
 figure(figsize=(7.5, 6), dpi=80)
 plt.plot(keys, mandelbrot_noharvest_speedup, '-s', color='blue',
-        markersize=15, linewidth=4,
+        markersize=13, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='black',
         markeredgewidth=1, label='Mandelbrot no harvest');
 
 plt.errorbar(keys, mandelbrot_noharvest_speedup, yerr = mandelbrot_noharvest_speedup_err,fmt='none',ecolor ='blue',color='blue')
 
-plt.plot(keys, mandelbrot_withharvest_speedup, '-P', color='purple',
-        markersize=15, linewidth=4,
+plt.plot(keys, mandelbrot_withharvest_speedup, '-*', color='purple',
+        markersize=20, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='black',
         markeredgewidth=1, label='Mandelbrot with harvest');
@@ -187,7 +187,7 @@ plt.plot(keys, mandelbrot_withharvest_speedup, '-P', color='purple',
 plt.errorbar(keys, mandelbrot_withharvest_speedup, yerr = mandelbrot_withharvest_speedup_err,fmt='none',ecolor ='purple',color='purple')
 
 plt.plot(keys, piprecision_speedup, '-D', color='red',
-    markersize=15, linewidth=4,
+    markersize=13, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Pi Precision');
@@ -195,7 +195,7 @@ plt.plot(keys, piprecision_speedup, '-D', color='red',
 plt.errorbar(keys, piprecision_speedup, yerr = piprecision_speedup_err,fmt='none',ecolor ='red',color='red')
 
 plt.plot(keys, trapezoid_speedup, '-8', color='green',
-    markersize=15, linewidth=4,
+    markersize=13, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Trapezoid');
@@ -205,9 +205,9 @@ plt.errorbar(keys, trapezoid_speedup, yerr = trapezoid_speedup_err, fmt='none',e
 legend = plt.legend(loc='upper left', shadow=True, fontsize='x-large')
 
 plt.locator_params(axis="x", integer=True, tight=True)
-plt.title('Browser Speedup for Parallel Benchmarks')
-plt.xlabel('Number of Web Workers')
-plt.ylabel('Speedup (over running on one core)')
+plt.title('Browser Speedup for Parallel Benchmarks', fontsize=15)
+plt.xlabel('Number of Web Workers', fontsize=15)
+plt.ylabel('Speedup (over running on one web worker)', fontsize=14)
 ax = plt.gca()
 ax.set_ylim([0.7, 4])
 plt.grid()
@@ -255,8 +255,8 @@ mandelbrot_browser_speedup_err = [sem(el) for el in mandelbrot_browser_speedup_d
 figure(figsize=(7.5, 6), dpi=80)
 plt.axvline(x=4, ymin=0, ymax=10, color='black', label='Local up to here')
 
-plt.plot(keys, mandelbrot_node_speedup, '-s', color='blue',
-        markersize=15, linewidth=4,
+plt.plot(keys, mandelbrot_node_speedup, '-*', color='blue',
+        markersize=21, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='black',
         markeredgewidth=1, label='Node');
@@ -264,7 +264,7 @@ plt.plot(keys, mandelbrot_node_speedup, '-s', color='blue',
 plt.errorbar(keys, mandelbrot_node_speedup, yerr = mandelbrot_node_speedup_err,fmt='none',ecolor ='blue',color='blue')
 
 plt.plot(keys, mandelbrot_browser_speedup, '-D', color='red',
-    markersize=15, linewidth=4,
+    markersize=13, linewidth=4,
     markerfacecolor='white',
     markeredgecolor='black',
     markeredgewidth=1, label='Browser');
@@ -273,9 +273,9 @@ plt.errorbar(keys, mandelbrot_browser_speedup, yerr = mandelbrot_browser_speedup
 
 plt.legend(loc='lower right', shadow=True, fontsize='x-large')
 plt.locator_params(axis="x", integer=True, tight=True)
-plt.title('Distributed Speedup for Mandelbrot Benchmark without Harvesting')
-plt.xlabel('Number of Workers')
-plt.ylabel('Speedup (over running on one worker)')
+plt.title('Distributed Speedup for Mandelbrot Benchmark without Harvesting', fontsize=13)
+plt.xlabel('Number of Workers', fontsize=14)
+plt.ylabel('Speedup (over running on one worker)', fontsize=14)
 plt.grid()
 ax = plt.gca()
 ax.set_ylim([0, 10])

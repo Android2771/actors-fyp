@@ -53,11 +53,12 @@ Zboys = [20,30]
   
 X_axis = np.arange(len(keys))
   
-plt.bar(X_axis - 0.15, [data[0], data[4]], 0.1, label = 'Cluster', yerr=[errors[0], errors[4]])
-plt.bar(X_axis - 0.05, [data[1], data[5]], 0.1, label = 'Node WebSocket', yerr=[errors[1], errors[5]])  
-plt.bar(X_axis + 0.05, [data[2], data[6]], 0.1, label = 'Web Worker', yerr=[errors[2], errors[6]])
-plt.bar(X_axis + 0.15, [data[3], data[7]], 0.1, label = 'Browser WebSocket', yerr=[errors[3], errors[7]])
+plt.bar(X_axis - 0.15, [data[0], data[4]], 0.1, hatch='//', label = 'Cluster', yerr=[errors[0], errors[4]])
+plt.bar(X_axis - 0.05, [data[1], data[5]], 0.1, hatch='\\\\', label = 'Node WebSocket', yerr=[errors[1], errors[5]])  
+plt.bar(X_axis + 0.05, [data[2], data[6]], 0.1, hatch='xx', label = 'Web Worker', yerr=[errors[2], errors[6]])
+plt.bar(X_axis + 0.15, [data[3], data[7]], 0.1, hatch='++', label = 'Browser WebSocket', yerr=[errors[3], errors[7]])
   
+plt.rcParams['hatch.linewidth'] = 0.5
 plt.xticks(X_axis, keys)
 plt.title('Comparision of Communication Links')
 plt.xlabel('Benchmark')
