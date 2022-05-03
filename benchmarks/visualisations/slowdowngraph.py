@@ -12,7 +12,8 @@ keys = ['BIG', 'CHAMENEOS', 'COUNT', 'FJCREATE',
 for key in keys:
     data[key] = {}
 
-colours = ['steelblue', 'darkorange', 'green', 'red', 'purple', 'brown', 'mediumorchid']
+colours = ['steelblue', 'darkorange', 'green',
+           'red', 'purple', 'brown', 'mediumorchid']
 markers = ['-o', '-^', '-P', '-*', '-X', '-d', '-v']
 index = 0
 directory = '../node/micro/scaling-results'
@@ -43,7 +44,8 @@ for name in data:
              markerfacecolor=colours[index],
              markeredgecolor=colours[index],
              markeredgewidth=1)
-    # plt.errorbar(sorted(data[name]), scaling_data_average,  yerr = scaling_data_err,fmt='none',ecolor =colours[colour],color=colours[colour])
+    plt.fill_between(sorted(data[name]), np.array(scaling_data_average)-np.array(scaling_data_err),
+                     np.array(scaling_data_average)+np.array(scaling_data_err), color=colours[index], alpha=0.2)
     index += 1
 
 plt.legend(loc='upper left', shadow=True, fontsize='x-large')
@@ -93,7 +95,8 @@ for name in data:
              markerfacecolor=colours[index],
              markeredgecolor=colours[index],
              markeredgewidth=1)
-    # plt.errorbar(sorted(data[name]), scaling_data_average,  yerr = scaling_data_err,fmt='none',ecolor =colours[colour],color=colours[colour])
+    plt.fill_between(sorted(data[name]), np.array(scaling_data_average)-np.array(scaling_data_err),
+                     np.array(scaling_data_average)+np.array(scaling_data_err), color=colours[index], alpha=0.2)
     index += 1
 
 plt.legend(loc='upper left', shadow=True, fontsize='x-large')
