@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 import numpy as np
 from scipy.stats import sem
 
@@ -70,22 +71,24 @@ Ygirls = [10, 20]
 Zboys = [20, 30]
 
 X_axis = np.arange(len(keys))
+figure(figsize=(8, 6), dpi=80)
 
 plt.bar(X_axis - 0.15, [data[0], data[4]], 0.1, hatch='//',
-        label='Cluster', yerr=[errors[0], errors[4]])
+        label='Cluster', yerr=[errors[0], errors[4]], capsize=4)
 plt.bar(X_axis - 0.05, [data[1], data[5]], 0.1, hatch='\\\\',
-        label='Node WebSocket', yerr=[errors[1], errors[5]])
+        label='Node WebSocket', yerr=[errors[1], errors[5]], capsize=4)
 plt.bar(X_axis + 0.05, [data[2], data[6]], 0.1, hatch='xx',
-        label='Web Worker', yerr=[errors[2], errors[6]])
+        label='Web Worker', yerr=[errors[2], errors[6]], capsize=4)
 plt.bar(X_axis + 0.15, [data[3], data[7]], 0.1, hatch='++',
-        label='Browser WebSocket', yerr=[errors[3], errors[7]])
+        label='Browser WebSocket', yerr=[errors[3], errors[7]], capsize=4)
 
 plt.rcParams['hatch.linewidth'] = 0.5
-plt.xticks(X_axis, keys)
-plt.title('Comparision of Communication Links')
-plt.xlabel('Benchmark')
-plt.ylabel('Time to execute benchmark (ms)')
-plt.legend()
+plt.xticks(X_axis, keys, fontsize=13)
+plt.yticks(fontsize=13)
+plt.title('Comparision of Communication Links', fontsize=16)
+plt.xlabel('Benchmark', fontsize=14)
+plt.ylabel('Time to execute benchmark (ms)', fontsize=14)
+plt.legend(fontsize=14)
 plt.grid()
 
 plt.savefig('link.png')
