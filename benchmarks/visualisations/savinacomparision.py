@@ -34,7 +34,7 @@ def compare(directory, title, output):
 
     averages = [np.average(data[key]) for key in data.keys()]
     errors = [sem(data[key]) for key in data.keys()]
-    figure(figsize=(10, 10.5), dpi=80)
+    figure(figsize=(10.2, 13.2), dpi=80)
     plt.bar(data.keys(), averages, yerr=errors,
             hatch='//', color='steelblue', label='JVM', capsize=4)
     colour = [averages[0], averages[1]]
@@ -45,8 +45,8 @@ def compare(directory, title, output):
         plt.bar(data.keys(), colour, color='darkorange',
                 hatch='xx', label='JS Other')
     plt.rcParams['hatch.linewidth'] = 0.5
-    plt.xticks(np.arange(len(averages)), list(data.keys()), rotation=45, fontsize=14)
-    plt.yticks(fontsize=18)
+    plt.xticks(np.arange(len(averages)), list(data.keys()), rotation=45, fontsize=18)
+    plt.yticks(fontsize=19)
     plt.title(title, fontsize=17)
     plt.xlabel('Environment', fontsize=17)
     plt.ylabel('Time to execute (ms)', fontsize=19)
