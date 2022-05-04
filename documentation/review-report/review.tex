@@ -1,0 +1,49 @@
+\documentclass[lettersize,journal]{IEEEtran}
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithmic}
+\usepackage{array}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\usepackage{balance}
+\begin{document}
+\title{JavaScript Framework for Actor-Based Programming Review Report}
+\author{Andrew Buhagiar, Prof. Kevin Vella}
+
+\maketitle
+
+\begin{abstract}
+This dissertation explores the suitability of the actor model when used to bring concurrency and parallelism to JavaScript. Actors are concurrent isolated units of computation which process messages using their predefined behaviour. The implementation takes the form of two APIs for both the Node.js and browser environments respectively, allowing developers to intuitively reason about engineering JavaScript programs through the spawning and sending of messages to actors.
+
+Isolated actors can be safely spawned on remote devices over a network as well as utilise multiple cores on a local processor. This allows for distributed and parallel computation which have the potential of shortening the time taken when executing computationally intensive tasks. A WebSocket~\cite{websocket} server is used to connect a finite number of Node.js instances and browsers hosting actors over the network. Faster communication links are explored using inter-process communication when hosting multiple processes on a local device. The framework abstracts the adaptive use of different communication links and provides location transparency for remote actors.
+
+Benchmarks analyse the framework's performance when used on a single instance using Node.js or a browser, as well as the speedup introduced when utilising additional local or distributed cores working on the same task. The performance of our JavaScript framework is evaluated against existing JVM and JavaScript actor framework implementations. The relative performance of the communication links used when distributing actors is also explored.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Concurrency, Parallelism, Web Development, IoT
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+\section{Literature Review}
+
+\section{Design}
+
+\section{Implementation}
+
+\section{Evaluation}
+
+\section{Conclusions}
+
+\bibliographystyle{ieeetr}
+\bibliography{references}
+\end{document}
+
+
