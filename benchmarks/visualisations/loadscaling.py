@@ -7,8 +7,7 @@ import re
 
 # Scrape node results
 data = {}
-keys = ['BIG', 'CHAMENEOS', 'COUNT', 'FJCREATE',
-        'FJTHRPUT', 'PINGPONG', 'THREADRING']
+keys = ['BIG', 'CHAMENEOS', 'COUNT', 'FJCREATE', 'FJTHRPUT', 'PINGPONG', 'THREADRING']
 for key in keys:
     data[key] = {}
 
@@ -16,17 +15,18 @@ colours = ['steelblue', 'darkorange', 'green',
            'red', 'purple', 'brown', 'mediumorchid']
 markers = ['-o', '-^', '-P', '-*', '-X', '-d', '-v']
 index = 0
-directory = '../node/micro/scaling-results'
+directory = './data/loadscaling'
 
 # Then populate multiplier information
 for filename in os.listdir(directory):
-    name = re.split(r"[\d]+", filename)[0]
-    multiplier = int(filename.split(name)[1].split('x.txt')[0])
-    name = name.upper()
-    data[name][multiplier] = []
-    with open(f'{directory}/{filename}') as f:
-        for line in f.readlines():
-            data[name][multiplier].append(int(line.strip()))
+    if '.txt' in filename:
+        name = re.split(r"[\d]+", filename)[0]
+        multiplier = int(filename.split(name)[1].split('x.txt')[0])
+        name = name.upper()
+        data[name][multiplier] = []
+        with open(f'{directory}/{filename}') as f:
+            for line in f.readlines():
+                data[name][multiplier].append(int(line.strip()))
 
 figure(figsize=(8, 6.5), dpi=80)
 for name in data:
@@ -61,24 +61,24 @@ plt.savefig('node_scaling.png')
 for key in keys:
     data[key] = {}
 index = 0
-directory = '../browser/micro/scaling-results'
 # Populate data
 for filename in os.listdir(directory):
-    multiplier = int(filename.split('x.log')[0])
+    if '.log' in filename:
+        multiplier = int(filename.split('x.log')[0])
 
-    for key in keys:
-        data[key][multiplier] = []
+        for key in keys:
+            data[key][multiplier] = []
 
-    with open(f'{directory}/{filename}') as f:
-        for line in f.readlines():
-            sanitized_line = line.strip()
-            sanitized_line = sanitized_line[sanitized_line.find('micro/'):]
-            if '.js' in sanitized_line:
-                name = sanitized_line.split(
-                    'micro/')[1].split('.js')[0].upper()
-                reading = int(
-                    line[line.find('"')+1:line.find('"', line.find('"')+1)])
-                data[name][multiplier].append(reading)
+        with open(f'{directory}/{filename}') as f:
+            for line in f.readlines():
+                sanitized_line = line.strip()
+                sanitized_line = sanitized_line[sanitized_line.find('micro/'):]
+                if '.js' in sanitized_line:
+                    name = sanitized_line.split(
+                        'micro/')[1].split('.js')[0].upper()
+                    reading = int(
+                        line[line.find('"')+1:line.find('"', line.find('"')+1)])
+                    data[name][multiplier].append(reading)
 
 figure(figsize=(8, 6.5), dpi=80)
 for name in data:

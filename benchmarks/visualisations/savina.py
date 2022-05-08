@@ -55,9 +55,7 @@ def compare(directory, title, output):
     plt.savefig(output)
 
 
-compare('../node/micro/fibonacci-comparision',
-        'Fibonacci Execution compared with Savina Benchmark Suite', 'fibonacci.png')
-compare('../node/micro/pingpong-comparision',
+compare('./data/savina/pingpong-comparision',
         'Ping Pong Execution compared with Savina Benchmark Suite', 'pingpong.png')
-compare('../node/micro/fjcreate-comparision',
+compare('./data/savina/fjcreate-comparision',
         'Fork Join Create Execution compared with Savina Benchmark Suite', 'forkjoin.png')

@@ -18,16 +18,16 @@ for processes in keys:
     trapezoid_data[processes] = []
 
     # Scrape node data
-    with open(f'../node/parallel/mandelbrot/results/mandelbrotnoharvest_{processes}worker.txt') as f:
+    with open(f'./data/speedup/sharedmemory/mandelbrotnoharvest_{processes}worker.txt') as f:
         for line in f.readlines():
             mandelbrot_noharvest_data[processes].append(int(line.strip()))
-    with open(f'../node/parallel/mandelbrot/results/mandelbrot_{processes}worker.txt') as f:
+    with open(f'./data/speedup/sharedmemory/mandelbrot_{processes}worker.txt') as f:
         for line in f.readlines():
             mandelbrot_withharvest_data[processes].append(int(line.strip()))
-    with open(f'../node/parallel/results/piprecision_{processes}worker.txt') as f:
+    with open(f'./data/speedup/sharedmemory/piprecision_{processes}worker.txt') as f:
         for line in f.readlines():
             piprecision_data[processes].append(int(line.strip()))
-    with open(f'../node/parallel/results/trapezoid_{processes}worker.txt') as f:
+    with open(f'./data/speedup/sharedmemory/trapezoid_{processes}worker.txt') as f:
         for line in f.readlines():
             trapezoid_data[processes].append(int(line.strip()))
 
@@ -145,25 +145,25 @@ for processes in keys:
     trapezoid_data[processes] = []
 
     # Scrape browser data
-    with open(f'../browser/parallel/mandelbrot/results/mandelbrot_{processes}worker.log') as f:
+    with open(f'./data/speedup/sharedmemory/mandelbrot_{processes}worker.log') as f:
         for line in f.readlines():
             reading = scrape_log_line(
                 line, 'source: http://localhost:3000/parallel/mandelbrot/')
             if reading is not None:
                 mandelbrot_withharvest_data[processes].append(reading)
-    with open(f'../browser/parallel/mandelbrot/results/mandelbrotnoharvest_{processes}worker.log') as f:
+    with open(f'./data/speedup/sharedmemory/mandelbrotnoharvest_{processes}worker.log') as f:
         for line in f.readlines():
             reading = scrape_log_line(
                 line, 'source: http://localhost:3000/parallel/mandelbrot/')
             if reading is not None:
                 mandelbrot_noharvest_data[processes].append(reading)
-    with open(f'../browser/parallel/results/piprecision_{processes}worker.log') as f:
+    with open(f'./data/speedup/sharedmemory/piprecision_{processes}worker.log') as f:
         for line in f.readlines():
             reading = scrape_log_line(
                 line, 'source: http://localhost:3000/parallel/')
             if reading is not None:
                 piprecision_data[processes].append(reading)
-    with open(f'../browser/parallel/results/trapezoid_{processes}worker.log') as f:
+    with open(f'./data/speedup/sharedmemory/trapezoid_{processes}worker.log') as f:
         for line in f.readlines():
             reading = scrape_log_line(
                 line, 'source: http://localhost:3000/parallel/')
@@ -267,12 +267,12 @@ for processes in keys:
     mandelbrot_browser_data[processes] = []
 
     # Scrape node data
-    with open(f'../node/parallel/mandelbrot/distributed-results/mandelbrotnoharvest_{processes}worker.txt') as f:
+    with open(f'./data/speedup/distributedmemory/mandelbrotnoharvest_{processes}worker.txt') as f:
         for line in f.readlines():
             mandelbrot_node_data[processes].append(int(line.strip()))
 
     # Scrape browser data
-    with open(f'../browser/parallel/mandelbrot/distributed-results/mandelbrotnoharvest_{processes}worker.log') as f:
+    with open(f'./data/speedup/distributedmemory/mandelbrotnoharvest_{processes}worker.log') as f:
         for line in f.readlines():
             reading = scrape_log_line(
                 line, 'source: http://localhost:3000/parallel/mandelbrot/')

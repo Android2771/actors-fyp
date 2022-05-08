@@ -177,69 +177,64 @@ browser-sync
 ```
 
 The output can be viewed on the browser's console.
-### Distribute Instances over WebSocket Server
-WebSocket connections facilitate the communicaiton between different nodes and browsers. All clients using the actor framework connect to a WebSocket server running the [star network implementation](src/network.js).
+### Distribute Instances over WebSocket Connections
+WebSocket connections facilitate the communicaiton between different nodes and browsers. All clients using the actor framework may connect to a running [WebSocket server](src/network.js) using the init function.
 
 <p align="center">
-  <img src="readme-diagrams/websockets.svg" />
+  <img src="documentation/fyp-report/resources/websocketconnection.png" />
 </p>
 
-First, the network must be started with the number of connections it expects. Once that number of connections are established, it will broadcast to the connections that it is ready to handle communication. It will also broadcast the IP's connected to the network as well as their network numbers which can be used to identify where to remotely spawn actors.
+First, the server must be started and you must pass in the number of clients it should expect. Once the specified number of connections are established, it will broadcast to the connected clients information regarding all of the clients which are connected to the network. This broadcast is an indication to connected clients that the server is ready to forward messages, which will resolve the init function's returned promise.
+
 ```bash
 cd src
-node network.js 3 #wait for three connections before allowing communication
+node network.js <NUMBER OF CLIENTS>
 ```
 
-Now that the network is ready and listening on port 8080, we can run the following node applications.
-**NODE 1**
+Now that the network is ready and listening on port 8080, we can run the following Node.js or browser instances. Each connected client will be assigned a unique number which increments per connected client, starting from 1.
+
+**INSTANCE 1**
+
+Instance 1 will remotely spawn the ping and pong actors on instances 2 and 3 once the server receives three WebSocket connections. It will then send to the ping actor in instance 2 a message.
 ```js
 init('ws://localhost:8080').then(async ready => {
-    //Remotely spawn ping and pong actors in nodes 2 and 3.
-    //These network numbers (2 and 3) can be retrieved from the returned object of init which identifies the nodes connected to the network.
     const ping = await spawnRemote(2, {}, pingPongBehaviour);
     const pong = await spawnRemote(3, {}, pingPongBehaviour);
 
-    //Send ping a message. Output will be decrementing values from 5 to 0
     send(ping, {replyTo: pong, val: 5})
 });
 ```
-**NODES 2 AND 3**
+**INSTANCES 2 AND 3**
+
+Instances 2 and 3 simply connect to the WebSocket server. This will await any remote spawns and the framework will take care of the actor runtimes when receiving messages.
 ```js
-//Simply connect to the web socket server. This will await any remote spawns and the framework will take care of the actor runtimes
 init('ws://localhost:8080')
 ```
-As output node 2 will print out the values 5, 3, 1 for the ping actor while node 3 will print out the values 4, 2, 0 for the pong actor. This implementation can be reproduced by using a node application or a browser for any of the nodes. 
+Instance 2 will console log out the values 5, 3, 1 for the ping actor while instance 3 will console log out the values 4, 2, 0 for the pong actor.
 
-Note that the orchestration of nodes 2 and 3 is managed by node 1, including the function definitions of actor behaviours which are sent through the WebSocket link.
+Note that the orchestration of instances 2 and 3 is managed by instance 1, including the function definitions of actor behaviours which are sent through the WebSocket link.
 
-### Multiple Node Processes
-While WebSockets can be used to facilitate communication between any node or browser running the actor framework, the programmer might wish to focus on performant computing rather than distribution. The actor framework makes use of [Node.js Cluster](https://nodejs.org/api/cluster.html) to allow one to spawn multiple threads in one node application and use IPC to pass messages rather than the WebSocket link.
+### Parallelise Work over Shared Memory
+While WebSockets can be used to facilitate communication between any node or browser running the actor framework, the programmer might wish to take advantage of shared memory to make up for JavaScript's single-threaded nature. The actor framework makes use of [Node.js Cluster](https://nodejs.org/api/cluster.html) or [WebWorkers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) to allow one to spawn multiple threads and use IPC to pass messages rather than the WebSocket link.
 
+This is done by passing the init function's optional parameters. The second parameter specifies the timeout while the third parameter specifies the number of Web Workers or Node.js child processes to spawn.
 ```js
-//Specify timeout and number of workers to spawn
 init('ws://localhost:8080', 10000, 2).then(async ready => {
-    //The primary node is always 1
     if(ready.yourNetworkNumber === 1){
         const ping = await spawnRemote(2, {}, pingPongBehaviour);
         const pong = await spawnRemote(3, {}, pingPongBehaviour);
 
-        //Send ping a message. Output will be decrementing values from 5 to 0
         send(ping, {replyTo: pong, val: 5})
     }
 });
 ```
 
-This will show the decrementing numbers from 5 to 0, but one should note that the console logs came from different worker threads. Furthermore note that even though a connection with the WebSocket server was estasblihed through init's invocation, it is not relied on when remote spawning or sending messages. Instead, cluster's IPC is used where the primary node forwards the communication between the spawned worker nodes.
+Note that an if statement is added since each spawned worker will connect to the WebSocket network and execute the code inside. It takes advantage of the unique naming convention between connected instances to have only the first connected node to execute a chunk of code. The same behaviour as the distributed WebSocket example above is replicated through the use of IPC instead.
+
+This will console log the decrementing numbers from 5 to 0, but one should note that the console logs came from different worker threads. Note that even though a connection with the WebSocket server was estasblihed through init's invocation, it is not relied on when remote spawning or sending messages. Instead, IPC is used where the primary node forwards the communication between the spawned worker nodes.
 
 <p align="center">
-  <img src="readme-diagrams/cluster.svg" />
-</p>
-
-### Multiple Browser Instances
-As previously mentioned, the [browser implementation](src/browser/actor.js) provides abstractions with full interoperability with [node's implementation](src/actor.ts) of the actor framework. The same code above will work on a browser as it makes use of [Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) instead.
-
-<p align="center">
-  <img src="readme-diagrams/webworkers.svg" />
+  <img src="documentation/fyp-report/resources/websocketconnectioncomplex.png" />
 </p>
 
 ## Adaptive and Flexible Communication
@@ -248,12 +243,18 @@ The actor framework allows one to more easily orchestrate the communication and 
 The following diagram is a scenario which uses all communication links abstracted in the framework. Some links have been omitted to keep the graph neat, as a WebSocket link is established between Web Workers and the network as well as cluster worker nodes and the network.
 
 <p align="center">
-  <img src="readme-diagrams/network.svg" />
+  <img src="documentation/fyp-report/resources/network.png" />
 </p>
 
-## Running the Benchmarks and Rendering Visualisations
-This goes through instructions on how to reproduce the diagrams shown in the write-up
+## Rendering Visualisations
+The raw data of the benchmarks ran for the FYP report's discussion is present in the `benchmarks/visualisations/results` directory. You can render the graphs used in the report by executing the provided shell script. This provides transparency on how the raw data is presented in the report.
+```sh
+pip3 install matplotlib numpy scipy
+./refresh.sh
+```
 
+## Running the Benchmarks
+This section will go through executing each of the benchmarks which are presented on the report. The results obtained from running these benchmarks can then be visualised by using the python scripts discussed above.
 ### Micro Comparision
 
 ### Parallel Speedup

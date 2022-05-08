@@ -6,16 +6,15 @@ from scipy.stats import sem
 # Declare vars
 node_data = {}
 browser_data = {}
-node_directory = '../node/micro/results'
-micro_benchmarks = ['pingpong', 'threadring', 'count',
-                    'fjthrput', 'fjcreate', 'fib', 'chameneos', 'big']
+directory = './data/micro'
+micro_benchmarks = ['pingpong', 'threadring', 'count', 'fjthrput', 'fjcreate', 'fib', 'chameneos', 'big']
 
 # Scrape node results
 for benchmark in micro_benchmarks:
     name = benchmark.upper()
     node_data[name] = []
     browser_data[name] = []
-    with open(f'{node_directory}/{benchmark}.js.txt') as f:
+    with open(f'{directory}/{benchmark}.js.txt') as f:
         for line in f.readlines():
             node_data[name].append(int(line.strip()))
 
@@ -24,7 +23,7 @@ node_averages = [np.average(node_data[key]) for key in node_data.keys()]
 node_errors = [sem(node_data[key]) for key in node_data.keys()]
 
 # Scrape browser results
-with open('../browser/micro/micro.log') as f:
+with open(f'{directory}/browser.log') as f:
     for line in f.readlines():
         sanitized_line = line.strip()
         if '.js ' in sanitized_line:
