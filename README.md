@@ -358,14 +358,40 @@ The JVM implementations for Ping Pong and Fork-Join (create) Micro-Benchmarks fo
 ### Parallel Benchmarks Shared Memory Speedup
 **RESULTS FOR THIS BENCHMARK CAN BE FOUND ON** `benchmarks/visualisations/data/speedup/sharedmemory`
 
-The parallel benchmarks for Node.js are found in `benchmarks/node/parallel/` where the number of workers can be adjusted inside the source code. 
+The parallel benchmarks for Node.js can be executed as follows.
 
-The browser counterpart can be found in `benchmarks/browser/parallel`.
+```sh
+cd benchmarks/node/parallel
+./parallel_benchmark.sh
+cd mandelbrot
+./mandelbrot.sh
+```
 
-For the parallel benchmarks make sure that the WebSocket server is up and running, expecting the exact number of connections that will be established to run the benchmark.
+These scripts will run the parallel benchmarks using different numbers of workers and will output each of the runs on a separate file.
 
 You can pass in arguments to the parallel mandelbrot benchmark to get the pixel output, which can be rendered into an image using `renderer.py`
 
 <p align="center">
   <img src="documentation/fyp-report/resources/mandelbrot.png" width="400"/>
 </p>
+
+
+The browser counterpart can be found in `benchmarks/browser/parallel`. However, to run these benchmarks you must manipulate `benchmarks/browser/index.html` to specify the files as well as restart the WebSocket server between each run.
+
+```sh
+cd src
+node network.js <NUMBER OF CONNECTIONS>
+```
+
+index.html
+```html
+<body>
+    <h1>ActorsFYP</h1>
+    <script type="module" src="./parallel/mandelbrot/mandelbrot.js"></script>
+    <script type="module" src="./parallel/mandelbrot/mandelbrotnoharvest.js"></script>
+    <script type="module" src="./parallel/piprecision.js"></script>
+    <script type="module" src="./parallel/trapezoid.js"></script>
+</body>
+```
+
+The number of spawned Web Workers must be modified in the benchmark source code, and you must run only one benchmark at a time due to the WebSocket server limitations of expecting only a finite number of connections.
