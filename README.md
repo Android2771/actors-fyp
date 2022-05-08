@@ -255,10 +255,117 @@ pip3 install matplotlib numpy scipy
 
 ## Running the Benchmarks
 This section will go through executing each of the benchmarks which are presented on the report. The results obtained from running these benchmarks can then be visualised by using the python scripts discussed above.
-### Micro Comparision
 
-### Parallel Speedup
+### Micro-Benchmarks Comparision
+**RESULTS FOR THIS BENCHMARK CAN BE FOUND ON** `benchmarks/visualisations/data/micro`
 
-### Micro Benchmark Scaling
+Execute the Savina implementation of the Micro-Benchmarks on Node.js
+```sh
+cd benchmarks/node/micro
+./benchmark.sh
+```
 
-### Link Comparision
+Then execute the Micro-Benchmarks on the browser. Separate benchmarks are provided to make use of the different import and environment. 
+
+First the `index.html` must be specified to execute the micro-benchmarks as follows.
+
+```html
+<body>
+    <h1>ActorsFYP</h1>
+    <script type="module" src="./micro/big.js"></script>
+    <script type="module" src="./micro/chameneos.js"></script>
+    <script type="module" src="./micro/count.js"></script>
+    <script type="module" src="./micro/fib.js"></script>/
+    <script type="module" src="./micro/fjcreate.js"></script>
+    <script type="module" src="./micro/fjthrput.js"></script>
+    <script type="module" src="./micro/pingpong.js"></script>
+    <script type="module" src="./micro/threadring.js"></script>
+</body>
+```
+
+To host this HTML which launches each of the micro-benchmarks, you must first copy the browser actor framework to this directory.
+
+```sh
+cp src/browseractors.js benchmarks/browser/
+```
+
+Then, expose the web server using `browser-sync` and visit the HTML page using google chrome with logging enabled
+
+```sh
+cd benchmarks/browser/  #Go to directory
+browser-sync --no-open  #Host web server exposing this directory
+google-chrome --enable-logging --v=0    #Launch chrome with logging
+```
+
+**NOTE:** Do not inspect element or open the console as this slows down the benchmarks significantly. This may be due to chrome entering debug mode.
+
+When the processor becomes idle, the benchmarks are done and the logs are saved. You can then copy the logs to your home directory as follows.
+```sh
+cp ~/.config/google-chrome/chrome_debug.log ~/micro.log
+```
+
+### Micro-Benchmark Scaling
+**RESULTS FOR THIS BENCHMARK CAN BE FOUND ON** `benchmarks/visualisations/data/loadscaling`
+
+A script is provided for Node.js
+```sh
+cd benchmarks/node/micro
+./scaling.sh
+```
+
+Collecting the scaling results of micro-benchmarks on browser involves gathering logs for different loads. Runtime information for executing a small load of each of the micro-benchmarks is to be saved as `1x.log`, and should be scaled up to `10x.log` for visualisation.
+### Communication Links Comparision
+**RESULTS FOR THIS BENCHMARK CAN BE FOUND ON** `benchmarks/visualisations/data/commlinks`
+
+For these benchmarks, a running WebSocket server is required which expects 2 clients
+```sh
+cd src
+node network.js 2
+```
+
+For Node.js, the following JavaScript files must be run on Node.js
+```sh
+cd benchmarks/node/parallel/
+node pingpongnet.js
+#Reset the WebSocket server
+node fjcreatenet.js
+```
+
+To switch from shared memory (Web Workers and Child Processes) to distributed memory, remove the optional parameters of the init function. A commented invocation of this function is provided. Note that two running instances of the same benchmark must be run as it is no longer spawning an addictional worker.
+```sh
+node pingpongnet.js
+node pingpongnet.js
+#Reset the WebSocket server
+node fjcreatenet.js
+node fjcreatenet.js
+```
+
+To run on the browser, the `index.html` file can be modified to run these benchmarks.
+```html
+<body>
+    <h1>ActorsFYP</h1>
+    <script type="module" src="./parallel/pingpongnet.js"></script>
+    <script type="module" src="./parallel/fjcreatenet.js"></script>
+</body>
+```
+
+Refer to the previous benchmark on executing these benchmarks on a Google Chrome browser.
+### Savina Benchmarks Comparision
+**RESULTS FOR THIS BENCHMARK CAN BE FOUND ON** `benchmarks/visualisations/data/savina/`
+
+The JVM implementations for Ping Pong and Fork-Join (create) Micro-Benchmarks found on the [Savina Github Repository](https://github.com/shamsimam/savina) are run with the same configurations as this FYP's JavaScript implementation. These two micro-benchmarks are also implemented using [Nact](https://nact.xyz/) which can be found on `benchmarks/competitors/nact`.
+
+### Parallel Benchmarks Shared Memory Speedup
+**RESULTS FOR THIS BENCHMARK CAN BE FOUND ON** `benchmarks/visualisations/data/speedup/sharedmemory`
+
+The parallel benchmarks for Node.js are found in `benchmarks/node/parallel/` where the number of workers can be adjusted inside the source code. 
+
+The browser counterpart can be found in `benchmarks/browser/parallel`.
+
+For the parallel benchmarks make sure that the WebSocket server is up and running, expecting the exact number of connections that will be established to run the benchmark.
+
+You can pass in arguments to the parallel mandelbrot benchmark to get the pixel output, which can be rendered into an image using `renderer.py`
+
+<p align="center">
+  <img src="documentation/fyp-report/resources/mandelbrot.png" width="400"/>
+</p>

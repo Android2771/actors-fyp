@@ -5,8 +5,8 @@ const { init, spawn, spawnRemote, terminate, send, closeConnection} = actors
 const N = 100000;  //Number of actors to spawn
 const rounds = 5;
 
-init('ws://localhost:8080').then(ready => {                  //WebSocket
-// init('ws://localhost:8080', 0x7FFFFFFF, 1).then(ready => {      //Cluster
+// init('ws://localhost:8080').then(ready => {                  //WebSocket
+init('ws://localhost:8080', 0x7FFFFFFF, 1).then(ready => {      //Cluster
     if (ready.yourNetworkNumber === 1) {
         const benchmarker = spawn({rounds}, async (state, message, self) => {
                 switch(message.header){

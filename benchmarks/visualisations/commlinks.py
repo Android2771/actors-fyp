@@ -66,9 +66,6 @@ errors.append(get_browser_average(
 errors.append(get_browser_average(
     './data/commlinks/fjcreatenetws.log')[1])
 
-Ygirls = [10, 20]
-Zboys = [20, 30]
-
 X_axis = np.arange(len(keys))
 figure(figsize=(8, 6), dpi=80)
 
