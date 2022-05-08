@@ -1,5 +1,5 @@
 // Tests ahead of time actor creation and destruction
-import actors from '../../../src/actors.js';
+import actors from '../../../src/nodeactors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection} = actors
 
 const N = 100000;  //Number of actors to spawn

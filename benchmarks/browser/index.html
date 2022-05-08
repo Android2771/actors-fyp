@@ -15,13 +15,23 @@
     <!-- <script type="module" src="./parallel/pingpongnet.js"></script> -->
     <!-- <script type="module" src="./micro/pingpong.js"></script> -->
     <!-- <script type="module" src="./parallel/fjcreatenet.js"></script> -->
-    <!-- <script type="module" src="./micro/fjcreate.js"></script> -->
-    <script>
-        const start = new Date();
-        for(let i = 0; i < 10000000; i++)
-            Promise.resolve().then(() => {})
+    <!-- <script type="module" src="./micro/fjcreate.js"></script> -->    
+    <script type="module">
+        import actors from './browseractors.js';
+        const { init, closeConnection, spawn, spawnRemote, terminate, send} = actors;
 
-        console.log(new Date() - start)
+        //Define the behaviour of the two actors. (This behaviour definition is used in the rest of the examples in the README)
+        const pingPongBehaviour = (state, message, self) => {
+            console.log(message.val);
+            if(!(message.val-1 < 0))
+                send(message.replyTo, {val: message.val-1, replyTo: self});
+        };
+
+        //Spawn actors
+        const ping = spawn({}, pingPongBehaviour);
+        const pong = spawn({}, pingPongBehaviour);
+
+        //Send ping a message. Output will be decrementing values from 5 to 0
+        send(ping, {replyTo: pong, val: 5})
     </script>
-    
 </body>

@@ -1,5 +1,5 @@
 //Tests message passing overhead
-import actors from '../../../src/actors.js';
+import actors from '../../../src/nodeactors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = process.argv.slice(2)[1] ? parseInt(process.argv.slice(2)[1]) : 100000000;   //Number of sends

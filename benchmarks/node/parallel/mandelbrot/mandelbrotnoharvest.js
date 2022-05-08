@@ -1,4 +1,4 @@
-import actors from '../../../../src/actors.js';
+import actors from '../../../../src/nodeactors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 import fs from 'fs';
 

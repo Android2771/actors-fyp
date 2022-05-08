@@ -1,6 +1,6 @@
 // Tests contention on mailbox (many to many)
 import process from 'process';
-import actors from '../../../src/actors.js';
+import actors from '../../../src/nodeactors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 
 //Number of workers
