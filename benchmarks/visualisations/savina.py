@@ -34,6 +34,8 @@ def compare(directory, title, output):
 
     averages = [np.average(data[key]) for key in data.keys()]
     errors = [sem(data[key]) for key in data.keys()]
+    # for n in np.arange(len(averages)):
+    #     print(list(data.keys())[n], averages[n], errors[n])
     figure(figsize=(10.2, 13.2), dpi=80)
     plt.bar(data.keys(), averages, yerr=errors,
             hatch='//', color='steelblue', label='JVM', capsize=4)

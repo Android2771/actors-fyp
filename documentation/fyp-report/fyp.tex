@@ -92,31 +92,30 @@
 
 \begin{document}
 \frontmatter 
-    \maketitle
-%%    \input{frontmatter/copyright}       
-%%    \input{frontmatter/dedication}        % include a dedication.tex file
-    \begin{acknowledgements}
-    I thank Prof.\ Kevin Vella for his continuous support, patience, and advice which allowed me to complete the objectives of this project.
-    
-    I also extend my gratitude to my family for their investment which allowed me to pursue my studies.
-    \end{acknowledgements}   % include an acknowledgements.tex file
-    \begin{abstract}
-    This dissertation explores the suitability of the actor model when used to bring concurrency and parallelism to JavaScript. Actors are concurrent isolated units of computation which process messages using their predefined behaviour. The implementation takes the form of two APIs for both the Node.js and browser environments respectively, allowing developers to intuitively reason about engineering JavaScript programs through the spawning and sending of messages to actors.
-    
-    Isolated actors can be safely spawned on remote devices over a network as well as utilise multiple cores on a local processor. This allows for distributed and parallel computation which have the potential of shortening the time taken when executing computationally intensive tasks. A WebSocket server is used to connect a finite number of Node.js instances and browsers hosting actors over the network. Faster communication links are explored using inter-process communication when hosting multiple processes on a local device. The framework abstracts the adaptive use of different communication links and provides location transparency for remote actors.
-    
-    Benchmarks analyse the framework's performance when used on a single instance using Node.js or a browser, as well as the speedup introduced when utilising additional local or distributed cores working on the same task. The performance of our JavaScript framework is evaluated against existing JVM and JavaScript actor framework implementations. The relative performance of the communication links used when distributing actors is also explored.
-    
-    Nowadays, browsers are found on devices such as smart fridges and TVs, each of which able to run JavaScript defined behaviour. The increasingly popular Node.js environment for server-side applications would be able to host actors which can communicate with actors hosted on browsers, enabling uniform and flexible scaling of applications. The limitations of the framework are discussed as well as its untapped potential when it comes to freezing and migrating actors across the web.
-    \end{abstract}\if@openright\cleardoublepage\else\clearpage\fi
-    \tableofcontents*\if@openright\cleardoublepage\else\clearpage\fi
-    \listoffigures\if@openright\cleardoublepage\else\clearpage
+\maketitle
+\begin{acknowledgements}
+I thank Prof.\ Kevin Vella for his continuous support, patience, and advice which allowed me to complete the objectives of this project.
+
+I also extend my gratitude to my family for their investment which allowed me to pursue my studies.
+\end{acknowledgements}   % include an acknowledgements.tex file
+\begin{abstract}
+This dissertation explores the suitability of the actor model when used to bring concurrency and parallelism to JavaScript. Actors are concurrent isolated units of computation which process messages using their predefined behaviour. The implementation takes the form of two APIs for both the Node.js and browser environments respectively, allowing developers to intuitively reason about engineering JavaScript programs through the spawning and sending of messages to actors.
+
+Isolated actors can be safely spawned on remote devices over a network as well as utilise multiple cores on a local processor. This allows for distributed and parallel computation which have the potential of shortening the time taken when executing computationally intensive tasks. A WebSocket server is used to connect a finite number of Node.js instances and browsers hosting actors over the network. Faster communication links are explored using inter-process communication when hosting multiple processes on a local device. The framework abstracts the adaptive use of different communication links and provides location transparency for remote actors.
+
+Benchmarks analyse the framework's performance when used on a single instance using Node.js or a browser, as well as the speedup introduced when utilising additional local or distributed cores working on the same task. The performance of our JavaScript framework is evaluated against existing JVM and JavaScript actor framework implementations. The relative performance of the communication links used when distributing actors is also explored.
+
+Nowadays, browsers are found on devices such as smart fridges and TVs, each of which able to run JavaScript defined behaviour. The increasingly popular Node.js environment for server-side applications would be able to host actors which can communicate with actors hosted on browsers, enabling uniform and flexible scaling of applications. The limitations of the framework are discussed as well as its untapped potential when it comes to freezing and migrating actors across the web.
+\end{abstract}\if@openright\cleardoublepage\else\clearpage\fi
+\tableofcontents*\if@openright\cleardoublepage\else\clearpage\fi
+\listoffigures*\if@openright\cleardoublepage\else\clearpage
+\listoftables*\if@openright\cleardoublepage\else\clearpage\fi
 
 %% Note: always use \input as you cannot nest \includes (amongst other things)
 %\pagestyle{umpage}
 %\floatpagestyle{umpage}
 \mainmatter
-\chapter{Introduction}
+\chapter{Introduction}\label{chap:intro}
 \section{Motivation}
 %Why JavaScript
 JavaScript~\cite{ecmascript} is widely used for client applications on the browser and benefits from a growing popularity of server-side applications using environments such as Node.js~\cite{nodejs}. It is a single-threaded language which lacks an intuitive way to program in a parallel and distributed fashion. This dissertation presents a prototype that implements a JavaScript framework which allows developers to build actor-based systems. Developers can use actors as concurrent units of computation which can be deployed either locally or remotely on multiple node runtimes and browsers. This will allow developers to intuitively distribute work amongst multiple processors and devices to fully utilise the hardware available in servers and modern computers.
@@ -127,7 +126,7 @@ Actors~\cite{hewitt1973session}\cite{43years} communicate with each other using 
 %The Frameworks
 JavaScript allows developers to import exported variables and functions from different files. The developed prototype takes the form of multiple frameworks for the browser and Node.js environments respectively. The frameworks' APIs will abstract the prototype's internal mechanisms which spawn and interact with actors, allowing developers to intuitively make use of the actor model in their code.
 
-\section{Objectives}
+\section{Objectives}\label{section:objectives}
 This dissertation will explore the suitability of the actor model when used to reason about distributed and concurrent systems in JavaScript through the use of the developed frameworks. The frameworks' suitability is based on its performance, scalability, and intuitiveness to use. The objectives of the artifact are as follows.
 \begin{enumerate}
     \item Allow developers to easily define and spawn actors through the framework API on Node.js or a browser. Actors should be able to send messages to each other as well as spawn more actors. Full interoperability should be provided when using the framework across the two environments.
@@ -136,9 +135,9 @@ This dissertation will explore the suitability of the actor model when used to r
     \item Benchmark the performance and scalability of the developed prototype as well as evaluate its practicality.
 \end{enumerate}
 
-Chapter 2 contains the background and literature review. The design and implementation details are covered in Chapter 3, followed by benchmarks and evaluation in Chapter 4. Chapter 5 contains the conclusions and future work.
+Chapter~\ref{chap:background} contains the background and literature review. The design and implementation details are covered in Chapter~\ref{chap:design}, followed by benchmarks and evaluation in Chapter~\ref{chap:evaluation}. Chapter~\ref{chap:conclusions} contains the conclusions and future work.
 
-\chapter{Background and Literature Review}
+\chapter{Background and Literature Review}\label{chap:background}
 \section{Concurrency and Parallelism on JavaScript}
 Concurrency allows one to switch the order of the execution of tasks without yielding a different output. Since the order in which a program is executed would not an issue, one can run these code segments in parallel, potentially reducing the time taken to process a particular task. JavaScript relies on a single-threaded non-blocking event loop~\cite{eventloopbrowser}\cite{eventloopnode} which does not support parallel execution of such tasks, raising an issue when high performance computing~\cite{highperformance} is required. If JavaScript had to block when input or output was required, it would stop a page from being responsive. Instead, JavaScript handles I/O using events and callback functions which are posted on the event queue. The event loop processes each of the events in FIFO order, where each event has a corresponding callback or event listener function to execute. Each message is processed to completion without pre-emption by the processing of a different message, allowing for consistent concurrency when executing the same code segment. Browser Web Workers\cite{webworkers} and Node.js child processes\cite{cluster} can be used to bring parallel computation to JavaScript~\cite{concurrencyjs}\cite{spidersjs}. They adopt a similar philosophy to that of the actor model as both involve isolated instances which communicate through messaging to collaborate when working on computationally intensive tasks.
 
@@ -168,14 +167,14 @@ Several JavaScript frameworks which implement the actor model are available on t
 
 \textbf{TigerQuoll}~\cite{tigerquoll} took a different approach when providing parallelism to the language. It acknowledged the actor model as too limited for the requirements of more complex patterns that occur in modern applications. Instead it allows developers to use regular event based programming to register events for parallel processing. Kurt Micallef's paper~\cite{kurt} also brings parallelism to JavaScript by exploiting ES6 Generators and several web technologies. His prototype allows for developers to engineer parallel and distributed programs over both browsers and Node.js, provided that development is done through the use of Communicating Sequential Processes (CSP).
 
-\chapter{Design and Implementation}
+\chapter{Design and Implementation}\label{chap:design}
 \section{Framework Design}
 \subsection{Introduction}
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=\textwidth]{resources/network.png}
         \caption{A Network of Devices with Multiple Processes Hosting Actors}
-    \end{centering}
+    \end{centering}\label{fig:network}
 \end{figure}
 This section delves into the framework's design through a series of subsections which cover parts of the system. Two APIs are developed for Node.js and browsers separately while providing full interoperability. The API provides functions to JavaScript developers which allow for the engineering of actor-based systems. The framework's design reflects the objectives defined in Chapter 1. Referring to the figure above, the framework's design will enable actors to coexist in both Node.js and browser instances across local or remote devices. The API must be intuitive while also enabling the engineering of scalable actor-based systems.
 \subsection{Actors}
@@ -189,11 +188,11 @@ interface ActorBehaviour {
 spawn = (initialState: object, behaviour: ActorBehaviour): ActorReference
 send = (actor: ActorReference, message: object): void    
 \end{lstlisting}
-The API will return an actor reference when one is spawned, which can then be fed into the send function as a parameter. The actor behaviour will be invoked when processing each received message and may manipulate the actor's state which is first defined as a parameter when invoking spawn function. The actor behaviour may also use the API to spawn and communicate with other actors. The implementation of these two functions on the Node.js and browser environment will fulfil the first defined objective in the introduction section. 
+The API will return an actor reference when one is spawned, which can then be fed into the send function as a parameter. The actor behaviour will be invoked when processing each received message and may manipulate the actor's state which is first defined as a parameter when invoking spawn function. The actor behaviour may also use the API to spawn and communicate with other actors. The implementation of these two functions on the Node.js and browser environment will fulfil the first defined objective in Section~\ref{section:objectives}. 
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=270px]{resources/actors.png}
-        \caption{Spawning Actors and Sending Messages}
+        \caption{Spawning Actors and Sending Messages}\label{fig:actors}
     \end{centering}
 \end{figure}
 Finally, a function to terminate an actor is provided, with the option for whether it should process the remaining messages. This function takes in an actor reference similar to the send function.
@@ -209,8 +208,8 @@ The WebSocket server expects a finite number of $n$ connected clients before it 
 
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=350px]{resources/websocketconnection.png}
-        \caption{WebSocket Server Connecting Node.js Instance to a Browser}
+        \includegraphics[width=\textwidth]{resources/websocketconnection.png}
+        \caption{WebSocket Server Connecting Node.js Instance to a Browser}\label{fig:websocketconnection}
     \end{centering}
 \end{figure}
  
@@ -228,7 +227,7 @@ The WebSocket server provides distribution for any Node.js or browser client wis
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=\textwidth]{resources/websocketconnectioncomplex.png}
-        \caption{WebSocket Server Connecting Different Types of Processes}
+        \caption{WebSocket Server Connecting Different Types of Processes}\label{fig:websocketconnectioncomplex}
     \end{centering}
 \end{figure}
 
@@ -249,12 +248,12 @@ Using this, the send function should determine which communication link to use b
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=\textwidth]{resources/communication.png}
-        \caption{Flowchart for Choosing which Link based on Actor Location}
+        \caption{Flowchart for Choosing which Link based on Actor Location}\label{fig:communication}
     \end{centering}
 \end{figure}
 Using the above decision tree, the framework can internally use the fastest available link when given the node in which the actor resides in.
 \subsection{Finalised API}
-The next section will cover implementation details of note regarding the API which consists of the following functions.
+Section~\ref{section:implementation} will cover implementation details of note regarding the API which consists of the following functions.
 \begin{lstlisting}
 init = (url: string, timeout: number, numWorkers: number): Promise<object>
 closeConnection = ()    //Function to close network connection
@@ -263,7 +262,7 @@ spawnRemote = (node: number, state: object, behaviour: ActorBehaviour, timeout: 
 send = (actor: ActorReference, message: object): void
 terminate = (actor: ActorReference, force: boolean = false)
 \end{lstlisting}
-\section{Implementation}
+\section{Implementation}\label{section:implementation}
 \subsection{Anatomy of an Actor}
 The internal composition of an actor inside the framework is at the heart of the API's features. An actor takes the form of an object which contains its maintained state as well as its behaviour as an executable function. Each actor stores a name so that it can be uniquely identified in the local instance. The network number assigned by the WebSocket server as well as whether the actor is accepting messages is also stored. The TypeScript interface below defines what an actor is composed of.
 \begin{lstlisting}
@@ -306,8 +305,8 @@ Promise.resolve().then(() => {
 
 Since JavaScript only has one microtask event queue, the order in which messages are sent matches the order in which they are processed by the set of receiving actors. Since JavaScript processes microtasks to completion before processing the next, the implementation ensures that at most one actor is processing a message at any point in time in a single Node.js or browser instance.
 
-\chapter{Evaluation}
-This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina~\cite{savina} is a benchmark suite defined for actor-based systems which is partially implemented for this chapter. Section 1 will explore each of Savina's micro-benchmarks which measure overheads introduced when using the framework's basic functionality. Section 2 explores parallel benchmarks which expect a linear increase in performance with each added core. 
+\chapter{Evaluation}\label{chap:evaluation}
+This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina~\cite{savina} is a benchmark suite defined for actor-based systems which is partially implemented for this chapter. Section~\ref{section:microbenchmark} will explore each of Savina's micro-benchmarks which measure overheads introduced when using the framework's basic functionality. Section~\ref{section:parallel} explores parallel benchmarks which expect a linear increase in performance with each added core. 
 
 Unless otherwise stated, the following hardware and software was used to run the benchmarks.
 \begin{itemize}
@@ -318,13 +317,13 @@ Unless otherwise stated, the following hardware and software was used to run the
     \item Google Chrome v100.0.4896.88 (Official Build)
 \end{itemize}
 
-\section{Micro-Benchmark Performance}
+\section{Micro-Benchmark Performance}\label{section:microbenchmark}
 \subsection{Comparing Local Node.js to Browser Performance}
 The Savina benchmark suite define micro-benchmarks which test specific actor runtime features. The diagram below compares the execution times between the browser and Node.js implementations of Savina's micro-benchmarks. The diagram is followed by an explanation and analysis of each of the executed benchmarks from left to right.
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=270px]{resources/micro.png}
-        \caption{Node.js and Browser Comparison for Micro-Benchmarks}
+        \includegraphics[width=\textwidth]{resources/micro.png}
+        \caption{Node.js and Browser Comparison for Micro-Benchmarks}\label{fig:micro}
     \end{centering}
 \end{figure}
 \begin{itemize}
@@ -340,11 +339,11 @@ The Savina benchmark suite define micro-benchmarks which test specific actor run
 The Chameneos benchmark tests many actors sending messages to one actor, while big has many actors sending messages to random actors. This does not make a difference to the actor framework model as the concept of an actor is merely an abstraction. The framework acts as a wrapper around the runtime's single-threaded event loop and queue. Rather than all actors having their own mailbox and thread of control, a single JavaScript event loop is executing functions stored on a single event queue with the actor's state and received message as the context of its behaviour. Consequentially, similar performance is achieved for both benchmarks when comparing between the browser and Node.js environments.
 
 Ping Pong and Thread Ring is another pair of benchmarks that effectively result in the same benchmark for the framework. The Thread Ring benchmark tests for any overhead introduced by having more actors forwarding the message. However, each actor is merely a saved object in the framework which stores the actor's state and behaviour and does not have any bearing on its runtime performance when sending and processing messages.
-\subsection{Node.js and Browse Load Scaling}
+\subsection{Node.js and Browser Micro-Benchmark Load Scaling}
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=\textwidth]{resources/load_scaling.png}
-        \caption{Node.js and Browser Comparison for Micro-Benchmark Load Scaling}
+        \caption{Node.js and Browser Micro-Benchmark Load Scaling}\label{fig:load_scaling}
     \end{centering}
 \end{figure}
 One can observe that big, chameneos, count and fork join throughput have the worst scaling when increasing load over both environments. All four of these involve large message queues, suggesting that JavaScript performs slower when more messages are in the event queue. The browser demonstrated approximately twice the slowdown for some of the benchmarks, which may be the result of less RAM being available on a browser instance than that of Node when queuing a large number of messages.
@@ -353,7 +352,7 @@ The Ping Pong and Fork Join (create) benchmarks were tested on a network using d
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=320px]{resources/link.png}
-        \caption{Comparison of Communication Links}
+        \caption{Comparison of Communication Links}\label{fig:link}
     \end{centering}
 \end{figure}
 Across both benchmarks, cluster and web workers are nearly identical in performance. Node.js uses an npm package to interface with the WebSocket server while the browser uses the available WebSocket functionality on JavaScript. The browser is slower when communicating through the WebSocket link in both cases. 
@@ -365,7 +364,7 @@ Furthermore, the number of actors which are remotely spawned in fork join create
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=\textwidth]{resources/savina.png}
-        \caption{Savina Benchmark Comparison with Other Implementations}
+        \caption{Savina Benchmark Comparison with Other Implementations}\label{fig:savina}
     \end{centering}
 \end{figure}
 Our framework performs the fastest when messages are sent between actors. This is effectively the speed at which JavaScript can create and immediately resolve promises followed by minimal amount of work to create the next promise. Nact is much slower as it maintains a mailbox of messages using a queue and includes logic which checks if an actor is busy processing a message or not. This may be due to its features to persist actors and events on a database, which requires the framework to keep track of the current actor queues. Our framework benefits from acting as a wrapper around the event loop, as it directly makes use of the event queue to schedule tasks rather than performing the additional task of manipulating objects in memory. The JVM implementations prove to be more costly in general, where Scala required the throwing of exceptions~\cite{savina} to maintain the benchmark's control flow.
@@ -373,7 +372,7 @@ Our framework performs the fastest when messages are sent between actors. This i
 The framework does not perform as well when spawning actors, ranking in the fourth worst when compared with the JVM implementations and Nact.  Spawning actors in Nact ran much slower then our framework due to Nact's more complex logic involved when creating an actor which may be attributed to Nact's support for hierarchies of actors. Meanwhile our framework simply keeps record of the actor in a global object and returns the reference to that actor. Akka performed the slowest from JVM's category which is in line with the benchmarks executed in Savina's paper.  However, no reasons have been given for Akka's slow actor creation.
 
 These benchmarks were also implemented for Spiders.js. This framework failed to create the number of actors spawned when benchmarking Fork Join Create (one million actors). This is due to the framework creating a new child process for each spawned actor to grant them their own thread of control, causing each actor to be memory intensive. Spiders.js was also dramatically slower when running the ping pong benchmark compared to its JavaScript and JVM counterparts. A modified version of a provided ping pong example was used to implement this benchmark, and poor processor utilisation was observed when sending messages between the actors involved. Running the benchmark also slowly and continuously allocated a considerable amount of RAM, which should not be the case when the number of actors is constant and not more than one message is queued at a time.
-\section{Parallel Performance}
+\section{Parallel Performance}\label{section:parallel}
 \subsection{Shared Memory Parallelism}
 This subsection first demonstrates the parallel nature of the benchmarks and its results, followed by a mathematical explanation of each of the benchmarks.
 \subsubsection{Performance Results}
@@ -381,7 +380,7 @@ The Savina benchmark suite includes parallel benchmarks where multiple actors pe
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=\textwidth]{resources/shared_memory_speedup.png}
-        \caption{Node.js and Browser Comparison for Shared Memory Speedup}
+        \caption{Node.js and Browser Comparison for Shared Memory Speedup}\label{fig:shared_memory_speedup}
     \end{centering}
 \end{figure}
 \subsubsection{Mandelbrot}
@@ -420,8 +419,8 @@ The following benchmark experiments with having actors hosted on a distributed m
 In addition to the four workers and master hosted on the four-core device, new workers are incrementally added and connected to the WebSocket server on the new device. While avoiding data harvesting to minimise the network dependency, one can observe a consistent speedup when adding more workers on the second device, with node achieving slightly better speedup with a larger number of workers. Despite network overhead being introduced when distributing actors over the network, the second device makes up for this with its faster processing time.
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=275px]{resources/distributed_memory_speedup.png}
-        \caption{Node.js and Browser Comparison for Distributed Memory Speedup}
+        \includegraphics[width=350px]{resources/distributed_memory_speedup.png}
+        \caption{Node.js and Browser Comparison for Distributed Memory Speedup}\label{fig:distributed_memory_speedup}
     \end{centering}
 \end{figure}
 \section{Case Study}
@@ -481,7 +480,7 @@ init('ws://localhost:8080', 10000, 2).then(async ready => {
 With this simple change, the actors now communicate through each other using IPC through the primary node to avoid the WebSocket server additional hop and network stack. An if statement is placed as each spawned worker will run the same code segment, and only one node should be remote spawning to other nodes.
 
 This section demonstrates the minimal code changes required to scale an application from a single instance to using a distributed network or a multicore system through the use of only five API functions.
-\chapter{Conclusions and Future Work}
+\chapter{Conclusions and Future Work}\label{chap:conclusions}
 The prototype successfully provides an intuitive, scalable, and fairly performant JavaScript implementation of the actor model for both the Node.js and browser environments. The functionality is exposed through an API as a collection of functions which abstract the concept of actors as well as the use of numerous communication links for distributed and parallel programming. The developed framework exploits the similarities between Gul Agha's~\cite{agha1985actors} definition of the actor model and JavaScript's event loop~\cite{eventloopbrowser}\cite{eventloopnode} to minimise the slowdown introduced when utilising the framework. 
 
 Each of the dissertation's four objectives have been fully completed. The two frameworks allow developers to spawn and send messages to actors on local Node.js and browser instances respectively. Messages are processed through the execution of the predefined behaviour of actors (objective 1). Using several web technologies, developers are not limited to a single instance when spawning actors, as they can remotely spawn actors on remote browsers and Node.js instances (objective 2). Once actors are spawned either locally or remotely, the framework internally handles local and remote communication without additional input required by the user (objective 3, location transparency). Finally, the framework is tested through both qualitative and quantitative benchmarks (objective 4).
@@ -506,7 +505,7 @@ Grounded in the actor model's theory, the prototype compliments the internet's d
 }
 
 \appendix
-\chapter{Manual}
+\chapter{Manual}\label{appendix:manual}
 This section explores each of the functions that the framework exposes which developers will interact with to make use of the actor model in JavaScript. Using ES6 Modules the functions are imported as follows.
 \begin{lstlisting}
 import actors from 'actors.js';
@@ -578,6 +577,206 @@ init('ws://localhost:8080', 10000, 2).then(async ready => {
 \end{lstlisting}
 In the example above, nodes 2 and 3 are the workers that the primary node spawned. Node 1 sends requests to its peers to spawn actors with a specific behaviour and initial state. The \textbf{spawnRemote} function returns a Promise which is resolved once the actor is remotely spawned and an acknowledgement is returned. The promise resolves into an actor reference which has embedded information indicating that this is a remote node. This enables location transparency when sending to the actor, as the developer need not be aware of whether the actor reference points to a local or remote actor, as communication is handled internally by the framework.
 
+\chapter{Observed Results}\label{appendix:results}
+This appendix presents the observed results of the diagrams presented throughout the report. Guides on how to replicate these benchmarks can be found in the README inside the submitted zip file.
+
+\section{Node.js and Browser Micro-Benchmark Comparison}
+This section presents the results observed when constructing Figure~\ref{fig:micro}. The following table presents the results when running the implementations of Savina's micro-benchmarks five times each on Node.js.
+\begin{table}[H]
+    \begin{center}
+    \begin{tabular}{|l|llllllll|}
+    \hline
+          & Pingpong & Threadring & Count  & Fjthrput & Fjcreate & Fib    & Cham & Big    \\ \hline
+    Run 1 & 6546     & 5873       & 6740   & 8648     & 4282     & 5473   & 8688      & 7442   \\
+    Run 2 & 6051     & 6447       & 8210   & 8398     & 4550     & 5654   & 9602      & 7415   \\
+    Run 3 & 6010     & 6374       & 9839   & 9529     & 5013     & 5528   & 9469      & 7745   \\
+    Run 4 & 6766     & 7213       & 7612   & 8210     & 4615     & 5621   & 9875      & 8136   \\
+    Run 5 & 6107     & 6239       & 8723   & 9511     & 5331     & 5670   & 9980      & 6858   \\ \hline
+    AVG   & 6296   & 6429     & 8225 & 8859   & 4758   & 5589 & 9523    & 7519 \\
+    SEM   & 152   & 219     & 521 & 279   & 185   & 38  & 228    & 210  \\ \hline
+    \end{tabular}
+    \caption{Node.js Micro-Benchmark Results}\label{tab:nodemicro}
+\end{center}
+\end{table}
+
+The same implementations of the micro-benchmarks are run five times each using the browser framework, and the following results are observed.
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|llllllll|}
+        \hline
+            & Pingpong & Threadring & Count  & Fjthrput & Fjcreate & Fib    & Cham & Big    \\ \hline
+        Run 1 & 7680     & 7718       & 6827   & 6713     & 5315     & 6052   & 6045      & 5379   \\
+        Run 2 & 7529     & 7859       & 4994   & 4976     & 5009     & 6193   & 6142      & 4917   \\
+        Run 3 & 7499     & 7768       & 6370   & 6697     & 5191     & 6198   & 6351      & 5366   \\
+        Run 4 & 7518     & 7711       & 5202   & 5852     & 5516     & 6157   & 5891      & 5958   \\
+        Run 5 & 7513     & 7738       & 4793   & 6832     & 5009     & 6213   & 6056      & 5504   \\ \hline
+        AVG   & 7548   & 7758     & 5637 & 6214     & 5208     & 6163 & 6097      & 5425 \\
+        SEM   & 33     & 27       & 404 & 356   & 96    & 29  & 75     & 166 \\ \hline
+        \end{tabular}
+        \caption{Browser Micro-Benchmark Results}\label{tab:browsermicro}
+    \end{center}
+\end{table}
+\section{Node.js and Browser Micro-Benchmark Load Scaling}
+This section concerns with how the micro-benchmark runtimes scale when the load is increased, which is presented in Figure~\ref{fig:load_scaling}. All micro-benchmarks are first executed with a certain load (1x), and multiples of that load (2x, 3x, $\ldots$, 10x) are executed five times each to observe how the execution time scales. The following tables will present the average execution time of executing a multiple of the load over running the initial load on Node.js.
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|lllllll|}
+        \hline
+        & Pingpong & Threadring & Count & Fjthrput & Fjcreate & Chameneos  & Big   \\ \hline
+        1x & 1        & 1          & 1     & 1        & 1        & 1     & 1     \\
+        2x & 2.02     & 1.99       & 2.01  & 2.39     & 2.03     & 2.14  & 2.26  \\
+        3x  & 3.28     & 3.18       & 3.68  & 3.8      & 3.02     & 3.5   & 3.82  \\
+        4x & 3.99     & 4.23       & 4.59  & 5.8      & 4.49     & 4.96  & 5.66  \\
+        5x  & 5.41     & 5.37       & 6.06  & 7.75     & 5.21     & 6.69  & 7.45  \\
+        6x & 6.12     & 6.43       & 7.29  & 9.57     & 6.73     & 8.5   & 9.94  \\
+        7x & 7.27     & 6.82       & 9.24  & 13.2     & 8.09     & 9.92  & 12.72 \\
+        8x & 8.87     & 8.36       & 11.07 & 18.61    & 9.15     & 11.44 & 15.16 \\
+        9x & 9.66     & 8.88       & 12.17 & 19.89    & 10.72    & 13.81 & 18.13 \\
+        10x & 10.59    & 9.78       & 17    & 20.71    & 11.19    & 16.31 & 21.66 \\ \hline
+        \end{tabular}
+        \caption{Node.js Micro-Benchmark Scaling Averages}\label{tab:nodeloadscalingavg}
+    \end{center}
+\end{table}
+
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|lllllll|}
+        \hline
+        & Pingpong & Threadring & Count & Fjthrput & Fjcreate & Chameneos & Big  \\ \hline
+        1x  & 0        & 0          & 0     & 0        & 0        & 0    & 0    \\
+        2x  & 0.02     & 0.04       & 0.15  & 0.15     & 0.08     & 0.06 & 0.07 \\
+        3x  & 0.23     & 0.22       & 0.54  & 0.19     & 0.05     & 0.12 & 0.39 \\
+        4x  & 0.05     & 0.27       & 0.53  & 0.05     & 0.06     & 0.19 & 0.54 \\
+        5x  & 0.23     & 0.24       & 0.78  & 0.43     & 0.14     & 0.21 & 0.34 \\
+        6x  & 0.09     & 0.28       & 0.87  & 0.34     & 0.24     & 0.35 & 0.77 \\
+        7x  & 0.21     & 0.21       & 1.1   & 1.23     & 0.23     & 0.33 & 0.98 \\
+        8x  & 0.2      & 0.22       & 0.83  & 0.62     & 0.3      & 0.33 & 1    \\
+        9x  & 0.32     & 0.07       & 1.37  & 0.74     & 0.56     & 0.49 & 1.28 \\
+        10x & 0.3      & 0.12       & 1.82  & 1.08     & 0.4      & 0.61 & 1.68 \\ \hline
+        \end{tabular}
+        \caption{Node.js Micro-Benchmark Scaling Standard Errors}\label{tab:nodeloadscalingsem}
+    \end{center}
+\end{table}
+
+The same analysis is carried out on the browser framework, and the following results are extracted.
+
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|lllllll|}
+        \hline
+        & Pingpong & Threadring & Count & Fjthrput & Fjcreate & Chameneos & Big   \\ \hline
+        1x  & 1        & 1          & 1     & 1        & 1        & 1         & 1     \\
+        2x  & 2.05     & 2.01       & 3.15  & 2.29     & 2        & 2.22      & 2.17  \\
+        3x  & 3.32     & 3.38       & 9.48  & 4.08     & 3.06     & 3.48      & 3.68  \\
+        4x  & 4.66     & 4.79       & 11.97 & 6.24     & 4.21     & 4.94      & 5.44  \\
+        5x  & 5.99     & 5.67       & 18.4  & 8.17     & 5.32     & 6.55      & 7.32  \\
+        6x  & 7.51     & 7.36       & 25.86 & 10.52    & 6.38     & 8.39      & 10.65 \\
+        7x  & 9.73     & 9.34       & 29.48 & 15.11    & 7.76     & 10.29     & 13.36 \\
+        8x  & 11.24    & 11.05      & 30.82 & 18.52    & 8.82     & 12.85     & 17.4  \\
+        9x  & 13.23    & 13.19      & 38.04 & 24.54    & 9.91     & 15.14     & 21.86 \\
+        10x & 15       & 14.26      & 47.53 & 35.38    & 11.17    & 17.73     & 40.75 \\ \hline
+        \end{tabular}
+        \caption{Browser Micro-Benchmark Averages}\label{tab:browserloadscalingavg}
+    \end{center}
+\end{table}
+
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|lllllll|}
+        \hline
+        & Pingpong & Threadring & Count & Fjthrput & Fjcreate & Chameneos & Big  \\ \hline
+        1x  & 0        & 0          & 0     & 0        & 0        & 0         & 0    \\
+        2x  & 0.02     & 0.02       & 0.56  & 0.24     & 0.05     & 0.1       & 0.24 \\
+        3x  & 0.03     & 0.05       & 1.59  & 0.55     & 0.05     & 0.11      & 0.3  \\
+        4x  & 0.04     & 0.08       & 1.44  & 0.8      & 0.08     & 0.16      & 0.32 \\
+        5x  & 0.06     & 0.06       & 2.48  & 0.77     & 0.13     & 0.24      & 0.57 \\
+        6x  & 0.03     & 0.1        & 2.3   & 1.37     & 0.14     & 0.28      & 0.9  \\
+        7x  & 0.05     & 0.16       & 2.3   & 1.46     & 0.14     & 0.42      & 0.75 \\
+        8x  & 0.1      & 0.19       & 1.03  & 2.31     & 0.14     & 0.41      & 1.37 \\
+        9x  & 0.13     & 0.19       & 3.74  & 2.45     & 0.21     & 0.5       & 1.6  \\
+        10x & 0.07     & 0.16       & 5.02  & 4.69     & 0.28     & 0.67      & 5.48 \\ \hline
+        \end{tabular}
+        \caption{Browser Micro-Benchmark Standard Errors}\label{tab:browserloadscalingsem}
+    \end{center}
+\end{table}
+\section{Comparison of Communication Links}
+This section concerns with the overhead introduced by using different communication links when executing the Ping Pong (message sending) and Fork Join Create (remote actor creation) benchmarks. The results are presented on Figure~\ref{fig:link}.
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|llll|}
+        \hline
+        & Cluster & Node.js WebSocket & Web Worker & Browser WebSocket \\ \hline
+        Run 1 & 1371    & 4807              & 1235       & 8873              \\
+        Run 2 & 1388    & 4147              & 1237       & 8660              \\
+        Run 3 & 1270    & 4162              & 1384       & 8505              \\
+        Run 4 & 1299    & 4104              & 1444       & 7822              \\
+        Run 5 & 1222    & 4125              & 1347       & 7851              \\ \hline
+        AVG   & 1290    & 4269              & 1329.4     & 8342.2            \\
+        SEM   & 24.16   & 134.86            & 41.15      & 214.61            \\ \hline
+        \end{tabular}
+        \caption{Communication Link Comparision for Ping Pong Benchmark}\label{tab:pingpongcomms}
+    \end{center}
+\end{table}
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|llll|}
+        \hline
+        & Cluster & Node.js WebSocket & Web Worker & Browser WebSocket \\ \hline
+        Run 1 & 3512    & 9905              & 3159       & 17380             \\
+        Run 2 & 3410    & 9329              & 3295       & 18236             \\
+        Run 3 & 3417    & 9380              & 3318       & 17703             \\
+        Run 4 & 3460    & 9566              & 3314       & 17886             \\
+        Run 5 & 3695    & 9813              & 3115       & 17721             \\ \hline
+        AVG   & 3498.8  & 9598.6            & 3240.2     & 17785.2           \\
+        SEM   & 52.32   & 114.32            & 42.88      & 139.36            \\ \hline
+        \end{tabular}
+        \caption{Communication Link Comparision for Fork Join Create Benchmark}\label{tab:fjcreatecomms}
+    \end{center}
+\end{table}
+\section{Savina Benchmark Comparison}
+The Savina~\cite{savina} benchmark suite provides JVM implementations for each of the defined benchmarks. The FYP and Nact~\cite{nact} implementations of the Savina micro-benchmarks of Ping Pong and Fork Join Create are compared with the JVM implementations execution times when processing equal loads. The following results are presented in Figure~\ref{fig:savina}
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|ll|}
+        \hline
+        Benchmark                & Average  & Standard Error \\ \hline
+        Akka                     & 13087.83 & 159.26         \\
+        Functional Java          & 15082.92 & 255.61         \\
+        FYP Browser              & 546.5    & 5.04           \\
+        FYP Node                 & 647.7    & 4.88           \\
+        Habanero Java (Actor)    & 7867.42  & 140.4          \\
+        Habanero Java (Selector) & 8019.25  & 146.35         \\
+        Jetlang                  & 19233.92 & 1486.99        \\
+        Lift                     & 5016.75  & 206.08         \\
+        Nact                     & 14139.8  & 80.17          \\
+        Scala                    & 35359.67 & 171.73         \\
+        Scalaz                   & 16222.42 & 118.66         \\ \hline
+        \end{tabular}
+        \caption{Savina Ping Pong Comparision}\label{tab:savinapingpong}
+    \end{center}
+\end{table}
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|ll|}
+        \hline
+        Benchmark                & Average & Standard Error \\ \hline
+        Akka                     & 6817.83 & 254.26         \\
+        Functional Java          & 360.17  & 58.97          \\
+        FYP Browser              & 3772.4  & 55.6           \\
+        FYP Node                 & 3154.8  & 46.3           \\
+        Habanero Java (Actor)    & 360.17  & 58.97          \\
+        Habanero Java (Selector) & 230.08  & 21.96          \\
+        Jetlang                  & 530.92  & 68.7           \\
+        Jumi                     & 1464.75 & 77.53          \\
+        Nact                     & 10486.4 & 71.7           \\
+        Scala                    & 801.25  & 65.39          \\
+        Scalaz                   & 292     & 28.19          \\ \hline
+        \end{tabular}
+        \caption{Savina Fork Join Create Comparision}\label{tab:savinafjcreate}
+    \end{center}
+\end{table}
+\section{Node.js and Browser Shared Memory Speedup}
+\section{Node.js and Browser Distributed Memory Speedup}
 \end{document}
 
 %%% The End %%%
