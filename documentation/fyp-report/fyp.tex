@@ -776,7 +776,96 @@ The Savina~\cite{savina} benchmark suite provides JVM implementations for each o
     \end{center}
 \end{table}
 \section{Node.js and Browser Shared Memory Speedup}
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|ll|}
+        \hline
+        Benchmark                  & Average & Standard Error \\ \hline
+        Mandelbrot No Harvest (1 Worker)   & 1       & 0              \\
+        Mandelbrot No Harvest (2 Worker)   & 1.95    & 0.02           \\
+        Mandelbrot No Harvest (3 Worker)   & 2.73    & 0.03           \\
+        Mandelbrot No Harvest (4 Worker)   & 3.58    & 0.02           \\
+        Mandelbrot With Harvest (1 Worker) & 1       & 0              \\
+        Mandelbrot With Harvest (2 Worker) & 1.92    & 0.01           \\
+        Mandelbrot With Harvest (3 Worker) & 2.63    & 0.03           \\
+        Mandelbrot With Harvest (4 Worker) & 2.99    & 0.02           \\
+        Pi Precision (1 Worker)            & 1       & 0              \\
+        Pi Precision (2 Worker)            & 1.92    & 0.03           \\
+        Pi Precision (3 Worker)            & 2.73    & 0.02           \\
+        Pi Precision (4 Worker)            & 3.55    & 0.03           \\
+        Trapezoid (1 Worker)               & 1       & 0              \\
+        Trapezoid (2 Worker)               & 1.95    & 0.01           \\
+        Trapezoid (3 Worker)               & 2.73    & 0.03           \\
+        Trapezoid (4 Worker)               & 3.59    & 0.02           \\ \hline
+        \end{tabular}
+        \caption{Node.js Parallel Benchmarks Shared Memory Speedup}\label{tab:nodesharedmemoryspeedup}
+    \end{center}
+\end{table}
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|ll|}
+            \hline
+            Benchmark                  & Average & Standard Error \\ \hline
+            Mandelbrot No Harvest (1 Worker)   & 1       & 0              \\
+            Mandelbrot No Harvest (2 Worker)   & 1.94    & 0.01           \\
+            Mandelbrot No Harvest (3 Worker)   & 2.73    & 0.02           \\
+            Mandelbrot No Harvest (4 Worker)   & 3.46    & 0.04           \\
+            Mandelbrot With Harvest (1 Worker) & 1       & 0              \\
+            Mandelbrot With Harvest (2 Worker) & 1.91    & 0.01           \\
+            Mandelbrot With Harvest (3 Worker) & 2.63    & 0.02           \\
+            Mandelbrot With Harvest (4 Worker) & 3.27    & 0.03           \\
+            Pi Precision (1 Worker)            & 1       & 0              \\
+            Pi Precision (2 Worker)            & 1.95    & 0.02           \\
+            Pi Precision (3 Worker)            & 2.74    & 0.02           \\
+            Pi Precision (4 Worker)            & 3.56    & 0.04           \\
+            Trapezoid (1 Worker)               & 1       & 0              \\
+            Trapezoid (2 Worker)               & 1.95    & 0.01           \\
+            Trapezoid (3 Worker)               & 2.75    & 0.02           \\
+            Trapezoid (4 Worker)               & 3.63    & 0.02           \\ \hline
+        \end{tabular}
+        \caption{Browser Parallel Benchmarks Shared Memory Speedup}\label{tab:browsersharedmemoryspeedup}
+    \end{center}
+\end{table}
 \section{Node.js and Browser Distributed Memory Speedup}
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|ll|}
+            \hline
+            Benchmark                                                   & Average & Std. Error \\ \hline
+            Mandelbrot No Harvest (1 Local Worker)                      & 1       & 0              \\
+            Mandelbrot No Harvest (2 Local Workers)                     & 1.92    & 0.01           \\
+            Mandelbrot No Harvest (3 Local Workers)                     & 2.67    & 0.02           \\
+            Mandelbrot No Harvest (4 Local Workers)                     & 3.19    & 0.05           \\
+            Mandelbrot No Harvest (4 Local Workers + 1 Remote Worker) & 3.91    & 0.12           \\
+            Mandelbrot No Harvest (4 Local Workers + 2 Remote Worker) & 4.82    & 0.11           \\
+            Mandelbrot No Harvest (4 Local Workers + 3 Remote Worker) & 5.55    & 0.18           \\
+            Mandelbrot No Harvest (4 Local Workers + 4 Remote Worker) & 6.45    & 0.17            \\
+            Mandelbrot No Harvest (4 Local Workers + 5 Remote Worker) & 7.38    & 0.13            \\
+            Mandelbrot No Harvest (4 Local Workers + 6 Remote Worker) & 7.82    & 0.34           \\ \hline
+        \end{tabular}
+        \caption{Node.js Parallel Benchmarks Distributed Memory Speedup}\label{tab:nodedistributedmemoryspeedup}
+    \end{center}
+\end{table}
+
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{|l|ll|}
+            \hline
+            Benchmark                                                   & Average & Standard Error \\ \hline
+            Mandelbrot No Harvest (1 Local Worker)                      & 1       & 0              \\
+            Mandelbrot No Harvest (2 Local Workers)                     & 1.86    & 0.05           \\
+            Mandelbrot No Harvest (3 Local Workers)                     & 2.67    & 0.04           \\
+            Mandelbrot No Harvest (4 Local Workers)                     & 3.09    & 0.08           \\
+            Mandelbrot With Harvest (4 Local Workers + 1 Remote Worker) & 3.89    & 0.05           \\
+            Mandelbrot With Harvest (4 Local Workers + 2 Remote Worker) & 4.86    & 0.17           \\
+            Mandelbrot With Harvest (4 Local Workers + 3 Remote Worker) & 5.21    & 0.11           \\
+            Mandelbrot With Harvest (4 Local Workers + 4 Remote Worker) & 6.05    & 0.1            \\
+            Mandelbrot With Harvest (4 Local Workers + 5 Remote Worker) & 6.27    & 0.2            \\
+            Mandelbrot With Harvest (4 Local Workers + 6 Remote Worker) & 6.74    & 0.18           \\ \hline
+        \end{tabular}
+        \caption{Browser Parallel Benchmarks Distributed Memory Speedup}\label{tab:browserdistributedmemoryspeedup}
+    \end{center}
+\end{table}
 \end{document}
 
 %%% The End %%%
