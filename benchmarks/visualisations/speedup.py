@@ -298,11 +298,6 @@ mandelbrot_node_speedup_err = [sem(el) for el in mandelbrot_node_speedup_data]
 mandelbrot_browser_speedup_err = [sem(el)
                                   for el in mandelbrot_browser_speedup_data]
 
-print([round(x, 2) for x in mandelbrot_node_speedup])
-print([round(x, 2) for x in mandelbrot_browser_speedup])
-print([round(x, 2) for x in mandelbrot_node_speedup_err])
-print([round(x, 2) for x in mandelbrot_browser_speedup_err])
-
 figure(figsize=(7.5, 6), dpi=80)
 plt.axvline(x=4, ymin=0, ymax=10, color='black', label='Local up to here')
 
