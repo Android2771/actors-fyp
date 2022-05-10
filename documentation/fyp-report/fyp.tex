@@ -397,16 +397,16 @@ When workers do not report back the generated pixels to the master, the speedup 
 \subsubsection{Pi Precision and Trapezoidal Approximation}
 The value of pi computation as well as the trapezoidal approximation benchmarks involve a master actor distributing iterations of mathematical computation to worker actors.
 
-The value of pi is approximated using Equation~\ref{eq:1} which is defined by the Savina benchmark suite. The iterations of the summation can be distributed and parallelised amongst multiple worker actors.
-\begin{equation} \label{eq:1}
+The value of pi is approximated using Equation~\ref{eq:pi} which is defined by the Savina benchmark suite. The iterations of the summation can be distributed and parallelised amongst multiple worker actors.
+\begin{equation} \label{eq:pi}
 \pi\approx\sum_{n=0}^{\infty}\left(\frac{4}{8n+1}-\frac{2}{8n+4}-\frac{1}{8n+5}-\frac{1}{8n+6}\right) \left(\frac{1}{16} \right)^n
 \end{equation}
-Trapezoidal approximation can also be distributed to perform the approximate integral of the following function specified by the Savina benchmark.
-\begin{equation} \label{eq:2}
+Trapezoidal approximation can also be distributed to perform the approximate integral of Function~\label{eq:trapfunc} specified by the Savina benchmark.
+\begin{equation} \label{eq:trapfunc}
 f(x)=\frac{1}{x+1}\cdot\sqrt{1+e^{\sqrt{2x}}}\cdot \sin\left(x^3-1\right)
 \end{equation}
-This is done by executing Equation~\ref{eq:3} with respect to $f(x)$. Each worker will execute smaller bounds of the integral of $f(x)$ which will be added up by the master to compute the full integral.
-\begin{equation} \label{eq:3}
+This is done by executing Equation~\ref{eq:trapapprox} with respect to $f(x)$. Each worker will execute smaller bounds of the integral of $f(x)$ which will be added up by the master to compute the full integral.
+\begin{equation} \label{eq:trapapprox}
 \int_{a}^{b}f(x)dx\approx\frac{b-a}{N}\left[ \frac{f(a)+f(b)}{2}+\sum_{k=1}^{N-1}f\left( a+k\cdot\frac{b-a}{N} \right) \right]
 \end{equation}
 \subsection{Distributed Memory Parallelism}
@@ -585,14 +585,14 @@ This section is concerned with the results observed when running the implementat
 
 The micro-benchmarks are run with the following configurations.
 \begin{itemize}
-    \item Ping Pong --- N = 100000000 (messages sent)
-    \item Thread Ring --- N = 10 (connected actors), H = 100000000 (messages sent)
-    \item Count --- N = 10000000 (successive messages to be sent)
-    \item Fork Join (throughput) --- N = 1000000 (messages sent to each actor), K = 10 (number of actors)
-    \item Fork Join (create) --- N = 1500000 (spawned actors)
+    \item Ping Pong --- N = $1\times10^8$ (messages sent)
+    \item Thread Ring --- N = 10 (connected actors), H = $1\times10^8$ (messages sent)
+    \item Count --- N = $1\times10^7$ (successive messages to be sent)
+    \item Fork Join (throughput) --- N = $1\times10^6$ (messages sent to each actor), K = 10 (number of actors)
+    \item Fork Join (create) --- N = $1.5\times10^6$ (spawned actors)
     \item Fibonacci --- N = 29 (fibonacci index)
-    \item Chameneos --- N = 1200000 (number of meetings between chameneos), C = 10 (number of chameneos)
-    \item Big --- N = 10 (number of actors), P = 500000 (number of pings) 
+    \item Chameneos --- N = $1.2\times10^6$ (number of meetings between chameneos), C = 10 (number of chameneos)
+    \item Big --- N = 10 (number of actors), P = $5\times10^5$ (number of pings) 
 \end{itemize}
 \begin{table}[H]
     \begin{center}
@@ -634,14 +634,14 @@ This section is concerned with the micro-benchmark runtime scaling when the load
 Each benchmark has a chosen attribute which is modified to scale the load by a certain multiple. The rest of the attributes remain constant and unchanged from the configurations presented in Section~\ref{section:microcomparison}. The following list presents which attribute is chosen and its initial load. This initial load is multiplied by numbers from 1 to 10 to observe the scaling of execution time.
 
 \begin{itemize}
-    \item Ping Pong --- N = 10000000 (messages sent)
-    \item Thread Ring --- H = 10000000 (messages sent)
-    \item Count --- N = 1000000 (successive messages to be sent)
+    \item Ping Pong --- N = $1\times10^7$ (messages sent)
+    \item Thread Ring --- H = $1\times10^7$ (messages sent)
+    \item Count --- N = $1\times10^6$ (successive messages to be sent)
     \item Fork Join (throughput) --- K = 1 (number of actors)
-    \item Fork Join (create) --- N = 200000 (spawned actors)
+    \item Fork Join (create) --- N = $2\times10^5$ (spawned actors)
     \item Fibonacci --- Could not scale due as fibonacci index increases load exponentially 
-    \item Chameneos --- N = 200000 (number of meetings between chameneos)
-    \item Big --- P = 100000 (number of pings) 
+    \item Chameneos --- N = $2\times10^5$ (number of meetings between chameneos)
+    \item Big --- P = $1\times10^5$ (number of pings) 
 \end{itemize}
 
 The following tables will present the average execution time and standard errors when executing multiples of a specific load on Node.js. Each multiple of a load is executed five times each to produce these results.
@@ -729,7 +729,7 @@ The same analysis is carried out using the browser framework, and the following 
 \section{Comparison of Communication Links}
 This section is concerned with the overhead introduced by using different communication links when executing the Ping Pong (message sending) and Fork Join Create (remote actor creation) benchmarks. These results are presented on Figure~\ref{fig:link}.
 
-For Ping Pong, 100000 messages are sent between two remote actors. This is equal to the value of the number of actors spawned in a modified version of Fork Join (create) which only remotely spawns actors without termination. This enables the reader to compare the execution time between remotely sending messages and remotely spawning actors.
+For Ping Pong, $1\times10^5$ messages are sent between two remote actors. This is equal to the number of actors spawned in a modified version of Fork Join (create) which only remotely spawns actors without termination. This enables the reader to compare the execution time between remotely sending messages and remotely spawning actors.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|llll|}
@@ -765,7 +765,7 @@ For Ping Pong, 100000 messages are sent between two remote actors. This is equal
 \section{Savina Benchmark Comparison}
 The Savina~\cite{savina} benchmark suite provides JVM implementations for each of the defined benchmarks. The FYP and Nact~\cite{nact} implementations of the Savina micro-benchmarks of Ping Pong and Fork Join (create) are compared with the JVM implementations execution times when processing equal loads. The following results are presented in Figure~\ref{fig:savina}.
 
-The Ping Pong benchmark is executed across the different environment with an equal load of 10000000 sent messages, while the Fork Join Create spawns 1000000 actors.
+The Ping Pong benchmark is executed across the different environment with an equal load of $1\times10^7$ sent messages, while the Fork Join Create spawns $1\times10^6$ actors.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|ll|}
@@ -807,7 +807,13 @@ The Ping Pong benchmark is executed across the different environment with an equ
     \end{center}
 \end{table}
 \section{Node.js and Browser Shared Memory Speedup}
-This section is concerned with the shared memory speedup observed when running master worker parallel benchmarks. The left diagram of Figure~\ref{fig:shared_memory_speedup} uses the data presented in Table~\ref{tab:nodesharedmemoryspeedup}, while the right diagram is presented in Table~\ref{tab:browsersharedmemoryspeedup}.
+This section is concerned with the shared memory speedup observed when running master worker parallel benchmarks. The left diagram of Figure~\ref{fig:shared_memory_speedup} uses the data presented in Table~\ref{tab:nodesharedmemoryspeedup}, while the right diagram is presented in Table~\ref{tab:browsersharedmemoryspeedup}. The following list delves into the configuration of the executed parallel benchmarks.
+\begin{itemize}
+\item The generated Mandelbrot image is of the size $12000 \times 8000$ and is distributed to workers in chunks of $12000 \times 180$
+\item The Mandelbrot image pixels are transmitted as JSON holding the ASCII decimal representation of each pixel's white intensity from 0--255
+\item The pi benchmark executes Equation~\ref{eq:pi} with $2 \times 10^8$ iterations of the summation
+\item The trapezoid benchmark executes Equation~\ref{eq:trapapprox} with $a = 0, b = 32, N = 1 \times 10^8$ to compute the integral for Function~\ref{eq:trapfunc}
+\end{itemize}
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|ll|}
@@ -860,6 +866,8 @@ This section is concerned with the shared memory speedup observed when running m
 \end{table}
 \section{Node.js and Browser Distributed Memory Speedup}
 This section is concerned with the speedup introduced when using a mix of local and distributed workers. The following two tables present the data collected when running on the Node.js and browser environments respectively. This data is presented in Figure~\ref{fig:distributed_memory_speedup}.
+
+The computed Mandelbrot image resolution is $12000 \times 8000$ distributed over chunks of $12000 \times 180$ to be computed by workers. The pixel data is not sent by the workers to the master. When a chunk is computed by a worker, it simply sends an acknowledgement to the master that work has been done. In response to this, the master may assign another equally sized chunk to this worker.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|ll|}
