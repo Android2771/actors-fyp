@@ -577,11 +577,11 @@ init('ws://localhost:8080', 10000, 2).then(async ready => {
 \end{lstlisting}
 In the example above, nodes 2 and 3 are the workers that the primary node spawned. Node 1 sends requests to its peers to spawn actors with a specific behaviour and initial state. The \textbf{spawnRemote} function returns a Promise which is resolved once the actor is remotely spawned and an acknowledgement is returned. The promise resolves into an actor reference which has embedded information indicating that this is a remote node. This enables location transparency when sending to the actor, as the developer need not be aware of whether the actor reference points to a local or remote actor, as communication is handled internally by the framework.
 
-\chapter{Observed Results}\label{appendix:results}
-This appendix presents the observed results of the diagrams presented throughout the report. Guides on how to replicate these benchmarks can be found in the README inside the submitted zip file.
+\chapter{Empirical Results}\label{appendix:results}
+This appendix presents the observed results of the visualisations presented throughout the report. Guides on how to replicate these results can be found in the README inside the submitted zip file.
 
 \section{Node.js and Browser Micro-Benchmark Comparison}
-This section presents the results observed when constructing Figure~\ref{fig:micro}. The following table presents the results when running the implementations of Savina's micro-benchmarks five times each on Node.js.
+This section is concerned with the results observed when running the implementations of Savina's micro-benchmarks five times each on Node.js, presented in Figure~\ref{fig:micro}.
 \begin{table}[H]
     \begin{center}
     \begin{tabular}{|l|llllllll|}
@@ -617,7 +617,7 @@ The same implementations of the micro-benchmarks are run five times each using t
     \end{center}
 \end{table}
 \section{Node.js and Browser Micro-Benchmark Load Scaling}
-This section concerns with how the micro-benchmark runtimes scale when the load is increased, which is presented in Figure~\ref{fig:load_scaling}. All micro-benchmarks are first executed with a certain load (1x), and multiples of that load (2x, 3x, $\ldots$, 10x) are executed five times each to observe how the execution time scales. The following tables will present the average execution time of executing a multiple of the load over running the initial load on Node.js.
+This section is concerned with the micro-benchmark runtime scaling when the load is increased, which is presented in Figure~\ref{fig:load_scaling}. All micro-benchmarks are first executed with a certain load (1x), and multiples of that load (2x, 3x, $\ldots$, 10x) are executed five times each to observe how the execution time scales. The following tables will present the average execution time and standard errors when executing multiples of a specific load on Node.js.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|lllllll|}
@@ -658,7 +658,7 @@ This section concerns with how the micro-benchmark runtimes scale when the load 
     \end{center}
 \end{table}
 
-The same analysis is carried out on the browser framework, and the following results are extracted.
+The same analysis is carried out using the browser framework, and the following results are extracted.
 
 \begin{table}[H]
     \begin{center}
@@ -700,7 +700,7 @@ The same analysis is carried out on the browser framework, and the following res
     \end{center}
 \end{table}
 \section{Comparison of Communication Links}
-This section concerns with the overhead introduced by using different communication links when executing the Ping Pong (message sending) and Fork Join Create (remote actor creation) benchmarks. The results are presented on Figure~\ref{fig:link}.
+This section is concerned with the overhead introduced by using different communication links when executing the Ping Pong (message sending) and Fork Join Create (remote actor creation) benchmarks. These results are presented on Figure~\ref{fig:link}.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|llll|}
@@ -734,7 +734,7 @@ This section concerns with the overhead introduced by using different communicat
     \end{center}
 \end{table}
 \section{Savina Benchmark Comparison}
-The Savina~\cite{savina} benchmark suite provides JVM implementations for each of the defined benchmarks. The FYP and Nact~\cite{nact} implementations of the Savina micro-benchmarks of Ping Pong and Fork Join Create are compared with the JVM implementations execution times when processing equal loads. The following results are presented in Figure~\ref{fig:savina}
+The Savina~\cite{savina} benchmark suite provides JVM implementations for each of the defined benchmarks. The FYP and Nact~\cite{nact} implementations of the Savina micro-benchmarks of Ping Pong and Fork Join Create are compared with the JVM implementations execution times when processing equal loads. The following results are presented in Figure~\ref{fig:savina}.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|ll|}
@@ -776,6 +776,7 @@ The Savina~\cite{savina} benchmark suite provides JVM implementations for each o
     \end{center}
 \end{table}
 \section{Node.js and Browser Shared Memory Speedup}
+This section is concerned with the shared memory speedup observed when running master worker parallel benchmarks. The left diagram of Figure~\ref{fig:shared_memory_speedup} uses the data presented in Table~\ref{tab:nodesharedmemoryspeedup}, while the right diagram is presented in Table~\ref{tab:browsersharedmemoryspeedup}.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|ll|}
@@ -827,6 +828,7 @@ The Savina~\cite{savina} benchmark suite provides JVM implementations for each o
     \end{center}
 \end{table}
 \section{Node.js and Browser Distributed Memory Speedup}
+This section is concerned with the speedup introduced when using a mix of local and distributed workers. The following two tables present the data collected when running on the Node.js and browser environments respectively. This data is presented in Figure~\ref{fig:distributed_memory_speedup}.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|ll|}
