@@ -765,7 +765,7 @@ For Ping Pong, 100000 messages are sent between two remote actors. This is equal
 \section{Savina Benchmark Comparison}
 The Savina~\cite{savina} benchmark suite provides JVM implementations for each of the defined benchmarks. The FYP and Nact~\cite{nact} implementations of the Savina micro-benchmarks of Ping Pong and Fork Join (create) are compared with the JVM implementations execution times when processing equal loads. The following results are presented in Figure~\ref{fig:savina}.
 
-For the Ping Pong benchmark 
+The Ping Pong benchmark is executed across the different environment with an equal load of 10000000 sent messages, while the Fork Join Create spawns 1000000 actors.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|ll|}
