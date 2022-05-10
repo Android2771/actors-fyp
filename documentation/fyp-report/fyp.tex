@@ -306,7 +306,7 @@ Promise.resolve().then(() => {
 Since JavaScript only has one microtask event queue, the order in which messages are sent matches the order in which they are processed by the set of receiving actors. Since JavaScript processes microtasks to completion before processing the next, the implementation ensures that at most one actor is processing a message at any point in time in a single Node.js or browser instance.
 
 \chapter{Evaluation}\label{chap:evaluation}
-This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina~\cite{savina} is a benchmark suite defined for actor-based systems which is partially implemented for this chapter. Section~\ref{section:microbenchmark} will explore each of Savina's micro-benchmarks which measure overheads introduced when using the framework's basic functionality. Section~\ref{section:parallel} explores parallel benchmarks which expect a linear increase in performance with each added core. 
+This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina~\cite{savina} is a benchmark suite defined for actor-based systems which is partially implemented for this chapter. Section~\ref{section:microbenchmark} will explore each of Savina's micro-benchmarks which measure overheads introduced when using the framework's basic functionality. Section~\ref{section:parallel} explores parallel benchmarks which expect a linear increase in performance with each added core. Benchmark configurations as well as raw data can be found in Appendix~\ref{appendix:results}.
 
 Unless otherwise stated, the following hardware and software was used to run the benchmarks.
 \begin{itemize}
@@ -424,7 +424,7 @@ In addition to the four workers and master hosted on the four-core device, new w
     \end{centering}
 \end{figure}
 \section{Case Study}
-While the qualitative analysis of the framework yielded sane results, the framework's ease of use is important for the developers making use of the API when engineering actor-based systems. This section focuses on two case studies which make use of the framework to create two communicating actors on a single instance as well as over a distributed network. The examples presented below work for both the Node.js and browser environments due to the framework implementations being fully interoperable.
+While the qualitative analysis of the framework yielded sane results, the framework's ease of use is important for the developers making use of the API when engineering actor-based systems. This section focuses on two case studies which make use of the framework to create two communicating actors on a single instance as well as over a distributed network. The examples presented below work for both the Node.js and browser environments due to the framework implementations being fully interoperable. Further information regarding utilising the framework's API can be found in Appendix~\ref{appendix:manual}.
 
 The code segments below assume that the functions have been imported and that the actor behaviour is defined as follows.
 \begin{lstlisting}    
@@ -441,7 +441,7 @@ const pingPongBehaviour = (state, message, self) => {
 \end{lstlisting}
 This code segment first imports the framework by using JavaScript ES6 imports. Lines 4--9 defines an actor behaviour which immediately sends a message to the sender including a reference to itself as well as the value it received subtracted by 1. It then checks if the value it received is less than 0, and if so the actor will terminate itself. Otherwise, it will output the received value. 
 \subsection{Single Instance Actor Based System}
-When making use of actors on a single instance, the developer is required to make use of three API functions taking in two parameters each. These functions allow the developer to \textbf{spawn} actors, \textbf{send} messages to them and \textbf{terminate} them to free up memory. The example below will make use of these three API functions to build two communicating actors for a specified load. Further information about using the API can be found in Appendix A.
+When making use of actors on a single instance, the developer is required to make use of three API functions taking in two parameters each. These functions allow the developer to \textbf{spawn} actors, \textbf{send} messages to them and \textbf{terminate} them to free up memory. The example below will make use of these three API functions to build two communicating actors for a specified load.
 \begin{lstlisting}    
 const pingActorRef = spawn({}, pingPongBehaviour);
 const pongActorRef = spawn({}, pingPongBehaviour);
@@ -577,7 +577,7 @@ init('ws://localhost:8080', 10000, 2).then(async ready => {
 \end{lstlisting}
 In the example above, nodes 2 and 3 are the workers that the primary node spawned. Node 1 sends requests to its peers to spawn actors with a specific behaviour and initial state. The \textbf{spawnRemote} function returns a Promise which is resolved once the actor is remotely spawned and an acknowledgement is returned. The promise resolves into an actor reference which has embedded information indicating that this is a remote node. This enables location transparency when sending to the actor, as the developer need not be aware of whether the actor reference points to a local or remote actor, as communication is handled internally by the framework.
 
-\chapter{Empirical Results}\label{appendix:results}
+\chapter{Benchmark Configurations and Results}\label{appendix:results}
 This appendix presents the observed results of the visualisations presented throughout the report. Guides on how to replicate these results can be found in the README inside the submitted zip file.
 
 \section{Node.js and Browser Micro-Benchmark Comparison}\label{section:microcomparison}
