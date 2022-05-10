@@ -580,8 +580,20 @@ In the example above, nodes 2 and 3 are the workers that the primary node spawne
 \chapter{Empirical Results}\label{appendix:results}
 This appendix presents the observed results of the visualisations presented throughout the report. Guides on how to replicate these results can be found in the README inside the submitted zip file.
 
-\section{Node.js and Browser Micro-Benchmark Comparison}
+\section{Node.js and Browser Micro-Benchmark Comparison}\label{section:microcomparison}
 This section is concerned with the results observed when running the implementations of Savina's micro-benchmarks five times each on Node.js, presented in Figure~\ref{fig:micro}.
+
+The micro-benchmarks are run with the following configurations.
+\begin{itemize}
+    \item Ping Pong --- N = 100000000 (messages sent)
+    \item Thread Ring --- N = 10 (connected actors), H = 100000000 (messages sent)
+    \item Count --- N = 10000000 (successive messages to be sent)
+    \item Fork Join (throughput) --- N = 1000000 (messages sent to each actor), K = 10 (number of actors)
+    \item Fork Join (create) --- N = 1500000 (spawned actors)
+    \item Fibonacci --- N = 29 (fibonacci index)
+    \item Chameneos --- N = 1200000 (number of meetings between chameneos), C = 10 (number of chameneos)
+    \item Big --- N = 10 (number of actors), P = 500000 (number of pings) 
+\end{itemize}
 \begin{table}[H]
     \begin{center}
     \begin{tabular}{|l|llllllll|}
@@ -617,7 +629,22 @@ The same implementations of the micro-benchmarks are run five times each using t
     \end{center}
 \end{table}
 \section{Node.js and Browser Micro-Benchmark Load Scaling}
-This section is concerned with the micro-benchmark runtime scaling when the load is increased, which is presented in Figure~\ref{fig:load_scaling}. All micro-benchmarks are first executed with a certain load (1x), and multiples of that load (2x, 3x, $\ldots$, 10x) are executed five times each to observe how the execution time scales. The following tables will present the average execution time and standard errors when executing multiples of a specific load on Node.js.
+This section is concerned with the micro-benchmark runtime scaling when the load is increased, which is presented in Figure~\ref{fig:load_scaling}. All micro-benchmarks are first executed with a certain load (1x), and multiples of that load (2x, 3x, $\ldots$, 10x) are executed five times each to observe how the scaling of the execution time.
+
+Each benchmark has a chosen attribute which is modified to scale the load by a certain multiple. The rest of the attributes remain constant and unchanged from the configurations presented in Section~\ref{section:microcomparison}. The following list presents which attribute is chosen and its initial load. This initial load is multiplied by numbers from 1 to 10 to observe the scaling of execution time.
+
+\begin{itemize}
+    \item Ping Pong --- N = 10000000 (messages sent)
+    \item Thread Ring --- H = 10000000 (messages sent)
+    \item Count --- N = 1000000 (successive messages to be sent)
+    \item Fork Join (throughput) --- K = 1 (number of actors)
+    \item Fork Join (create) --- N = 200000 (spawned actors)
+    \item Fibonacci --- Could not scale due as fibonacci index increases load exponentially 
+    \item Chameneos --- N = 200000 (number of meetings between chameneos)
+    \item Big --- P = 100000 (number of pings) 
+\end{itemize}
+
+The following tables will present the average execution time and standard errors when executing multiples of a specific load on Node.js. Each multiple of a load is executed five times each to produce these results.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|lllllll|}
@@ -701,6 +728,8 @@ The same analysis is carried out using the browser framework, and the following 
 \end{table}
 \section{Comparison of Communication Links}
 This section is concerned with the overhead introduced by using different communication links when executing the Ping Pong (message sending) and Fork Join Create (remote actor creation) benchmarks. These results are presented on Figure~\ref{fig:link}.
+
+For Ping Pong, 100000 messages are sent between two remote actors. This is equal to the value of the number of actors spawned in a modified version of Fork Join (create) which only remotely spawns actors without termination. This enables the reader to compare the execution time between remotely sending messages and remotely spawning actors.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|llll|}
@@ -734,7 +763,9 @@ This section is concerned with the overhead introduced by using different commun
     \end{center}
 \end{table}
 \section{Savina Benchmark Comparison}
-The Savina~\cite{savina} benchmark suite provides JVM implementations for each of the defined benchmarks. The FYP and Nact~\cite{nact} implementations of the Savina micro-benchmarks of Ping Pong and Fork Join Create are compared with the JVM implementations execution times when processing equal loads. The following results are presented in Figure~\ref{fig:savina}.
+The Savina~\cite{savina} benchmark suite provides JVM implementations for each of the defined benchmarks. The FYP and Nact~\cite{nact} implementations of the Savina micro-benchmarks of Ping Pong and Fork Join (create) are compared with the JVM implementations execution times when processing equal loads. The following results are presented in Figure~\ref{fig:savina}.
+
+For the Ping Pong benchmark 
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|ll|}
