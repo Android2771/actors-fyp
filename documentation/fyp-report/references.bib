@@ -32,7 +32,7 @@ Akka was built on the reactive manifesto which is a signed public declaration of
 }
 
 @misc{scala,
-  title={The Scala Programming Language},
+  title={The {S}cala Programming Language},
   howpublished={\url{https://www.scala-lang.org/}},
   note={{Accessed on 2022-04-03}}
 }
@@ -72,7 +72,7 @@ Shared Array Buffer which was introduced in ES8
 
 @unpublished{plasma,
   author = {C. Hewitt and B. Smith},
-  title  = {A Plasma Primer},
+  title  = {A {P}lasma Primer},
   year   = {1975},
   note={{Acessed on 2022-05-02}}
 }
@@ -168,13 +168,11 @@ One of the first papers concretising the actor model for AI. Mostly mathematical
 }
 
 @inproceedings{hewitt1973session,
-  title={Session 8 formalisms for artificial intelligence a universal modular actor formalism for artificial intelligence},
+  title={A universal modular actor formalism for artificial intelligence},
   author={Hewitt, Carl and Bishop, Peter and Steiger, Richard},
-  booktitle={Advance Papers of the Conference},
-  volume={3},
-  pages={235},
-  year={1973},
-  organization={Stanford Research Institute Menlo Park, CA}
+  booktitle={Proceedings of the 3rd international joint conference on Artificial intelligence},
+  pages={235--245},
+  year={1973}
 }
 
 A paper describing the efforts of porting the JVM Akka to JS. 
@@ -211,10 +209,19 @@ Kurt Micallef's paper using ES6 Generators
     author={K. Micallef and K. Vella},
     year={2016},
     month={Aug},
-    title={Communicating Generators in JavaScript},
+    title={Communicating Generators in {JavaScript}},
     booktitle={Communicating Process Architectures 2016},
     publisher={WoTUG; Open Channel Publishing},
     pages={87-119}
+}
+
+Alan Le Brun's paper on actors and fault tolerance
+@phdthesis{lebrun,
+  author      = {M. A. Le Brun, A. Francalanza},
+  school      = {University of Malta},
+  title       = {On Implementing and Evaluating the Raft Distributed Consensus Algorithm},
+  year        = {2020},
+  type = {Bachelor's dissertation}
 }
 
 Paper comparing Scala Actors to Akka Actors, explaining the reason behind certain design decisions for these languages.
@@ -231,7 +238,7 @@ It then talks about the sought after aspects of the actor runtime
 
 Talks about  using JavaScript for high performance network programs
 @article{highperformance,
-  title={Node. js: Using JavaScript to build high-performance network programs},
+  title={Node. js: Using {JavaScript} to build high-performance network programs},
   author={Tilkov, Stefan and Vinoski, Steve},
   journal={IEEE Internet Computing},
   volume={14},
@@ -260,7 +267,7 @@ Talks about  using JavaScript for high performance network programs
 
 Look into ECMAScript concurrency features, generators, await
 @article{concurrencyjs,
-  title={JavaScript Concurrency Models},
+  title={{JavaScript} Concurrency Models},
   author={Namiot, Dmitry and Sukhomlin, Vladimir},
   journal={International Journal of Open Information Technologies},
   volume={3},
@@ -269,12 +276,12 @@ Look into ECMAScript concurrency features, generators, await
   year={2015}
 }
 
-@article{concurrency,
+@book{concurrency,
   title={The theory and practice of concurrency},
-  author={Roscoe, Bill},
-  year={1998}
+  author={Roscoe, AW},
+  year={1998},
+  publisher={Prentice Hall}
 }
-
 Similar academic work
 @inproceedings{spidersjs,
   title={Many spiders make a better web: a unified web-based actor framework},
@@ -310,7 +317,7 @@ series = {AGERE! '14}
 
 Paper bringing parallelism to JavaScript without the use of actors
 @article{tigerquoll,
-  title={TigerQuoll: parallel event-based JavaScript},
+  title={TigerQuoll: parallel event-based {JavaScript}},
   author={Bonetta, Daniele and Binder, Walter and Pautasso, Cesare},
   journal={ACM SIGPLAN Notices},
   volume={48},
@@ -322,7 +329,7 @@ Paper bringing parallelism to JavaScript without the use of actors
 
 @inproceedings{erlang,
 author = {Armstrong, Joe},
-title = {A History of Erlang},
+title = {A History of {E}rlang},
 year = {2007},
 isbn = {9781595937667},
 publisher = {Association for Computing Machinery},
@@ -334,4 +341,22 @@ booktitle = {Proceedings of the Third ACM SIGPLAN Conference on History of Progr
 pages = {6–1–6–26},
 location = {San Diego, California},
 series = {HOPL III}
+}
+
+@book{mandelbrot,
+  title={Fractals and chaos: the Mandelbrot set and beyond},
+  author={Mandelbrot, Benoit B and Evertsz, Carl JG and Gutzwiller, Martin C},
+  volume={3},
+  year={2004},
+  publisher={Springer}
+}
+
+@article{faulttolerance,
+  title={Dependable computing and fault-tolerance},
+  author={Laprie, Jean-Claude},
+  journal={Digest of Papers FTCS-15},
+  volume={10},
+  number={2},
+  pages={124},
+  year={1985}
 }
