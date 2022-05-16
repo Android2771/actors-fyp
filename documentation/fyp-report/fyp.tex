@@ -61,7 +61,7 @@
 % \cosupervisor{Dr Who}                % your cosupervisor(s) name - no . in Dr *OPTIONAL* 
                                      % simply comment out the above line if absent
 
-\degreeName{Bachelor of Science (Honours) (Computing Science)}       		 % the degree you are reading
+\degreeName{B.Sc. I.C.T. (Hons.)}       		 % the degree you are reading
                                      % note the \ after the dot, so not to consider it a fullstop
 \doctype{dissertation}               % the type of document (fyp, dissertation, thesis)
 \degreeDate{\monthyeardate\today}    % when did you submit (officially after your corrections)
@@ -93,7 +93,7 @@ This dissertation explores the suitability of the actor model when used to bring
 
 Isolated actors can be safely spawned on remote devices over a network as well as utilise multiple cores on a local processor. This allows for distributed and parallel computation which have the potential of shortening the time taken when executing computationally intensive tasks. A WebSocket server is used to connect a finite number of Node.js instances and browsers hosting actors over the network. Faster communication links are explored using inter-process communication when hosting multiple processes on a local device. The framework abstracts the adaptive use of different communication links and provides location transparency for remote actors.
 
-Benchmarks analyse the framework's performance when used on a single instance using Node.js or a browser, as well as the speedup introduced when utilising additional local or distributed cores working on the same task. The performance of our JavaScript framework is evaluated against existing JVM and JavaScript actor framework implementations. The relative performance of the communication links used when distributing actors is also explored. The performance is faster than other JavaScript actor frameworks and demonstrates near linear performance when parallelising a task over multiple cores.
+Benchmarks analyse the framework's performance when used on a single instance using Node.js or a browser, as well as the speedup introduced when utilising additional local or distributed cores working on the same task. The performance of our JavaScript framework is evaluated against existing JVM and JavaScript actor framework implementations. The relative performance of the communication links used when distributing actors is also explored. Our framework performs Savina benchmarks faster than other actor frameworks and demonstrates near linear performance when distributing a task over multiple cores.
 
 Nowadays, browsers are found on devices such as smart fridges and TVs, each of which able to run JavaScript defined behaviour. The increasingly popular Node.js environment for server-side applications would be able to host actors which can communicate with actors hosted on browsers, enabling uniform and flexible scaling of applications. The limitations of the framework are discussed as well as its untapped potential when it comes to freezing and migrating actors across the web.
 \end{abstract}\if@openright\cleardoublepage\else\clearpage\fi
@@ -179,7 +179,7 @@ The first objective states that communicating actors can be spawned on either a 
 \subsection{Actor Design}
 The design of the frameworks' actors is inspired by Gul Agha's paper~\cite{agha1985actors}. They are defined as computational agents which map communication to a behaviour which may consist of spawning new actors, communicating with other actors or defining a new behaviour for the next message. The behaviour of such actors is also said to be history sensitive, where previous behaviour executions may impact how the next communication is processed.
 
-This definition prompts the API to allow for the creation of actors and the ability to send communications to the spawned actors. Communications sent to actors will take the form of JavaScript objects due to their structural flexibility and conformity with Gul Agha's definition of a “tuple of values”. Actors are defined to have history sensitivity, which prompts for each actor to hold a local and isolated state which will also take the form of a JavaScript object. The actor's behaviour will take the form of a conventional JavaScript callback function, which will have the actor's state, message and self address as function parameters. Since JavaScript provides first class functions, the behaviour definition is stored and called when required. This prompts for the following basic API using TypeScript's~\cite{typescript} syntax.
+This definition prompts the API to allow for the creation of actors and the ability to send communications to the spawned actors. Communications sent to actors will take the form of JavaScript objects due to their structural flexibility and conformity with Gul Agha's definition of a “tuple of values”. Actors are defined to have history sensitivity, which prompts for each actor to hold a local isolated state which will also take the form of a JavaScript object. The actor's behaviour will take the form of a conventional JavaScript callback function, which will have the actor's state, message and self address as function parameters. Since JavaScript provides first class functions, the behaviour definition is stored and called when required. This prompts for the following basic API using TypeScript's~\cite{typescript} syntax.
 \begin{lstlisting}
 interface ActorBehaviour {
     (state: object, message: object, self: ActorReference): void
@@ -187,20 +187,20 @@ interface ActorBehaviour {
 spawn = (initialState: object, behaviour: ActorBehaviour): ActorReference
 send = (actor: ActorReference, message: object): void    
 \end{lstlisting}
-The API will return an actor reference when one is spawned, which can then be fed into the send function as a parameter. The actor behaviour will be invoked when processing each received message and may manipulate the actor's state which is first defined as a parameter when invoking spawn function. The actor behaviour may also use the API to spawn and communicate with other actors. The implementation of these two functions on the Node.js and browser environment will fulfil the first defined objective in Section~\ref{section:objectives}. 
+The API will return an actor reference when one is spawned, which can then be fed into the send function as a parameter. The actor behaviour will be invoked when processing each received message and may manipulate the actor's state which is initially defined as a parameter when invoking the spawn function. The actor behaviour may also use the API to spawn and communicate with other actors. The implementation of these two functions on the Node.js and browser environment will fulfil the first defined objective in Section~\ref{section:objectives}. 
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=270px]{resources/actors.png}
         \caption{Spawning Actors and Sending Messages}\label{fig:actors}
     \end{centering}
 \end{figure}
-Finally, a function to terminate an actor is provided, with the option for whether it should process the remaining messages. This function takes in an actor reference similar to the send function.
+Finally, a function to terminate an actor is provided, with the option for whether it should process its remaining messages. This function takes in an actor reference similar to the send function.
 \begin{lstlisting}
 terminate = (actor: ActorReference, force: boolean)
 \end{lstlisting}
 
 \subsection{Actor Anatomy}
-The internal composition of an actor inside the framework is at the heart of the API's features. An actor takes the form of an object which contains its maintained state as well as its behaviour as an executable function. Each actor stores a name so that it can be uniquely identified in the local instance. A number which allows other clients to uniquely identify the actor's network location as well as whether the actor is accepting messages is also stored. The TypeScript interface below defines what an actor is composed of.
+The internal composition of an actor inside the framework is at the heart of the API's features. An actor takes the form of an object which contains its maintained state as well as its behaviour as an executable function. Each actor stores a name so that it can be uniquely identified in a local instance, and a `node' number which allows other clients to uniquely identify the actor's network location. Whether the actor is processing messages is also stored. The TypeScript interface below defines what an actor is composed of.
 \begin{lstlisting}
 //TypeScript object interface for an Actor
 interface Actor {
@@ -211,7 +211,7 @@ interface Actor {
     active: boolean                     //starts with true
 }
 \end{lstlisting}
-When spawning an actor, the initial state and behaviour are defined by the developer. The name is automatically generated using a uuidv4 package~\cite{uuidv4}. All actors start off as active to indicate that they are processing messages. When returning the actor reference to the developer, an issue arises if the whole actor object is returned. Not only does it contain redundant information such as returning the state and behaviour that were just defined by the developer, it also undermines the concept of actor isolation. Since objects are passed by reference in JavaScript, the developer or other actors would be able to modify the actor's state and behaviour through its reference. To protect these attributes, only a subset of them are returned, defined by the ActorReference TypeScript interface.
+When spawning an actor, the initial state and behaviour are defined by the developer. The name is automatically generated using a uuidv4 package~\cite{uuidv4}. All actors start off as active to indicate that they are processing messages. When returning the actor reference to the developer, an issue arises if the whole actor object is returned. Not only does it contain redundant information such as returning the state and behaviour that were just defined by the developer, it also undermines the concept of actor isolation. Since objects are passed by reference in JavaScript, the developer or other actors would be able to modify the actor's state and behaviour through its reference. To protect these attributes, only a subset of them are returned, defined by the following ActorReference TypeScript interface.
 \begin{lstlisting}
 interface ActorReference {
     name: string,   //identifies the actor on a local instance
@@ -222,7 +222,7 @@ interface ActorReference {
 \subsection{Actor Runtime}
 The JavaScript event loop~\cite{eventloopbrowser, eventloopnode} is responsible for executing the application code. The language's runtime has a queue of messages where each message is mapped to a function which processes that message. The event loop waits for the arrival of a message and processes the queue of messages when there is a backlog in the event queue. Each message is processed to completion before other messages are processed. The actor model also maps messages onto functions which act as message handlers. Therefore, the framework's implementation takes advantage of the similar philosophies between the JavaScript runtime and the actor model.
 
-The implementation acts as a wrapper of the JavaScript event loop. Once a message is received by an actor, it will schedule the processing of the message on the JavaScript event loop. This is done by scheduling a microtask~\cite{microtasks} which is an event queued to execute before the start of the next event loop. The microtask is scheduled by creating a promise which is immediately resolved. This behaviour is similar to using Node.js' \textbf{process.nextTick()}~\cite{nexttick} which is more efficient than using the JavaScript's \textbf{setTimeout()} function as it would otherwise schedule a macrotask which executes in the following iteration of the event loop.
+The implementation acts as a wrapper of the JavaScript event loop. Once a message is received by an actor, it will schedule the processing of the message on the JavaScript event loop. This is done by scheduling a microtask~\cite{microtasks} which is an event queued to execute before the start of the next iteration of the event loop. The microtask is scheduled by creating a promise which is immediately resolved. This behaviour is similar to using Node.js' \textbf{process.nextTick()}~\cite{nexttick} which is more efficient than using the JavaScript's \textbf{setTimeout()} function as it would otherwise schedule a macrotask which executes in the following iteration of the event loop.
 \begin{lstlisting}
 //Code which schedules the processing of a received message
 Promise.resolve().then(() => {
@@ -235,12 +235,12 @@ Since JavaScript only has one microtask event queue, the order in which messages
 
 \section{Actors on Multiple Node.js or Browser Instances}
 \subsection{Actors on a Distributed Network}
-So far, the design of the actors allows for concurrent processing of messages on one browser or Node.js instance. It does not matter which actor processes their next message, or in which order the actor processes their messages, assuming that the actors are not overly dependent on their maintained isolated state. Concurrency~\cite{concurrencyjs, concurrency} implies that actors are potentially parallelisable, where multiple actors can process their next message in parallel and thus having the potential to speed up the overall computation. The API must provide an intuitive way to establish a connection with other processes or devices as well to communicate with remote actors.
+So far, the design of the actor framework enables concurrent processing of messages on one browser or Node.js instance. It does not matter which actor processes their next message, or in which order the actor processes their messages, assuming that the actors are not overly dependent on their maintained isolated state. Concurrency~\cite{concurrencyjs, concurrency} implies that actors are potentially parallelisable, where multiple actors can process their next message in parallel and thus having the potential to speed up the overall computation. The API must provide an intuitive way to establish a connection with other processes or devices as well to communicate with remote actors.
 
 A peer-to-peer system is first considered to connect nodes which host actors. Each peer would have a list of nodes to establish connection with. While this would eliminate the additional network hop introduced by an intermediate server, the number of connections performed would be $n!$ if each node is listening for connections and connects to every other node. Furthermore, manually entering which peers each node needs to establish connection with is tedious. The prototype instead opts for a central WebSocket server for distributed networking, as each node can communicate with the rest of the network which only requires $n$ connections.
 
 \subsection{Implementing a WebSocket Server}
-The WebSocket server expects a fixed number of $n$ connected clients before it starts accepting communication to be forwarded between nodes. The server logic was developed separate from the actor framework and assumes that connections are not terminated in the duration of its runtime. The WebSocket server will assign a unique identifier to each connected client which will be broadcast when the server has the expected number of connected clients. This will allow developers to specify a particular node when utilising the framework.
+The WebSocket server expects a fixed number of $n$ connected clients before it starts accepting communication to be forwarded between nodes. The server logic was developed separate from the actor framework and assumes that connections are not terminated in the duration of its runtime. The WebSocket server will assign a unique identifier to each connected client which will be broadcast when the server establishes the expected number of connections. This will allow developers to uniquely identify clients on the WebSocket network.
 
 \begin{figure}[H]
     \begin{centering}
@@ -249,7 +249,7 @@ The WebSocket server expects a fixed number of $n$ connected clients before it s
     \end{centering}
 \end{figure}
  
-This mode of establishing communication between nodes has several advantages and disadvantages. The centralised WebSocket server is effectively creating a barrier which will be lifted when the expected number of clients are connected and can communicate with each other. Once the number of expected clients connect, each client is granted communication with the entire network at the cost of one additional network hop over peer-to-peer. The centralised server also simplifies the logic of uniquely identifying each connected client, which will be a simple iterative naming scheme in the order in which clients connect. Connecting to the server should take the form of an API function call which returns a promise. This promise resolves when the server broadcasts to the client that it is ready to forward information to the other connected clients.
+This mode of establishing communication between nodes has several advantages and disadvantages. The centralised WebSocket server is effectively creating a barrier which will be lifted when the expected number of clients are connected and can communicate with each other. Once the number of expected clients connect, each client is granted communication with the entire network at the cost of the network hop over the WebSocket server. The centralised server also simplifies the logic of uniquely identifying each connected client, which will be a simple iterative naming scheme in the order in which clients connect. Connecting to the server should take the form of an API function call which returns a promise. This promise resolves when the server broadcasts to the client that it is ready to forward information to the other connected clients.
 \begin{lstlisting}
 init = (url: string, timeout:number): Promise<object>
 \end{lstlisting}
@@ -260,11 +260,9 @@ The developer must be able to refer to actors which exist in remote nodes. API f
 spawnRemote = (node: number, state: object, behaviour: ActorBehaviour, timeout: number): Promise<ActorReference>
 \end{lstlisting}
 
-The \textbf{spawnRemote} function sends a request to spawn an actor to the remote node. The request has embedded within it the string representation of its behaviour which is reconstructed as a function on the recipient end. Similar to the \textbf{send} function, it chooses the fastest transport mechanism to send the spawn request. The primary node is internally aware of the network numbers of the worker nodes it spawned, so it will make use of Cluster IPC to send these requests rather than the slower established WebSocket link through the network.
-
-On the recipient side, the node will spawn an actor with the sent behaviour and initial state. It locally generates the spawned actor's name and embeds it in an acknowledgement sent to the remote spawner. Once this acknowledgement is received by the spawner, it constructs the actor reference using the received actor name and resolves the promise.
+The \textbf{spawnRemote} function sends a request to spawn an actor to the remote node. The request has embedded within it the string representation of its behaviour which is reconstructed as a function on the recipient end. On the recipient side, the node will spawn an actor with the sent behaviour and initial state. It locally generates the spawned actor's name and embeds it in an acknowledgement sent to the remote spawner. Once this acknowledgement is received by the spawner, it constructs the actor reference using the received actor name and resolves the promise.
 \subsection{Local Parallelism}
-The WebSocket server provides distribution for any Node.js or browser client wishing to communicate with actors hosted on other connected clients. However, a developer might want to host multiple instances on a local multicore device to make up for JavaScript's single-threaded nature when distributing actors. The WebSocket server involves an intermediary network hop as well as the network layer, both of which can be avoided by using Node.js~\cite{nodejs} cluster and browser Web Workers~\cite{webworkers}. These methods rely on inter-process communication (IPC) with no network layer and taking advantage of shared memory, while also allowing direct communication between the spawner and the workers. Each of the spawned workers can also be treated as separate instances when connected to the WebSocket server for communication with remote devices.
+The WebSocket server provides distribution for any Node.js or browser client wishing to communicate with actors hosted on other connected clients. However, a developer might want to host multiple instances on a local multicore device to make up for JavaScript's single-threaded nature when distributing actors. The WebSocket server involves an intermediary network hop as well as the network layer, both of which can be avoided by using Node.js~\cite{nodejs} cluster and browser Web Workers~\cite{webworkers}. These methods rely on inter-process communication (IPC) which allows direct communication between the spawner and the workers over shared memory. Each of the spawned workers can also be treated as separate instances when connected to the WebSocket server for communication with remote devices.
 
 \begin{figure}[H]
     \begin{centering}
@@ -273,29 +271,27 @@ The WebSocket server provides distribution for any Node.js or browser client wis
     \end{centering}
 \end{figure}
 
-This would require changing the API's init function to allow the developer to specify the number of additional workers to spawn and connect to the WebSocket server, resulting in the function definition below. The default number of workers is set to 0, where the instance would not spawn any workers. Implementation of the networking logic to permit actors to communicate over a network satisfies the second defined objective for this dissertation.
+This would require changing the API's init function to allow the developer to specify the number of additional workers to spawn and connect to the WebSocket server, resulting in the function definition below. The default number of workers is set to 0, where the instance would not spawn any workers.
 \begin{lstlisting}
 init = (url: string, timeout: number, numWorkers: number = 0): Promise<object>
 \end{lstlisting}
 
-When the developer spawns child processes or Web Workers, each of the spawned workers will send to the spawner (primary node) the network number assigned to them by the WebSocket network. The primary node will then send each of the spawned workers of their neighbouring spawned processes' network numbers. This is so that spawned workers can identify their neighbours and communicate with them by sending messages to the primary node instead of the WebSocket server. The primary node will forward the message to the destination worker using the cluster or Web Worker API instead of the WebSocket network to avoid the network stack. If the actor resides on a separate device or group of spawned processes, it resorts to using the WebSocket network.
+When the developer spawns child processes or Web Workers, each of the spawned workers will send to the spawner (primary node) the network number assigned to them by the WebSocket network. The primary node will then send each of the spawned workers of their neighbouring spawned processes' network numbers. This is so that spawned workers can identify their neighbours and communicate with them by sending messages to the primary node instead of the WebSocket server. The primary node will forward the message to the destination worker using Node.js Cluster or Web Worker API instead of the WebSocket network to avoid the network stack. If the actor resides on a separate device or group of spawned processes, it resorts to using the WebSocket network.
 \section{Location Transparency}
-Now that Node.js Cluster child processes and browser Web Workers have been introduced and incorporated into the API's design, the send function would benefit from location transparency. This would mean that the developer does not need to specify whether the actor resides in a spawned Web Worker or Node.js child process, as well as whether it is a local or remote actor. This is done by first embedding in which node the actor resides as well as the actor's unique name inside the actor reference returned by the API's spawning functions.
+Now that Node.js Cluster child processes and browser Web Workers have been introduced and incorporated into the API's design, the send function would benefit from location transparency. This would mean that the developer does not need to specify whether the actor resides in a spawned Web Worker or Node.js child process, as well as whether it is a local or remote actor. This is done by first embedding the assigned network number as well as the actor's unique name inside the actor reference returned by the API's spawning functions.
 \begin{lstlisting}
 interface ActorReference {
     name: string,
     node: number
 }
 \end{lstlisting}
-Using the returned ActorReference object from the \textbf{spawn} or \textbf{spawnRemote} function, an actor can be uniquely identified across the web. The developer can put in the actor reference inside the \textbf{send} function to send that actor a message. Internally, the framework looks at the actor reference's node number. If it matches the client's network number it resides in, then it will queue the local actor's behaviour on the runtime's event queue. If the actor resides in a remote node, it creates a payload to send over the network. 
+Using the returned ActorReference object from the \textbf{spawn} or \textbf{spawnRemote} function, an actor can be uniquely identified across the network. The developer can put in the actor reference inside the \textbf{send} function to send that actor a message. Internally, the framework looks at the actor reference's node number. If it matches the client's network number it resides in, then it will queue the local actor's behaviour on the runtime's event queue. If the actor resides in a remote node, it creates a payload to send over the network. Since the IPC connections are faster than using a WebSocket connection with an intermediary hop, the client first checks if the remote actor actor is a neighbouring instance. If the sending client is the primary node, it can be directly sent to the spawned worker. Otherwise, spawned workers can communicate with each other by sending messages to the primary node which will handle routing. If the actor resides in a remote node that is not a neighbouring process, it sends the message to the WebSocket server for routing.
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=\textwidth]{resources/communication.png}
         \caption{Flowchart for Choosing which Link based on Actor Location}\label{fig:communication}
     \end{centering}
 \end{figure}
-Using the above decision tree, the framework can internally use the fastest available link when given the node in which the actor resides in.
-
 \chapter{Evaluation}\label{chap:evaluation}
 This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina~\cite{savina} is a benchmark suite defined for actor-based systems which we implemented using our framework. Section~\ref{section:microbenchmark} explores each of Savina's micro-benchmarks which measure overheads introduced when using the framework's basic functionality. Section~\ref{section:parallel} explores parallel benchmarks which expect a linear increase in performance with each added core. Benchmark configurations as well as raw data can be found in Appendix~\ref{appendix:results}.
 
