@@ -116,13 +116,13 @@ This dissertation presents a JavaScript framework which enables developers to bu
 Actors communicate with each other using messages which are stored in the receiving actor's message queue. A message is processed by executing its defined actor behaviour. The actor model is a good fit for JavaScript's event loop~\cite{eventloopbrowser, eventloopnode} as they are both event driven, and has already achieved success in the telecommunications industry and is more recently used for implementing distributed systems in languages such as Erlang and Scala/Akka~\cite{haller2012integration}.
 
 %The Frameworks
-The developed prototype takes the form of multiple frameworks for the browser and Node.js environments respectively. The frameworks' APIs will abstract the prototype's internal mechanisms which spawn and interact with actors, allowing developers to intuitively make use of the actor model in their code.
+The developed prototype takes the form of multiple frameworks for the browser and Node.js environments respectively. The frameworks' APIs abstracts the prototype's internal mechanisms which spawn and interact with actors, allowing developers to intuitively make use of the actor model in their code.
 
 \section{Objectives}\label{section:objectives}
 This dissertation will explore how to design and implement actor frameworks on the JavaScript language. The frameworks' suitability will be assesed on the basis of performance, scalibility, and intuitiveness to use. The objectives of the study are as follows.
 \begin{enumerate}
-    \item Developers can easily define and spawn actors through the framework API on \\Node.js or a browser. Actors should be able to send messages to each other as well as spawn more actors. Full interoperability should be provided when using the framework across the two environments.
-    \item Developers can spawn and interact with actors on different Node.js instances and browsers through different network links. Node.js Cluster\cite{cluster} can be used for IPC between node processes, while Web Workers\cite{webworkers} can be used for communication between the primary thread and its spawned workers. When such communication links are not available, the network stack is involved by using WebSockets~\cite{websocket} for flexible communication to link remote processes and devices.
+    \item Allow developers to easily define and spawn actors through the framework API on \\Node.js or a browser. Actors should be able to send messages to each other as well as spawn more actors. Full interoperability should be provided when using the framework across the two environments.
+    \item Allow developers to spawn and interact with actors on different Node.js instances and browsers through different network links. Node.js Cluster\cite{cluster} can be used for IPC between node processes, while Web Workers\cite{webworkers} can be used for communication between the primary thread and its spawned workers. When such communication links are not available, the network stack is involved by using WebSockets~\cite{websocket} for flexible communication to link remote processes and devices.
     \item Provide location transparency when dealing with actor references. Interacting with a local actor should be the same as interacting with a remote actor when using the API.
     \item Benchmark the performance and scalability of the developed prototype as well as assess its feasiblity for adoption by developers.
 \end{enumerate}
@@ -131,13 +131,11 @@ Chapter~\ref{chap:background} contains the background and literature review. The
 
 \chapter{Background and Literature Review}\label{chap:background}
 \section{Concurrency and Parallelism on JavaScript}
-JavaScript is an implementation of the ECMAScript~\cite{ecmascript} design. The ECMA-262 language has multiple published editions, each of which serving as a blueprint for Javascript's next stable release. JavaScript relies on a single-threaded non-blocking event loop~\cite{eventloopbrowser, eventloopnode} which does not support parallelism, raising an issue when high performance computing~\cite{highperformance} is required. If JavaScript had to block when input or output was required, it would stop a page from being responsive. Instead, JavaScript handles I/O using events and callback functions which are posted on the event queue. The event loop processes each of the events in FIFO order, where each event has a corresponding callback or event listener function to execute. Each message is processed to completion without pre-emption by the processing of a different message, providing consistent outputs when running the same code. Browser Web Workers\cite{webworkers} and Node.js child processes\cite{cluster} can be used to bring parallel computation to JavaScript~\cite{concurrencyjs, spidersjs}. They adopt a similar philosophy to that of the actor model as both involve isolated instances which communicate through messaging to collaborate when working on computationally intensive tasks. 
+JavaScript is an implementation of the ECMAScript~\cite{ecmascript} design. The ECMA-262 language has multiple published editions, each of which serving as a blueprint for Javascript's next stable release. JavaScript relies on a single-threaded non-blocking event loop~\cite{eventloopbrowser, eventloopnode} which does not support parallelism, raising an issue when high performance computing~\cite{highperformance} is required. If JavaScript had to block when input or output was required, it would stop a page from being responsive. Instead, JavaScript handles I/O using events and callback functions which are posted on the event queue. The event loop processes each of the events in FIFO order, where each event has a corresponding callback or event listener function to execute. Each message is processed to completion without pre-emption by the processing of a different message, providing consistent outputs when running the same code. Browser Web Workers~\cite{webworkers} and Node.js child processes~\cite{nodejs, cluster} can be used to bring parallel computation to JavaScript~\cite{concurrencyjs, spidersjs}. They adopt a similar philosophy to that of the actor model as both involve isolated instances which communicate through messaging to collaborate when working on computationally intensive tasks. 
 
 A system achieves concurrency when multiple tasks or processes can progress at the same time~\cite{concurrency}. The sub processes communicate with each other to solve a particular task, without requiring knowledge of the full system implementation. Using JavaScript Promises~\cite{promises}, developers can manage the data returned by concurrently running asynchronous operations. A Promise object takes a function as a parameter which includes the task that is to be executed. This function will have a `resolve' and `reject' parameter which can be called in the event of a successful or failed completion of the task. Developers can create functions which return a Promise and then define how to `consume' the returned promise. Different behaviour can be defined if the promise succeeds, such as consuming the returned data through the use of another callback function. One can also handle the event of a promise's failure, much like catching an exception. JavaScript later developed the async/await syntax~\cite{async} where async functions always return a promise resolving into the value that is returned by the function. An await expression suspends the execution of an async function until the promise can be consumed, eliminating the need to define promise chains.
 
-ECMAScript 8 provides the SharedArrayBuffer~\cite{sharedarraybuffer} constructor for shared-variable concurrency. This allows for memory to be shared across agents in different cluster processes or web workers. The process which created the SharedArrayBuffer need only pass the object to the workers to allow them to access and manipulate the same data block. SharedArrayBuffers allow for different workers to have access to the same memory which promotes collaboration when working on the same data points. However, multiple workers manipulating the same data may lead to data races and additional care must be taken by the developer.
-
-Nowadays, several variants of the actor model are used to fit the requirements of modern languages and frameworks. Popular languages such as Scala~\cite{scala} with Akka~\cite{akka} and Elixir~\cite{elixir} (built on top of Erlang) use the actor model to allow developers to build scalable distributed systems.
+ECMAScript 8 provides the SharedArrayBuffer~\cite{sharedarraybuffer} constructor for shared-variable concurrency. Memory can be shared across agents in different cluster processes or web workers. The process which created the SharedArrayBuffer need only pass the object to the workers for them to access and manipulate the same data block. SharedArrayBuffers allow for different workers to have access to the same memory which promotes collaboration when working on the same data points. However, multiple workers manipulating the same data may lead to data races and additional care must be taken by the developer.
 
 \section{The History of the Actor Model}
 The actor model was first introduced by Carl Hewitt~\cite{hewitt1973session, 43years} in 1973 for research in artificial intelligence. It defines actors as computational agents which execute a uniform behaviour when sent a message. Hewitt argued that the actor metaphor can be applied to processes and daemons amongst other things. Two years later, Carl Hewitt helped in writing a draft of PLASMA~\cite{plasma, chewitthowto}, the first actor language. In this language, actors communicate with each other using messages and the receiver processes the received message using its pre-defined computation. Based on the message's contents, the actor may choose one from different behaviours which may involve sending messages to other actors.
@@ -145,6 +143,8 @@ The actor model was first introduced by Carl Hewitt~\cite{hewitt1973session, 43y
 The actor model was clarified by Gul Agha~\cite{agha1985actors} in a paper published in 1986. While Carl Hewitt's paper set the foundation of the potential applications of the actor metaphor, this paper focuses on how actors can be used to create expressive, simple, and intuitive programming languages. It identifies actors as computational agents which map incoming messages to a behaviour. Such behaviour may include communicating with other actors, deciding how the next incoming communication will be processed as well as creating more actors. Actors benefit from asynchronous communication when sending messages as it allows one to communicate with itself without waiting, increasing overall efficiency. The paper recognises that delivery of messages is not guaranteed on a network, and that all receiving buffers are bounded.
 
 In the same year this paper was published, a programming language called Erlang~\cite{erlang} made its first appearance. It was designed to address the highly concurrent nature of telephony applications. A high degree of fault tolerance~\cite{faulttolerance} was at the core of Erlang's design to minimise failure in telephone systems when changing the system's software. Erlang uses the actor model to allow for concurrent programming, such that each independent process communicates with other processes through the sending of messages. This makes `actors' and Erlang's lightweight `processes' interchangeable in the remaining discussion of Erlang. Each process has a FIFO mailbox (queue) which processes the messages in the order they were received. Erlang adopts asynchronous message passing, promoting developers to send messages without blocking. The language is also designed to let processes crash, as external processes can easily observe each other. When a process which provides the service crashes, the monitoring process can take over and resume the service. Erlang was continuously updated and found success in large scale mobile networks thanks to the actor model's potential to build reactive systems~\cite{reactivemanifesto}. Erlang processes allow for elastic systems such that one can add more processes to address a larger workload, while monitoring processes allows for fault tolerance and responsiveness of the system. 
+
+Nowadays, several variants of the actor model are used to fit the requirements of modern languages and frameworks. Popular languages such as Scala~\cite{scala} with Akka~\cite{akka} and Elixir~\cite{elixir} (built on top of Erlang) use the actor model to build scalable distributed systems.
 
 \section{Similar Work}
 Several JavaScript frameworks which implement the actor model are available on the node package manager (npm) and in public git repositories. They exhibit a variety of designs, each with their own strengths and weaknesses which will be explored in this section.
@@ -160,13 +160,9 @@ Several JavaScript frameworks which implement the actor model are available on t
 \textbf{TigerQuoll}~\cite{tigerquoll} takes a different approach when providing parallelism to the language. It acknowledges the actor model as too limited for the requirements of more complex patterns that occur in modern applications. Instead it allows developers to use regular event based programming to register events for parallel processing. Kurt Micallef's paper~\cite{kurt} also brings parallelism to JavaScript by exploiting ES6 Generators and several web technologies. His prototype allows for developers to engineer parallel and distributed programs over both browsers and Node.js, provided that development is done through the use of Communicating Sequential Processes (CSP).
 
 \chapter{Design and Implementation}\label{chap:design}
-\section{Framework Design}
-\subsection{Introduction}
-% What is your mantra? Talk about the first three objectives and what facilitates a good design. What if we divide into three sections where each one talks about each objective as well as its implementation. What approach will we be taking to achieve those objectives?
+\section{Introduction}
 
-% Whats my high level design? I want the implementation to have low overhead and high scalability, high coverage of features. Adopt the positives of other frameworks while avoiding pitfalls we've seen (refer to related work).
-
-This chapter is divided into sections covering the design and implementation details of each of the defined objectives in Section~\ref{section:objectives}. By fulfilling these objectives, developers will be able to spawn actors on both Node.js and browser instances. Actors would communicate with each other to collaboratively process tasks on a distributed environment. The framework’s design must be faithful to the actor model’s theory while taking advantage of the JavaScript runtime, both of which discussed in the previous chapter. Ideally, the framework will be feasible to adopt by developers and demonstrate a low overhead over utilising plain JavaScript.
+This chapter is divided into sections covering the design and implementation details of each of the defined objectives in Section~\ref{section:objectives}. Through the fulfillment of this dissertation's objectives, developers will be able to spawn actors on both Node.js and browser instances. Actors would communicate with each other to collaboratively process tasks on a distributed environment. The framework’s design must be faithful to the actor model’s theory while taking advantage of the JavaScript runtime, both of which were discussed in the previous chapter. Ideally, the framework will be feasible to adopt by developers and demonstrate a low overhead over utilising plain JavaScript.
 
 \begin{figure}[H]
     \begin{centering}
@@ -261,7 +257,7 @@ spawnRemote = (node: number, state: object, behaviour: ActorBehaviour, timeout: 
 \end{lstlisting}
 
 The \textbf{spawnRemote} function sends a request to spawn an actor to the remote node. The request has embedded within it the string representation of its behaviour which is reconstructed as a function on the recipient end. On the recipient side, the node will spawn an actor with the sent behaviour and initial state. It locally generates the spawned actor's name and embeds it in an acknowledgement sent to the remote spawner. Once this acknowledgement is received by the spawner, it constructs the actor reference using the received actor name and resolves the promise.
-\subsection{Local Parallelism}
+\subsection{Local Parallelism on Multicores}
 The WebSocket server provides distribution for any Node.js or browser client wishing to communicate with actors hosted on other connected clients. However, a developer might want to host multiple instances on a local multicore device to make up for JavaScript's single-threaded nature when distributing actors. The WebSocket server involves an intermediary network hop as well as the network layer, both of which can be avoided by using Node.js~\cite{nodejs} cluster and browser Web Workers~\cite{webworkers}. These methods rely on inter-process communication (IPC) which allows direct communication between the spawner and the workers over shared memory. Each of the spawned workers can also be treated as separate instances when connected to the WebSocket server for communication with remote devices.
 
 \begin{figure}[H]
@@ -314,18 +310,18 @@ The Savina benchmark suite defines micro-benchmarks which test specific actor ru
     \end{centering}
 \end{figure}
 \begin{itemize}
-    \item Ping Pong – Two actors are spawned which send messages to each other. Every time one actor receives the message, it decrements the integer value it receives and sends it back to the sender. This mainly tests the send functionality on a local instance with Node.js being slightly faster at sending the same load of messages.
-    \item Thread Ring – Similar to Ping Pong, the token containing the decrementing integer is now forwarded across N actors. Instead of the message being sent back and forth, it is now forwarded to the next actor on the ring. The performance is nearly identical to that of Ping Pong as the framework does not perform context switching between actors. The JavaScript event loop merely executes the queued functions which process actors' messages. N was set to 10 actors and the initial decrementing integer value (which determines the load) was set to the same as the ping pong benchmark.
+    \item Ping-Pong – Two actors are spawned which send messages to each other. Every time one actor receives the message, it decrements the integer value it receives and sends it back to the sender. This mainly tests the send functionality on a local instance with Node.js being slightly faster at sending the same load of messages.
+    \item Thread-Ring – Similar to Ping-Pong, the token containing the decrementing integer is now forwarded across N actors. Instead of the message being sent back and forth, it is now forwarded to the next actor on the ring. The performance is nearly identical to that of Ping-Pong as the framework does not perform context switching between actors. The JavaScript event loop merely executes the queued functions which process actors' messages. N was set to 10 actors and the initial decrementing integer value (which determines the load) was set to the same as the Ping-Pong benchmark.
     \item Count – This benchmark sends N messages to a single actor and waits for the actor to process all of the sent messages. It tests the time taken for N messages to be sent and then processed by an actor. Since the framework relies on the event loop, each and every sent message gets queued on the event queue. Node is considerably slower than the browser implementation with a high standard deviation on both sides. This may be due to the operating system having to allocate a considerable amount of memory in a short amount of time when queuing a large number of messages.
-    \item Fork Join (Throughput) – Similar to the count benchmark, it starts by sending N messages. However, they are sent to K actors in a round robin fashion instead of one counter actor. Similar performance is achieved to that of the count benchmark when sending the same number of messages.
-    \item Fork Join (create) – This benchmark creates N actors and sends each spawned actor a single message. It tests the spawning, sending and terminate functionality of the framework by spawning actors and sending one message to each which will cause the actors' termination. The performance is similar between the two environments with the browser being slightly slower.
-    \item Fibonacci – This benchmark is similar to fork join (create) as it creates new actors to recursively compute the n'th iteration of the Fibonacci sequence. It differs from fork join as the actors spawned earlier in the recursive loop live much longer than those which spawn near the base case. Despite this, similar relative performance is achieved between Node.js and browser
-    \item Chameneos – This benchmark spawns a single mall actor and N chameneos actors. Chameneos actors send to the mall actor to request to be matched with another chameneos, and then sends a message to themselves to send a message to the mall again. The benchmark tests contention on the mall actor, as it needs to match pairs of Chameneos while they create a lot of noise in the event queue. The mall then matches two Chameneos which sent a request, which will then exchange a state between each other. A lot of messages are queued, making this benchmark memory intensive, which may be the reason why node is significantly slower than browser similar to the count and fork join (throughput) benchmarks.
+    \item Fork-Join-Throughput – This benchmark starts by sending N messages. However, they are sent to K actors in a round robin fashion instead of one counter actor. Similar performance is achieved to that of the Count benchmark when sending the same number of messages.
+    \item Fork-Join-Create – This benchmark creates N actors and sends each spawned actor a single message. It tests the spawning, sending and terminate functionality of the framework by spawning actors and sending one message to each which will cause the actors' termination. The performance is similar between the two environments with the browser being slightly slower.
+    \item Fibonacci – This benchmark creates new actors to recursively compute the n'th iteration of the Fibonacci sequence. It differs from Fork-Join-Create as the actors spawned earlier in the recursive loop live much longer than those which spawn near the base case. Despite this, similar relative performance is achieved between Node.js and browser
+    \item Chameneos – This benchmark spawns a single mall actor and N Chameneos actors. Chameneos actors send to the mall actor to request to be matched with another Chameneos, and then sends a message to themselves to send a message to the mall again. The benchmark tests contention on the mall actor, as it needs to match pairs of Chameneos while they create a lot of noise in the event queue. The mall then matches two Chameneos which sent a request, which will then exchange a state between each other. A lot of messages are queued, making this benchmark memory intensive, which may be the reason why node is significantly slower than browser similar to the Count and Fork-Join-Throughput benchmarks.
     \item Big – This benchmark involves N actors picking random actors to send messages to. The recipient of the actor will then reply to the sender with a reply message. This tests many to many actors passing messages to each other, with node achieving slower performance than browser.
 \end{itemize}
-The Chameneos benchmark tests many actors sending messages to one actor, while big has many actors sending messages to random actors. This does not make a difference to the actor framework model as the concept of an actor is merely an abstraction. The framework acts as a wrapper around the runtime's single-threaded event loop and queue. Rather than all actors having their own mailbox and thread of control, a single JavaScript event loop is executing functions stored on a single event queue with the actor's state and received message as the context of its behaviour. Consequentially, similar performance is achieved for both benchmarks when comparing between the browser and Node.js environments.
+The Chameneos benchmark tests many actors sending messages to one actor, while Big has many actors sending messages to random actors. This does not make a difference to the actor framework model as the concept of an actor is merely an abstraction. The framework acts as a wrapper around the runtime's single-threaded event loop and queue. Rather than all actors having their own mailbox and thread of control, a single JavaScript event loop is executing functions stored on a single event queue with the actor's state and received message as the context of its behaviour. Consequentially, similar performance is achieved for both benchmarks when comparing between the browser and Node.js environments.
 
-Ping Pong and Thread Ring are another pair of benchmarks which execute the same effective load using our framework. The Thread Ring benchmark tests for any overhead introduced by having more actors forwarding the message. However, each actor is merely a saved object in the framework which stores the actor's state and behaviour and does not have any bearing on its runtime performance when sending and processing messages.
+Ping-Pong and Thread-Ring are another pair of benchmarks which execute the same effective load using our framework. The Thread-Ring benchmark tests for any overhead introduced by having more actors forwarding the message. However, each actor is merely a saved object in the framework which stores the actor's state and behaviour and does not have any bearing on its runtime performance when sending and processing messages.
 \subsection{Node.js and Browser Micro-Benchmark Load Scaling}
 \begin{figure}[H]
     \begin{centering}
@@ -333,9 +329,9 @@ Ping Pong and Thread Ring are another pair of benchmarks which execute the same 
         \caption{Node.js and Browser Micro-Benchmark Load Scaling}\label{fig:load_scaling}
     \end{centering}
 \end{figure}
-One can observe that big, chameneos, count and fork join throughput have the worst scaling when increasing load over both environments. All four of these involve large message queues, suggesting that JavaScript performs slower when more messages are in the event queue. The browser demonstrated approximately twice the slowdown for some of the benchmarks, which may be the result of less RAM being available on a browser instance than that of Node when queuing a large number of messages.
+One can observe that Big, Chameneos, Count and Fork-Join-Throughput have the worst scaling when increasing load over both environments. All four of these involve large message queues, suggesting that JavaScript performs slower when more messages are in the event queue. The browser demonstrated approximately twice the slowdown for some of the benchmarks, which may be the result of less RAM being available on a browser instance than that of Node when queuing a large number of messages.
 \subsection{Comparing Communication Links}
-The Ping Pong and Fork Join (create) benchmarks were tested on a network using different links. In this comparison, the fork join benchmark only involves the remote spawning of actors without them executing any behaviour such as terminating. This way the comparison narrows down the performance to sending (ping pong) and remote spawning (fork join).
+The Ping-Pong and Fork-Join-Create benchmarks were tested on a network using different links. In this comparison, the Fork-Join-Create benchmark only involves the remote spawning of actors without them executing any behaviour such as terminating. This way the comparison narrows down the performance to sending messages through the Ping-Pong benchmark and remote spawning through Fork-Join-Create.
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=320px]{resources/link.png}
@@ -346,7 +342,7 @@ Across both benchmarks, cluster and web workers are nearly identical in performa
 
 The WebSocket links are slower than the IPC alternative (Cluster and Web Workers) since they involve the network stack and introduce an additional network hop over the WebSocket server. Cluster and web workers use a direct link which is made between the spawner and the spawned worker; hence the message is not forwarded by an intermediary node. WebSocket performance would be improved if peer-to-peer connections between distributed instances were established.
 
-Furthermore, the number of actors which are remotely spawned in fork join create is equal to the number of messages sent in the ping pong benchmark. The fork join benchmark is about twice as slow since it involves sending twice the number of messages over the network. The first message is a request sent to the remote instance to remotely spawn an actor. When the remote instance spawns the actor locally, it sends an acknowledgement message with the actor's address embedded within.
+Furthermore, the number of actors which are remotely spawned in Fork-Join-Create is equal to the number of messages sent in the Ping-Pong benchmark. The Fork-Join-Create benchmark is about twice as slow since it involves sending twice the number of messages over the network. The first message is a request sent to the remote instance to remotely spawn an actor. When the remote instance spawns the actor locally, it sends an acknowledgement message with the actor's address embedded within.
 \subsection{Comparing with Existing Implementations}
 \begin{figure}[H]
     \begin{centering}
@@ -356,9 +352,9 @@ Furthermore, the number of actors which are remotely spawned in fork join create
 \end{figure}
 Our framework performs the fastest when messages are sent between actors. This is effectively the speed at which JavaScript can create and immediately resolve promises followed by minimal amount of work to create the next promise. Nact is much slower as it maintains a mailbox of messages using a queue and includes logic which checks if an actor is busy processing a message or not. This may be due to its features to persist actors and events on a database, which requires the framework to keep track of the current actor queues. Our framework benefits from acting as a wrapper around the event loop, as it directly makes use of the event queue to schedule tasks rather than performing the additional task of manipulating objects in memory. The JVM implementations prove to be more costly in general, where Scala required the throwing of exceptions~\cite{savina} to maintain the benchmark's control flow.
 
-The framework does not perform as well when spawning actors, ranking in the fourth worst when compared with the JVM implementations and Nact.  Spawning actors in Nact ran much slower then our framework due to Nact's more complex logic involved when creating an actor which may be attributed to Nact's support for hierarchies of actors. Meanwhile our framework simply keeps record of the actor in a global object and returns the reference to that actor. Akka performed the slowest from JVM's category which is in line with the benchmarks executed in Savina's paper.  However, no reasons have been given for Akka's slow actor creation.
+The framework does not perform as well when spawning actors, ranking in the fourth worst when compared with the JVM implementations and Nact.  Spawning actors in Nact ran much slower then our framework due to Nact's more complex logic involved when creating an actor which may be attributed to Nact's support for hierarchies of actors. Meanwhile our framework simply keeps record of the actor in a global object and returns the reference to that actor. Akka performed the slowest in the JVM category which is in line with the benchmarks executed in Savina's paper.  However, no reasons have been given for Akka's slow actor creation.
 
-These benchmarks were also implemented for Spiders.js. This framework failed to create the number of actors spawned when benchmarking Fork Join Create (one million actors). This is due to the framework creating a new child process for each spawned actor to grant them their own thread of control, causing each actor to be memory intensive. Spiders.js was also dramatically slower when running the ping pong benchmark compared to its JavaScript and JVM counterparts. A modified version of a provided ping pong example was used to implement this benchmark, and poor processor utilisation was observed when sending messages between the actors involved. Running the benchmark also slowly and continuously allocated a considerable amount of RAM, which should not be the case when the number of actors is constant and not more than one message is queued at a time.
+These benchmarks were also implemented for Spiders.js. This framework failed to create the number of actors spawned when benchmarking Fork-Join-Create (one million actors). This is due to the framework creating a new child process for each spawned actor to grant them their own thread of control, causing each actor to be memory intensive. Spiders.js was also dramatically slower when running the Ping-Pong benchmark compared to its JavaScript and JVM counterparts. A modified version of a provided Ping-Pong example was used to implement this benchmark, and poor processor utilisation was observed when sending messages between the actors involved. Running the benchmark also slowly and continuously allocated a considerable amount of RAM, which should not be the case when the number of actors is constant and not more than one message is queued at a time.
 \section{Parallel Performance}\label{section:parallel}
 \subsection{Shared Memory Parallelism}
 This subsection first demonstrates the parallel nature of the benchmarks and its results, followed by a mathematical explanation of each of the benchmarks.
@@ -412,7 +408,7 @@ In addition to the four workers and master hosted on the four-core device, new w
 \end{figure}
 \section{Case Study}
 While the quantitative analysis of the framework yielded sane results, the framework's ease of use is important for the developers making use of the API when engineering actor-based systems. This section focuses on two case studies which make use of the framework to create two communicating actors on a single instance as well as over a distributed network. The examples presented below work for both the Node.js and browser environments due to the framework implementations being fully interoperable. A manual for the framework's API can be found in Appendix~\ref{appendix:manual}.
-
+\newpage
 \begin{lstlisting}    
 import actors from 'actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
@@ -471,7 +467,7 @@ The prototype successfully provides an intuitive, scalable, and fairly performan
 
 Each of the dissertation's four objectives have been fully achieved. The two frameworks allow developers to spawn and send messages to actors on local Node.js and browser instances respectively. Messages are processed through the execution of the predefined behaviour of actors (Objective 1). Using several web technologies, developers are not limited to a single instance when spawning actors, as they can remotely spawn actors on remote browsers and Node.js instances (Objective 2). Once actors are spawned either locally or remotely, the framework internally handles local and remote communication without additional input required by the user (Objective 3, location transparency).
 
-The framework is evaluated using both qualitative and quantitative analysis (Objective 4). Qualitative benchmarks yielded sane results when using the Savina actor benchmark suite~\cite{savina}. The separate Node.js and browser frameworks demonstrated similar performance in most cases with reasonable standard error, and the provided communication links perform consistently across the different benchmarks. The performance of the prototype is compared with existing JavaScript and JVM implementations, achieving the fastest times for sending messages between actors and having them subsequently processed. The speedup of parallel actors was observed to be close to the ideal linear speedup when utilising up to four cores and achieves a reasonable speedup when distributed actors are introduced. 
+The framework is evaluated using both qualitative and quantitative analysis (Objective 4). Quantitative benchmarks yielded sane results when using the Savina actor benchmark suite~\cite{savina}. The separate Node.js and browser frameworks demonstrated similar performance in most cases with reasonable standard error, and the provided communication links perform consistently across the different benchmarks. The performance of the prototype is compared with existing JavaScript and JVM implementations, achieving the fastest times for sending messages between actors and having them subsequently processed. The speedup of parallel actors was observed to be close to the ideal linear speedup when utilising up to four cores and achieves a reasonable speedup when distributed actors are introduced. 
 
 The developed actor framework is not without its limitations. Distributed clients must connect to a provided WebSocket server to communicate with their peers. Each client must wait for the expected number of clients to connect before being allowed to communicate with each other, and communication over the server introduces an intermediary network hop. The distribution of actors could be done using peer-to-peer WebSocket connections at the cost of more complex synchronisation and requiring each client to listen for connections.
 
@@ -571,13 +567,13 @@ This section is concerned with the results observed when running the implementat
 
 The micro-benchmarks are run with the following configurations.
 \begin{itemize}
-    \item Ping Pong --- N = $1\times10^8$ (messages sent)
-    \item Thread Ring --- N = 10 (connected actors), H = $1\times10^8$ (messages sent)
+    \item Ping-Pong --- N = $1\times10^8$ (messages sent)
+    \item Thread-Ring --- N = 10 (connected actors), H = $1\times10^8$ (messages sent)
     \item Count --- N = $1\times10^7$ (successive messages to be sent)
-    \item Fork Join (throughput) --- N = $1\times10^6$ (messages sent to each actor), K = 10 (number of actors)
-    \item Fork Join (create) --- N = $1.5\times10^6$ (spawned actors)
-    \item Fibonacci --- N = 29 (fibonacci index)
-    \item Chameneos --- N = $1.2\times10^6$ (number of meetings between chameneos), C = 10 (number of chameneos)
+    \item Fork-Join-Throughput --- N = $1\times10^6$ (messages sent to each actor), K = 10 (number of actors)
+    \item Fork-Join-Create --- N = $1.5\times10^6$ (spawned actors)
+    \item Fibonacci --- N = 29 (Fibonacci index)
+    \item Chameneos --- N = $1.2\times10^6$ (number of meetings between Chameneos), C = 10 (number of Chameneos)
     \item Big --- N = 10 (number of actors), P = $5\times10^5$ (number of pings) 
 \end{itemize}
 \begin{table}[H]
@@ -620,13 +616,13 @@ This section is concerned with the micro-benchmark runtime scaling when the load
 Each benchmark has a chosen attribute which is modified to scale the load by a certain multiple. The rest of the attributes remain constant and unchanged from the configurations presented in Section~\ref{section:microcomparison}. The following list presents which attribute is chosen and its initial load. This initial load is multiplied by numbers from 1 to 10 to observe the scaling of execution time.
 
 \begin{itemize}
-    \item Ping Pong --- N = $1\times10^7$ (messages sent)
-    \item Thread Ring --- H = $1\times10^7$ (messages sent)
+    \item Ping-Pong --- N = $1\times10^7$ (messages sent)
+    \item Thread-Ring --- H = $1\times10^7$ (messages sent)
     \item Count --- N = $1\times10^6$ (successive messages to be sent)
-    \item Fork Join (throughput) --- K = 1 (number of actors)
-    \item Fork Join (create) --- N = $2\times10^5$ (spawned actors)
-    \item Fibonacci --- Could not scale due as fibonacci index increases load exponentially 
-    \item Chameneos --- N = $2\times10^5$ (number of meetings between chameneos)
+    \item Fork-Join-Throughput --- K = 1 (number of actors)
+    \item Fork-Join-Create --- N = $2\times10^5$ (spawned actors)
+    \item Fibonacci --- Could not scale due as Fibonacci index increases load exponentially 
+    \item Chameneos --- N = $2\times10^5$ (number of meetings between Chameneos)
     \item Big --- P = $1\times10^5$ (number of pings) 
 \end{itemize}
 
@@ -713,9 +709,9 @@ The same analysis is carried out using the browser framework, and the following 
     \end{center}
 \end{table}
 \section{Comparison of Communication Links}
-This section is concerned with the overhead introduced by using different communication links when executing the Ping Pong (message sending) and Fork Join Create (remote actor creation) benchmarks. These results are presented on Figure~\ref{fig:link}.
+This section is concerned with the overhead introduced by using different communication links when executing the Ping-Pong (message sending) and Fork-Join-Create (remote actor creation) benchmarks. These results are presented on Figure~\ref{fig:link}.
 
-For Ping Pong, $1\times10^5$ messages are sent between two remote actors. This is equal to the number of actors spawned in a modified version of Fork Join (create) which only remotely spawns actors without termination. This enables the reader to compare the execution time between remotely sending messages and remotely spawning actors.
+For Ping-Pong, $1\times10^5$ messages are sent between two remote actors. This is equal to the number of actors spawned in a modified version of Fork-Join-Create which only remotely spawns actors without termination. This enables the reader to compare the execution time between remotely sending messages and remotely spawning actors.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|llll|}
@@ -729,7 +725,7 @@ For Ping Pong, $1\times10^5$ messages are sent between two remote actors. This i
         AVG   & 1290    & 4269              & 1329.4     & 8342.2            \\
         SEM   & 24.16   & 134.86            & 41.15      & 214.61            \\ \hline
         \end{tabular}
-        \caption{Communication Link Comparision for Ping Pong Benchmark}\label{tab:pingpongcomms}
+        \caption{Communication Link Comparision for Ping-Pong Benchmark}\label{tab:pingpongcomms}
     \end{center}
 \end{table}
 \begin{table}[H]
@@ -745,13 +741,13 @@ For Ping Pong, $1\times10^5$ messages are sent between two remote actors. This i
         AVG   & 3498.8  & 9598.6            & 3240.2     & 17785.2           \\
         SEM   & 52.32   & 114.32            & 42.88      & 139.36            \\ \hline
         \end{tabular}
-        \caption{Communication Link Comparision for Fork Join Create Benchmark}\label{tab:fjcreatecomms}
+        \caption{Communication Link Comparision for Fork-Join-Create Benchmark}\label{tab:fjcreatecomms}
     \end{center}
 \end{table}
 \section{Savina Benchmark Comparison}
-The Savina~\cite{savina} benchmark suite provides JVM implementations for each of the defined benchmarks. The FYP and Nact~\cite{nact} implementations of the Savina micro-benchmarks of Ping Pong and Fork Join (create) are compared with the JVM implementations execution times when processing equal loads. The following results are presented in Figure~\ref{fig:savina}.
+The Savina~\cite{savina} benchmark suite provides JVM implementations for each of the defined benchmarks. The FYP and Nact~\cite{nact} implementations of the Savina micro-benchmarks of Ping-Pong and Fork-Join-Create are compared with the JVM implementations execution times when processing equal loads. The following results are presented in Figure~\ref{fig:savina}.
 
-The Ping Pong benchmark is executed across the different environment with an equal load of $1\times10^7$ sent messages, while the Fork Join Create spawns $1\times10^6$ actors.
+The Ping-Pong benchmark is executed across the different environment with an equal load of $1\times10^7$ sent messages, while the Fork-Join-Create spawns $1\times10^6$ actors.
 \begin{table}[H]
     \begin{center}
         \begin{tabular}{|l|ll|}
@@ -769,7 +765,7 @@ The Ping Pong benchmark is executed across the different environment with an equ
         Scala                    & 35359.67 & 171.73         \\
         Scalaz                   & 16222.42 & 118.66         \\ \hline
         \end{tabular}
-        \caption{Savina Ping Pong Comparision}\label{tab:savinapingpong}
+        \caption{Savina Ping-Pong Comparision}\label{tab:savinapingpong}
     \end{center}
 \end{table}
 \begin{table}[H]
@@ -789,7 +785,7 @@ The Ping Pong benchmark is executed across the different environment with an equ
         Scala                    & 801.25  & 65.39          \\
         Scalaz                   & 292     & 28.19          \\ \hline
         \end{tabular}
-        \caption{Savina Fork Join Create Comparision}\label{tab:savinafjcreate}
+        \caption{Savina Fork-Join-Create Comparision}\label{tab:savinafjcreate}
     \end{center}
 \end{table}
 \section{Node.js and Browser Shared Memory Speedup}
