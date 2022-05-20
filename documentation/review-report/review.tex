@@ -46,7 +46,6 @@
   breakatwhitespace=true,
   showstringspaces=false,
   tabsize=3,
-  numbers=left
 }
 
 \begin{document}
@@ -87,7 +86,9 @@ This dissertation will explore how to design and implement actor frameworks on t
 \end{enumerate}
 \section{Literature Review}
 \subsection{Concurrency and Parallelism on JavaScript}
-JavaScript is an implementation of the ECMAScript~\cite{ecmascript} design. The ECMA-262 language has multiple published editions, each of which serving as a blueprint for Javascript's next stable release. JavaScript relies on a single-threaded non-blocking event loop~\cite{eventloopbrowser, eventloopnode} which does not support parallelism, raising an issue when high performance computing~\cite{highperformance} is required. Browser Web Workers~\cite{webworkers} and Node.js child processes~\cite{nodejs, cluster} can be used to bring parallel computation to JavaScript~\cite{concurrencyjs, spidersjs}. A system achieves concurrency when multiple tasks or processes can progress at the same time~\cite{concurrency}. The sub processes communicate with each other to solve a particular task, without requiring knowledge of the full system implementation. Using JavaScript Promises~\cite{promises}, developers can manage the data returned by concurrently running asynchronous operations. JavaScript later developed the async/await syntax~\cite{async} where async functions always return a promise resolving into the value that is returned by the function. An await expression suspends the execution of an async function until the promise can be consumed, eliminating the need to define promise chains.
+JavaScript is an implementation of the ECMAScript~\cite{ecmascript} design. The ECMA-262 language has multiple published editions, each of which serving as a blueprint for Javascript's next stable release. JavaScript relies on a single-threaded non-blocking event loop~\cite{eventloopbrowser, eventloopnode} which does not support parallelism, raising an issue when high performance computing~\cite{highperformance} is required. Browser Web Workers~\cite{webworkers} and Node.js child processes~\cite{nodejs, cluster} can be used to bring parallel computation to JavaScript~\cite{concurrencyjs, spidersjs}. 
+
+A system achieves concurrency when multiple tasks or processes can progress at the same time~\cite{concurrency}. The sub processes communicate with each other to solve a particular task, without requiring knowledge of the full system implementation. Using JavaScript Promises~\cite{promises}, developers can manage the data returned by concurrently running asynchronous operations. JavaScript later developed the async/await syntax~\cite{async} where async functions always return a promise resolving into the value that is returned by the function. An await expression suspends the execution of an async function until the promise can be consumed, eliminating the need to define promise chains.
 
 \subsection{The History of the Actor Model}
 The actor model was first introduced by Carl Hewitt~\cite{hewitt1973session, 43years} in 1973 for research in artificial intelligence. It defines actors as computational agents which execute a uniform behaviour when sent a message. Hewitt argued that the actor metaphor can be applied to processes and daemons amongst other things. Two years later, Carl Hewitt helped in writing a draft of PLASMA~\cite{plasma, chewitthowto}, the first actor language. In this language, actors communicate with each other using messages and the receiver processes the received message using its pre-defined computation. Based on the message's contents, the actor may choose one from different behaviours which may involve sending messages to other actors.
@@ -111,24 +112,23 @@ Through the fulfillment of this dissertation's objectives, developers will be ab
 \subsubsection{Actor Design}
 Gul Agha's paper~\cite{agha1985actors} prompts the API to allow for the creation of actors and the ability to send communications to the spawned actors. Communications sent to actors will take the form of JavaScript objects due to their structural flexibility and conformity with Gul Agha's definition of a “tuple of values”. Actors are defined to have history sensitivity, which prompts for each actor to hold a local isolated state which will also take the form of a JavaScript object. The actor's behaviour will take the form of a conventional JavaScript callback function, which will have the actor's state, message and self address as function parameters. Since JavaScript provides first class functions, the behaviour definition is stored and called when required.
 
-The API will return an actor reference when one is spawned, which can then be fed into the send function as a parameter. The actor behaviour will be invoked when processing each received message and may manipulate the actor's state which is initially defined as a parameter when invoking the spawn function. The actor behaviour may also use the API to spawn and communicate with other actors.
+The API will return an actor reference when one is spawned, which can then be fed into the send function as a parameter. The actor behaviour will be invoked when processing each received message and may manipulate the actor's state which is initially defined as a parameter when invoking the spawn function. The actor behaviour may also use the API to spawn and communicate with other actors. Finally, a function to terminate an actor is provided, with the option for whether it should process its remaining messages. This function takes in an actor reference similar to the send function.
 \begin{figure}[H]
     \begin{centering}
         \includegraphics[width=200px]{resources/actors.png}
         \caption{Spawning Actors and Sending Messages}\label{fig:actors}
     \end{centering}
 \end{figure}
-Finally, a function to terminate an actor is provided, with the option for whether it should process its remaining messages. This function takes in an actor reference similar to the send function.
 \subsubsection{Actor Anatomy}
 An actor takes the form of an object which contains its maintained state as well as its behaviour as an executable function. Each actor stores a name so that it can be uniquely identified in a local instance, and a `node' number which allows other clients to uniquely identify the actor's network location. Whether the actor is processing messages is also stored. The TypeScript interface below defines what an actor is composed of.
 \begin{lstlisting}
 //TypeScript object interface for an Actor
 interface Actor {
-    name: string,                       //generated using uuidv4
-    node: number,                       //found in global variable
-    state: { [key: string]: any },      //given by developer
-    behaviour: ActorCallback,           //given by developer
-    active: boolean                     //starts with true
+    name: string,             
+    node: number,             
+    state: { [key: string]: any },  
+    behaviour: ActorCallback,
+    active: boolean          
 }
 \end{lstlisting}
 
