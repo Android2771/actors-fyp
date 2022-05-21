@@ -53,7 +53,7 @@ plt.bar(X_axis+0.1, browser_averages, width, color='steelblue',
 
 plt.xticks(X_axis, list(node_data.keys()), rotation=45, fontsize=14)
 plt.yticks(fontsize=15)
-plt.title('Micro-Benchmarks Node.js and Browser Comparision', fontsize=16)
+plt.title('Micro-Benchmarks Node.js and Browser Comparison', fontsize=16)
 plt.xlabel('Benchmark', fontsize=16)
 plt.ylabel('Time to execute (ms)', fontsize=17)
 plt.grid()

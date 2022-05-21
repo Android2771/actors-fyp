@@ -57,7 +57,7 @@
 % \tagline{some hyped-up tagline}      % tag line
 \author{Andrew Buhagiar}            % your full name
 \authorID{373801L}                   % your University Identifier
-\supervisor{Prof. Kevin Vella}              % your supervisor(s) name - no . in Dr
+\supervisor{Prof Kevin Vella}              % your supervisor(s) name - no . in Dr
 % \cosupervisor{Dr Who}                % your cosupervisor(s) name - no . in Dr *OPTIONAL* 
                                      % simply comment out the above line if absent
 
@@ -380,6 +380,13 @@ The Mandelbrot benchmark is not part of the Savina benchmark suite. Generating t
     \item $c$ is determined by the position of the pixel
     \item If $|z_n|> 2$ it is said to be unbounded and will generate a lighter pixel colour if $n$ is small. If it performs a set number of iterations and it is still bounded $(|z_n| \le 2)$, it yields a darker colour.
 \end{itemize}
+
+\begin{figure}[H]
+    \begin{centering}
+        \includegraphics[width=215px]{resources/mandelbrot.png}
+        \caption{Mandelbrot Set Image Generated using Distributed Actors}
+    \end{centering}
+\end{figure}
 Black pixels take longer to compute than white pixels, as the maximum number of iterations need to be performed to verify that the point in the Mandelbrot set remains bounded. For this reason, Mandelbrot could not be split into even chunks amongst workers as chunks which have more black pixels would take considerably longer to execute, resulting in some workers finishing faster than others, thus reducing efficiency. The master could compose each task to be a single row where once a worker is finished with a row, it is assigned the next required row. However, this would result in considerable message overhead as the number of messages exchanged between the master and its workers would be twice the image's height. A balance is struck between minimising message overhead and distributing even chunks by assigning smaller chunks to each worker. When the worker reports the results back, it is assigned the next required chunk.
 
 When workers do not report back the generated pixels to the master, the speedup goes up to 3.5 with four running workers. The slowdown may be attributed to the fact that the master is running on its own process (thus using five processes on four cores), as well as any other processes and daemons running on the operating system, which may have prevented the benchmark from fully utilising the CPU. The distributed chunk sizes may not have been, optimal resulting in some workers finishing earlier than others. There were also instances where workers were idle while waiting for the next task to be assigned by the master. When harvesting the chunk's pixel data from the workers, one can note that Node.js had more significant slowdown than the browser on four worker processes.

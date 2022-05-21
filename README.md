@@ -18,7 +18,7 @@ This project provides two JavaScript frameworks for building actor-based systems
 ## Contents of Note
 * `src` - Project source code directory
     * `nodeactors.ts` - Actor model framework for the Node.js environment
-    * `browseractors.js` - Actor model framework for the Browser envrionemtn
+    * `browseractors.js` - Actor model framework for the Browser environment
     * `network.ts` - WebSocket server which forwards communication between distributed Node.js and Browser instances
 * `benchmarks` - Benchmarks which test the source code's implementation, including raw data of its performance
     * `browser` - Benchmarks for the Browser framework
@@ -32,7 +32,7 @@ This project provides two JavaScript frameworks for building actor-based systems
 * `documentation` - Tex files and resources used to compile the required documentation 
 
 ## Using the API Locally
-You can interact with the framework through a set of exported functions. Further documentation of these functions can be found in its [node implementation](/src/actors.ts).
+You can interact with the framework through a set of exported functions. Further documentation of these functions can be found in its [node implementation](/src/nodeactors.ts).
 
 The functions can be spawned using ES6 modules as follows
 ```js
@@ -178,7 +178,7 @@ browser-sync
 
 The output can be viewed on the browser's console.
 ### Distribute Instances over WebSocket Connections
-WebSocket connections facilitate the communicaiton between different nodes and browsers. All clients using the actor framework may connect to a running [WebSocket server](src/network.js) using the init function.
+WebSocket connections facilitate the communication between different nodes and browsers. All clients using the actor framework may connect to a running [WebSocket server](src/network.js) using the init function.
 
 <p align="center">
   <img src="documentation/fyp-report/resources/websocketconnection.png" />
@@ -215,7 +215,7 @@ Instance 2 will console log out the values 5, 3, 1 for the ping actor while inst
 Note that the orchestration of instances 2 and 3 is managed by instance 1, including the function definitions of actor behaviours which are sent through the WebSocket link.
 
 ### Parallelise Work over Shared Memory
-While WebSockets can be used to facilitate communication between any node or browser running the actor framework, the programmer might wish to take advantage of shared memory to make up for JavaScript's single-threaded nature. The actor framework makes use of [Node.js Cluster](https://nodejs.org/api/cluster.html) or [WebWorkers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) to allow one to spawn multiple threads and use IPC to pass messages rather than the WebSocket link.
+While WebSockets can be used to facilitate communication between any node or browser running the actor framework, the programmer might wish to take advantage of shared memory to make up for JavaScript's single-threaded nature. The actor framework makes use of [Node.js Cluster](https://nodejs.org/api/cluster.html) or [Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) to allow one to spawn multiple threads and use IPC to pass messages rather than the WebSocket link.
 
 This is done by passing the init function's optional parameters. The second parameter specifies the timeout while the third parameter specifies the number of Web Workers or Node.js child processes to spawn.
 ```js
@@ -231,7 +231,7 @@ init('ws://localhost:8080', 10000, 2).then(async ready => {
 
 Note that an if statement is added since each spawned worker will connect to the WebSocket network and execute the code inside. It takes advantage of the unique naming convention between connected instances to have only the first connected node to execute a chunk of code. The same behaviour as the distributed WebSocket example above is replicated through the use of IPC instead.
 
-This will console log the decrementing numbers from 5 to 0, but one should note that the console logs came from different worker threads. Note that even though a connection with the WebSocket server was estasblihed through init's invocation, it is not relied on when remote spawning or sending messages. Instead, IPC is used where the primary node forwards the communication between the spawned worker nodes.
+This will console log the decrementing numbers from 5 to 0, but one should note that the console logs came from different worker threads. Note that even though a connection with the WebSocket server was established through init's invocation, it is not relied on when remote spawning or sending messages. Instead, IPC is used where the primary node forwards the communication between the spawned worker nodes.
 
 <p align="center">
   <img src="documentation/fyp-report/resources/websocketconnectioncomplex.png" />
@@ -256,7 +256,7 @@ pip3 install matplotlib numpy scipy
 ## Running the Benchmarks
 This section will go through executing each of the benchmarks which are presented on the report. The results obtained from running these benchmarks can then be visualised by using the python scripts discussed above.
 
-### Micro-Benchmarks Comparision
+### Micro-Benchmarks Comparison
 **RESULTS FOR THIS BENCHMARK CAN BE FOUND ON** `benchmarks/visualisations/data/micro`
 
 Execute the Savina implementation of the Micro-Benchmarks on Node.js
@@ -314,7 +314,7 @@ cd benchmarks/node/micro
 ```
 
 Collecting the scaling results of micro-benchmarks on browser involves gathering logs for different loads. Runtime information for executing a small load of each of the micro-benchmarks is to be saved as `1x.log`, and should be scaled up to `10x.log` for visualisation.
-### Communication Links Comparision
+### Communication Links Comparison
 **RESULTS FOR THIS BENCHMARK CAN BE FOUND ON** `benchmarks/visualisations/data/commlinks`
 
 For these benchmarks, a running WebSocket server is required which expects 2 clients
@@ -350,7 +350,7 @@ To run on the browser, the `index.html` file can be modified to run these benchm
 ```
 
 Refer to the previous benchmark on executing these benchmarks on a Google Chrome browser.
-### Savina Benchmarks Comparision
+### Savina Benchmarks Comparison
 **RESULTS FOR THIS BENCHMARK CAN BE FOUND ON** `benchmarks/visualisations/data/savina/`
 
 The JVM implementations for Ping Pong and Fork-Join (create) Micro-Benchmarks found on the [Savina Github Repository](https://github.com/shamsimam/savina) are run with the same configurations as this FYP's JavaScript implementation. These two micro-benchmarks are also implemented using [Nact](https://nact.xyz/) which can be found on `benchmarks/competitors/nact`.
