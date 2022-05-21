@@ -7,7 +7,7 @@ const actors: { [key: string]: Actor } = {};            //Object of actors
 let workers: { [key: number]: any } = {};               //Object of workers
 let primary = 0;                                        //Network number of spawner (if worker)
 let yourNetworkNumber = 0;                              //Network number of this client
-const remoteActors: { [key: string]: string } = {};
+const remoteActors: { [key: string]: string } = {};     //Object of unresolved remote actors
 
 let network: any;                                       //WebSocket object
 
@@ -110,7 +110,7 @@ const init = (url: string, timeout: number = 0x7fffffff, numWorkers: number = 0)
             switch (messageJson.header) {
                 case "ACK": 
                     //The acknowledgement sent from the server when receiving a request
-                    let exchanged = false;      //whether the set of network numbers have been exchanged between spawner and workers
+                    let exchanged = false;      //stores whether the set of network numbers have been exchanged between spawner and workers
 
                     if (cluster.isPrimary) {
                         //Primary node will fork the specified number of workers
@@ -165,7 +165,7 @@ const init = (url: string, timeout: number = 0x7fffffff, numWorkers: number = 0)
                     }
                     break;
                 case "READY":
-                    //This messages is broadcast by the WebSocket server when all clients are connected
+                    //This message is broadcast by the WebSocket server when all clients are connected
                     yourNetworkNumber = messageJson.yourNetworkNumber;
                     if (cluster.isWorker)
                         //Send network number to the spawner. The spawner will keep track of each of the network numbers
@@ -265,6 +265,7 @@ const spawnRemote = (node: number, state: object, behaviour: ActorBehaviour, tim
 const send = (actor: ActorReference, message: object): void => {
     if (actor.node === yourNetworkNumber) {
         const localActor = actors[actor.name];
+
         //Local send
         if (localActor) {
             //Schedule message on the JavaScript event loop
@@ -286,6 +287,7 @@ const send = (actor: ActorReference, message: object): void => {
  */
 const forward = (payload: any): void => {
     const modifiedPayload = { from: yourNetworkNumber, ...payload };
+    
     if (workers[payload.to] || payload.to === primary)
         //If it is one of the neighbouring cluster nodes...
         if (cluster.isPrimary)
