@@ -257,6 +257,7 @@ spawnRemote = (node: number, state: object, behaviour: ActorBehaviour, timeout: 
 \end{lstlisting}
 
 The \textbf{spawnRemote} function sends a request to spawn an actor to the remote node. The request has embedded within it the string representation of its behaviour, which is reconstructed as a function on the recipient end. On the recipient's side, the client spawns an actor with the sent behaviour and initial state. It locally generates the spawned actor's name and embeds it in an acknowledgement sent to the remote spawner. Once this acknowledgement is received by the spawner, it constructs the actor reference using the received actor name, and resolves the Promise.
+
 \subsection{Local Parallelism on Multicores}
 The WebSocket server provides distribution for any Node.js or browser client wishing to communicate with actors hosted on other connected clients. However, a developer might want to host multiple instances on a local multicore device to make up for JavaScript's single-threaded nature when distributing actors. The WebSocket server involves an intermediary network hop as well as the network layer, both of which can be avoided by using Node.js Cluster~\cite{nodejs, cluster} and browser Web Workers~\cite{webworkers}. These methods rely on inter-process communication (IPC), which allows direct communication between the spawner and the workers over shared memory. Each of the spawned workers can also be treated as separate instances when connected to the WebSocket server for communication with remote devices.
 
@@ -302,8 +303,8 @@ Unless otherwise stated, the following hardware and software was used to run the
     \item OS --- Ubuntu 20.04 focal (64 bit)
     \item CPU --- Intel Core i7--1065G7. 4 cores up to 3.9GHz with hyper-threading disabled
     \item RAM --- LPDDR4 16GB (2$\times$8GB) at 4267MHz
-    \item Node.js – v16.14.0
-    \item Google Chrome v100.0.4896.88 (Official Build)
+    \item Node.js –-- v16.14.0
+    \item Google Chrome --- v100.0.4896.88 (Official Build)
 \end{itemize}
 
 \section{Micro-Benchmark Performance}\label{section:microbenchmark}
@@ -315,6 +316,7 @@ The Savina benchmark suite defines micro-benchmarks which test specific actor ru
         \caption{Node.js and Browser Comparison for Micro-Benchmarks}\label{fig:micro}
     \end{centering}
 \end{figure}
+
 \begin{itemize}
 \item Ping-Pong – Two actors are spawned, which send messages to each other. Every time one actor receives the message, it decrements the integer value it receives and sends it back to the sender. This mainly tests the send functionality on a local instance, with Node.js being slightly faster at sending the same load of messages.
 \item Thread-Ring – Similar to Ping-Pong, the token containing the decrementing integer is now forwarded across $N$ actors. Instead of the message being sent back and forth, it is now forwarded to the next actor on the ring. The performance is nearly identical to that of Ping-Pong, as the framework does not perform context switching between actors. The JavaScript event loop merely executes the queued functions which process the actors' messages. $N$ was set to 10 actors and the initial decrementing integer value (which determines the load) was set to the same as the Ping-Pong benchmark.
