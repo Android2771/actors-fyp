@@ -2,7 +2,7 @@
 import actors from '../../../src/nodeactors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
-const N = process.argv.slice(2)[1] ? parseInt(progress.argv.slice(2)[1]) : 1200000;  //Number of meetings
+const N = process.argv.slice(2)[1] ? parseInt(process.argv.slice(2)[1]) : 1200000;  //Number of meetings
 const C = 10;      //Number of chameneos
 const rounds = parseInt(process.argv.slice(2)[0]);
 
