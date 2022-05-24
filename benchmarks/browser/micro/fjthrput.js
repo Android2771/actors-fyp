@@ -1,5 +1,5 @@
 // Tests messaging throughput
-import actors from '../actors.js';
+import actors from '../browseractors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 1000000;  //total messages to send to each actor

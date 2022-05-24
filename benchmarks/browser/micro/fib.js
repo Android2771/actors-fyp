@@ -1,5 +1,5 @@
 // Tests incremental actor creation and destruction
-import actors from '../actors.js';
+import actors from '../browseractors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 29;    //fibonacci index

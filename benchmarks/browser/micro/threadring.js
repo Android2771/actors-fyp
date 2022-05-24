@@ -1,5 +1,5 @@
 //Tests message sending and context switching bewteen actors
-import actors from '../actors.js';
+import actors from '../browseractors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10;       //Connected actors

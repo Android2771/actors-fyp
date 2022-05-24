@@ -1,4 +1,4 @@
-import actors from '../../../actors.js';
+import actors from '../../../browseractors.js';
 const { init, spawn, spawnRemote, terminate, send, closeConnection } = actors
 
 const constants = {
