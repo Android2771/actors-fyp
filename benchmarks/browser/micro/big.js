@@ -1,5 +1,5 @@
 // Tests contention on mailbox (many to many)
-import actors from '../actors.js';
+import actors from '../browseractors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10;   //Number of actors

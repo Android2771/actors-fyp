@@ -1,5 +1,5 @@
 //Tests message delivery overhead
-import actors from '../actors.js';
+import actors from '../browseractors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const N = 10000000;  //Successive messages to be sent

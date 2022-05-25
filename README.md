@@ -36,7 +36,7 @@ You can interact with the framework through a set of exported functions. Further
 
 The functions can be spawned using ES6 modules as follows
 ```js
-import actors from 'actors.js';
+import actors from 'actors.js';     //rename to browseractors.js or nodeactors.js as necessary
 const { init, closeConnection, spawn, spawnRemote, terminate, send} = actors;
 ```
 
@@ -124,11 +124,11 @@ tsc
 ```
 
 ### Running actors on a Single Node.js Instance
-You must import the transpiled [actors.js](src/actors.js) to make use of the framework in your own JavaScript files.
+You must import the transpiled [nodeactors.ts](src/nodeactors.ts) to make use of the framework in your own JavaScript files.
 
 You can reason about your code through the use of isolated communicating actors on a single instance. The following is a complete example of two communicating actors (ping and pong) using the same behaviour function. Both actors read a value embedded in the received message and decrements it before replying to the sender if the value is larger than 0. With an initial value of 5, ping will console log 5,3,1 and pong will console log 4,2,0.
 ```js
-import actors from 'actors.js';
+import actors from 'nodeactors.js';
 const { init, closeConnection, spawn, spawnRemote, terminate, send} = actors;
 
 //Define the behaviour of the two actors. (This behaviour definition is used in the rest of the examples in the README)
