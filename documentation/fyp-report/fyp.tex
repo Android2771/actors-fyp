@@ -76,16 +76,15 @@ I also extend my gratitude to my family for their investment which allowed me to
 \end{abstract}\if@openright\cleardoublepage\else\clearpage\fi
 \tableofcontents*\if@openright\cleardoublepage\else\clearpage\fi
 \listoffigures*\if@openright\cleardoublepage\else\clearpage
-\listoftables*\if@openright\cleardoublepage\else\clearpage\begin{figure}
-    
-\end{figure}
+\listoftables*\if@openright\cleardoublepage\else\clearpage
+
 \mainmatter
 \chapter{Introduction}\label{chap:intro}
 \section{Motivation}
 %Why JavaScript
 The JavaScript programming language~\cite{ecmascript} is widely used for client applications on the browser and benefits from a growing popularity of server-side applications using environments such as Node.js~\cite{nodejs}. It is a single-threaded language which lacks an intuitive way to program in a parallel and distributed fashion. 
 
-This dissertation presents an artefact which enables developers to build actor-based~\cite{hewitt1973session, 43years} systems in JavaScript. Developers can use actors as concurrent units of computation which can be deployed either locally or remotely on multiple Node.js runtimes and browsers. This allows developers to intuitively distribute work amongst multiple processors and devices to fully utilise the hardware available in servers and modern computers.
+This dissertation presents an artefact which enables developers to build actor-based\\\cite{hewitt1973session, 43years} systems in JavaScript. Developers can use actors as concurrent units of computation which can be deployed either locally or remotely on multiple Node.js runtimes and browsers. This allows developers to intuitively distribute work amongst multiple processors and devices to fully utilise the hardware available in servers and modern computers.
 
 %Why Actors
 Actors communicate with each other using messages, which are stored in the receiving actor's message queue. A message is processed by executing its predefined actor behaviour. The actor model is a good fit for JavaScript's event loop~\cite{eventloopbrowser, eventloopnode} as they are both event-driven, and the model has already achieved success in the telecommunications industry~\cite{erlang}. It has also been recently used for implementing distributed systems in languages such as Erlang and Scala/Akka~\cite{haller2012integration}.
@@ -286,13 +285,13 @@ Unless otherwise stated, the following hardware and software was used to run the
     \item Node.js --- v16.14.0
     \item Google Chrome --- v100.0.4896.88 (Official Build)
 \end{itemize}
-
+\newpage
 \section{Micro-Benchmark Performance}\label{section:microbenchmark}
 \subsection{Comparing Local Node.js to Browser Performance}
 The Savina benchmark suite defines micro-benchmarks which test specific actor runtime features. Figure~\ref{fig:micro} compares the execution times between the browser and Node.js implementations of Savina's micro-benchmarks. The diagram is followed by an explanation and analysis of each of the executed benchmarks from left to right.
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=300px]{resources/micro.png}
+        \includegraphics[width=270px]{resources/micro.png}
         \caption{Node.js and Browser Comparison for Micro-Benchmarks}\label{fig:micro}
     \end{centering}
 \end{figure}
@@ -324,7 +323,7 @@ One can observe that Big, Chameneos, Count and Fork-Join-Throughput have the wor
 The Ping-Pong and Fork-Join-Create benchmarks were tested on a network using different links. In this comparison, the Fork-Join-Create benchmark only involves the remote spawning of actors without them executing any behaviour, such as terminating. This way, the comparison narrows down the performance to sending messages through the Ping-Pong benchmark and remote spawning through Fork-Join-Create.
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=320px]{resources/link.png}
+        \includegraphics[width=300px]{resources/link.png}
         \caption{Comparison of Communication Links}\label{fig:link}
     \end{centering}
 \end{figure}
@@ -401,7 +400,7 @@ The following benchmark experiments with having actors hosted across distributed
 In addition to the four workers and master hosted on the four-core device, new workers are incrementally added and connected to the WebSocket server on the new device. While avoiding data harvesting to minimise the network dependency, one can observe a consistent speedup when adding more workers on the second device, with Node.js achieving slightly better speedup with a larger number of workers. Despite network overhead being introduced when distributing actors over the network, the second device makes up for this with its faster processing time.
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=350px]{resources/distributed_memory_speedup.png}
+        \includegraphics[width=280px]{resources/distributed_memory_speedup.png}
         \caption{Node.js and Browser Comparison for Distributed Memory Speedup}\label{fig:distributed_memory_speedup}
     \end{centering}
 \end{figure}
@@ -432,6 +431,7 @@ Two actors are spawned with this behaviour, and the system is initialised by sen
 The functionality demonstrated above can be easily replicated without the framework by using function calls and JavaScript Promises. However, by using the actor framework API, one can distribute the ping and pong actors across separate machines with minimal change in the code's logic. The provided WebSocket server needs to be started and set to expect three connected clients. 
 
 One machine connects to the WebSocket server and uses the \textbf{spawnRemote} function instead of \textbf{spawn}, which requires an additional parameter to specify which remote machine spawns the actor.
+\newpage
 \begin{lstlisting}
 init('ws://localhost:8080').then(async ready => {
     const pingActorRef = await spawnRemote(2, {}, pingPongBehaviour);
