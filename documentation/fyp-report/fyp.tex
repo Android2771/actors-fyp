@@ -85,16 +85,16 @@ I also extend my gratitude to my family for their investment which allowed me to
 %Why JavaScript
 The JavaScript programming language~\cite{ecmascript} is widely used for client applications on the browser and benefits from a growing popularity of server-side applications using environments such as Node.js~\cite{nodejs}. It is a single-threaded language which lacks an intuitive way to program in a parallel and distributed fashion. 
 
-This dissertation presents an artefact which enables developers to build actor-based~\cite{hewitt1973session, 43years} systems. Developers can use actors as concurrent units of computation which can be deployed either locally or remotely on multiple Node.js runtimes and browsers. This allows developers to intuitively distribute work amongst multiple processors and devices to fully utilise the hardware available in servers and modern computers.
+This dissertation presents an artefact which enables developers to build actor-based~\cite{hewitt1973session, 43years} systems in JavaScript. Developers can use actors as concurrent units of computation which can be deployed either locally or remotely on multiple Node.js runtimes and browsers. This allows developers to intuitively distribute work amongst multiple processors and devices to fully utilise the hardware available in servers and modern computers.
 
 %Why Actors
 Actors communicate with each other using messages, which are stored in the receiving actor's message queue. A message is processed by executing its predefined actor behaviour. The actor model is a good fit for JavaScript's event loop~\cite{eventloopbrowser, eventloopnode} as they are both event-driven, and the model has already achieved success in the telecommunications industry~\cite{erlang}. It has also been recently used for implementing distributed systems in languages such as Erlang and Scala/Akka~\cite{haller2012integration}.
 
 %The Frameworks
-The developed prototype takes the form of multiple frameworks for the browser and Node.js environments respectively. The frameworks' interoperable API abstract the prototype's internal mechanisms which spawn and interact with actors, allowing developers to intuitively make use of the actor model in their code.
+The developed prototype takes the form of multiple frameworks for the browser and Node.js environments respectively. The frameworks' interoperable API abstracts the prototype's internal mechanisms which spawn and interact with actors, allowing developers to intuitively make use of the actor model in their code.
 
 \section{Objectives}\label{section:objectives}
-This dissertation will explore how to design and implement actor frameworks for the JavaScript language. The frameworks' suitability will be assesed on the basis of performance, scalibility, and intuitiveness of use. The objectives of the study are as follows:
+This dissertation will explore how to design and implement actor frameworks for the JavaScript language. The frameworks' suitability will be assessed on the basis of performance, scalibility, and intuitiveness of use. The objectives of the study are as follows:
 \begin{enumerate}
     \item Allow developers to easily define and spawn actors through the framework API on \\Node.js or a browser. Actors should be able to send messages to each other as well as spawn more actors. Full interoperability should be provided when using the framework across the two environments.
     \item Allow developers to spawn and interact with actors residing in different Node.js and browser instances through different network links. Node.js Cluster~\cite{cluster} can be used for IPC between node processes, while Web Workers~\cite{webworkers} can be used for communication between the primary thread and its spawned workers. When such communication links are not available, the network stack is involved by using WebSockets~\cite{websocket} for flexible communication to link remote processes and devices.
@@ -274,12 +274,14 @@ When remotely spawning actors using the \textbf{spawnRemote} function, the devel
 
 The convenience of location transparency is provided through the WebSocket server, which provides unique names to each of the connected clients. Actors on different clients in the network communicate with each other through the WebSocket server, which routes each of the messages accordingly. This comes at the cost of having each of the distributed nodes relying on a potentially failing central point.
 \chapter{Evaluation}\label{chap:evaluation}
-This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina~\cite{savina} is a benchmark suite defined for actor-based systems which is implemented using this disseration's framework. Section~\ref{section:microbenchmark} explores each of Savina's micro-benchmarks, which measure overheads introduced when using the framework's basic functionality. Section~\ref{section:parallel} explores parallel benchmarks which expect a linear increase in performance with each added working actor. Benchmark configurations as well as raw data can be found in Appendix~\ref{appendix:results}.
+This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina~\cite{savina} is a benchmark suite defined for actor-based systems which is implemented using this disseration's framework. Section~\ref{section:microbenchmark} explores each of Savina's micro-benchmarks, which measure overheads introduced when using the framework's basic functionality. Section~\ref{section:parallel} explores parallel benchmarks which expect a linear increase in performance with each added working actor. Benchmark configurations as well as raw data can be found in Appendix~\ref{appendix:results}. 
+
+Measures were taken to address various threats to validity of the obtained results, mainly centered around ensuring that a stable computing environment was provided. Benchmarks were mainly run on a fresh Ubuntu install to minimise the number of running background processes. Hyper-threading was disabled to ensure that each single-threaded JavaScript instance makes use of exactly one core. Each benchmark is run multiple times to observe the variance and standard error when extracting the average result.
 
 Unless otherwise stated, the following hardware and software was used to run the benchmarks.
 \begin{itemize}
     \item OS --- Ubuntu 20.04 focal (64 bit)
-    \item CPU --- Intel Core i7--1065G7. 4 cores up to 3.9GHz with hyper-threading disabled
+    \item CPU --- Intel Core i7--1065G7. 4 cores at 3.9GHz with hyper-threading disabled
     \item RAM --- LPDDR4 16GB (2$\times$8GB) at 4267MHz
     \item Node.js --- v16.14.0
     \item Google Chrome --- v100.0.4896.88 (Official Build)
@@ -290,7 +292,7 @@ Unless otherwise stated, the following hardware and software was used to run the
 The Savina benchmark suite defines micro-benchmarks which test specific actor runtime features. Figure~\ref{fig:micro} compares the execution times between the browser and Node.js implementations of Savina's micro-benchmarks. The diagram is followed by an explanation and analysis of each of the executed benchmarks from left to right.
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=\textwidth]{resources/micro.png}
+        \includegraphics[width=300px]{resources/micro.png}
         \caption{Node.js and Browser Comparison for Micro-Benchmarks}\label{fig:micro}
     \end{centering}
 \end{figure}
@@ -371,7 +373,7 @@ The Mandelbrot benchmark is not part of the Savina benchmark suite. Generating t
 \end{figure}
 Black pixels take longer to compute than white pixels, as the maximum number of iterations need to be performed to verify that the point in the Mandelbrot set remains bounded. For this reason, Mandelbrot could not be split into even pixel chunks amongst workers as chunks which have more black pixels would take considerably longer to execute, resulting in some workers finishing faster than others, thus reducing efficiency. The master could compose each task to be a single row where once a worker is finished with a row, it is assigned the next required row. However, this would result in considerable message overhead as the number of messages exchanged between the master and its workers would be twice the image's height. A balance is struck between minimising message overhead and distributing even chunks by assigning smaller chunks to each worker. When the worker reports the results back, it is assigned the next required chunk.
 
-When workers do not report back the generated pixels to the master, the speedup goes up to 3.5 with four running workers. The slowdown may be attributed to the fact that the master is running on its own process (thus using five processes on four cores), as well as any other processes and daemons running on the operating system, which may have prevented the benchmark from fully utilising the CPU. The distributed chunk sizes may not have been, optimal resulting in some workers finishing earlier than others. There were also instances where workers were idle while waiting for the next task to be assigned by the master. When harvesting the chunk's pixel data from the workers, one can note that Node.js had more significant slowdown than the browser on four worker processes.
+When workers do not report back the generated pixels to the master, the speedup goes up to 3.5 with four running workers. The slowdown may be attributed to the fact that the master is running on its own process (thus using five processes on four cores), as well as any other processes and daemons running on the operating system, which may have prevented the benchmark from fully utilising the CPU. The distributed chunk sizes may not have been optimal resulting in some workers finishing earlier than others. There were also instances where workers were idle while waiting for the next task to be assigned by the master. When harvesting the chunk's pixel data from the workers, one can note that Node.js had more significant slowdown than the browser on four worker processes.
 \subsubsection{Pi Precision and Trapezoidal Approximation}
 The value of pi computation as well as the trapezoidal approximation benchmarks involve a master actor distributing iterations of mathematical computation to worker actors.
 
@@ -405,7 +407,6 @@ In addition to the four workers and master hosted on the four-core device, new w
 \end{figure}
 \section{Case Study}
 While the quantitative analysis of the framework yielded sane results, the framework's ease of use is important for the developers making use of the API when engineering actor-based systems. This section focuses on two case studies which make use of the framework to create two communicating actors on a single instance as well as over a distributed network. The examples presented below work for both the Node.js and browser environments due to the framework implementations being fully interoperable. A manual for the frameworks' API can be found in Appendix~\ref{appendix:manual}.
-\newpage
 \begin{lstlisting}    
 import actors from 'actors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
@@ -487,7 +488,7 @@ Grounded in the actor model's theory, the prototype complements the internet's d
 \chapter{Media}\label{appendix:media}
 This dissertation's artefact can be accessed through the following means:
 \begin{itemize}
-\item Github Repository --- \url{https://github.com/Android2771/actors-fyp}. One may request access to the private repository by getting in contact with the author.
+\item GitHub Repository --- \url{https://github.com/Android2771/actors-fyp}. One may request access to the private repository by getting in contact with the author.
 \item Google Drive Link --- \url{https://drive.google.com/drive/folders/17SXGm4jH9wzs7wU5a3R5CNEewjWGqoVh?usp=sharing}
 \item Any provided physical media with the dissertation such as a CD
 \end{itemize}
