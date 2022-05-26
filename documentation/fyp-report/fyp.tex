@@ -66,13 +66,13 @@ I thank Prof.\ Kevin Vella for his continuous support, patience, and advice whic
 I also extend my gratitude to my family for their investment which allowed me to pursue my studies.
 \end{acknowledgements}
 \begin{abstract}
-\hspace{5mm}This dissertation explores the suitability of the actor model when used to bring concurrency and parallelism to JavaScript. Actors are concurrent isolated units of computation which process messages using their predefined behaviour. The implementation takes the form of two APIs for both the Node.js and browser environments respectively, allowing developers to intuitively reason about engineering JavaScript programs through the spawning and sending of messages to actors.
+\hspace{5mm}This dissertation explores the suitability of the actor model when used to bring concurrency and parallelism to JavaScript. Actors are concurrent isolated units of computation which process messages using their predefined behaviour. The prototype takes the form of two frameworks for both the Node.js and browser environments respectively, allowing developers to intuitively reason about engineering JavaScript programs through the spawning and sending of messages to actors.
 
-\hspace{5mm}Isolated actors can be safely spawned on remote devices over a network as well as utilise multiple cores on a local processor. This allows for distributed and parallel computation which have the potential of shortening the time taken when executing computationally intensive tasks. A WebSocket server is used to connect a finite number of Node.js instances and browsers hosting actors over the network. Faster communication links are explored using inter-process communication when hosting multiple processes on a local device. The framework abstracts the adaptive use of different communication links and provides location transparency for remote actors.
+\hspace{5mm}Isolated actors can be safely spawned on remote devices over a network as well as utilise multiple cores on a local processor. This allows for distributed and parallel computation which have the potential of shortening the time taken when executing computationally intensive tasks. A WebSocket server is used to connect a finite number of Node.js instances and browsers hosting actors over the network. Faster communication links are explored using inter-process communication when hosting multiple processes on a local device. The prototype abstracts the adaptive use of different communication links and provides location transparency for remote actors.
 
-\hspace{5mm}Benchmarks analyse the framework's performance when used on a single instance using Node.js or a browser, as well as the speedup introduced when utilising additional local or distributed cores working on the same task. This dissertation's framework is evaluated against existing JVM and JavaScript actor framework implementations. This dissertation's framework performs Savina benchmarks faster than other actor frameworks and demonstrates near linear performance when distributing a task over multiple cores. The relative performance of the communication links used when distributing actors is also explored.
+\hspace{5mm}Benchmarks analyse the frameworks' performance when used on a single instance using Node.js or a browser, as well as the speedup introduced when utilising additional local or distributed cores working on the same task. This dissertation's implementation is evaluated against existing JVM and JavaScript actor framework implementations. It performs Savina benchmarks faster than other actor frameworks while demonstrating near linear performance when distributing a task over multiple cores. The relative performance of the communication links used when distributing actors is also explored.
 
-\hspace{5mm}Browsers are found on devices such as smart fridges and TVs, each of which is able to run JavaScript defined behaviour. Using this framework, Node.js server-side applications would be able to host actors which can communicate with actors hosted on browsers, enabling uniform and flexible scaling of applications. Moreover, the limitations of the framework are discussed, as well as its untapped potential when it comes to freezing and migrating actors across the web.
+\hspace{5mm}Browsers are found on devices such as smart fridges and TVs, each of which is able to run JavaScript defined behaviour. Using this prototype, Node.js server-side applications would be able to host actors which can communicate with actors hosted on browsers, enabling uniform and flexible scaling of applications. Moreover, the limitations of the prototype are discussed, as well as its untapped potential when it comes to freezing and migrating actors across the web.
 \end{abstract}\if@openright\cleardoublepage\else\clearpage\fi
 \tableofcontents*\if@openright\cleardoublepage\else\clearpage\fi
 \listoffigures*\if@openright\cleardoublepage\else\clearpage
@@ -84,13 +84,13 @@ I also extend my gratitude to my family for their investment which allowed me to
 %Why JavaScript
 The JavaScript programming language~\cite{ecmascript} is widely used for client applications on the browser and benefits from a growing popularity of server-side applications using environments such as Node.js~\cite{nodejs}. It is a single-threaded language which lacks an intuitive way to program in a parallel and distributed fashion. 
 
-This dissertation presents an artefact which enables developers to build actor-based\\\cite{hewitt1973session, 43years} systems in JavaScript. Developers can use actors as concurrent units of computation which can be deployed either locally or remotely on multiple Node.js runtimes and browsers. This allows developers to intuitively distribute work amongst multiple processors and devices to fully utilise the hardware available in servers and modern computers.
+This dissertation presents a prototype which enables developers to build actor-based\\\cite{hewitt1973session, 43years} systems in JavaScript. Developers can use actors as concurrent units of computation which can be deployed either locally or remotely on multiple Node.js runtimes and browsers. This allows developers to intuitively distribute work amongst multiple processors and devices to fully utilise the hardware available in servers and modern computers.
 
 %Why Actors
 Actors communicate with each other using messages, which are stored in the receiving actor's message queue. A message is processed by executing its predefined actor behaviour. The actor model is a good fit for JavaScript's event loop~\cite{eventloopbrowser, eventloopnode} as they are both event-driven, and the model has already achieved success in the telecommunications industry~\cite{erlang}. It has also been recently used for implementing distributed systems in languages such as Erlang and Scala/Akka~\cite{haller2012integration}.
 
 %The Frameworks
-The developed prototype takes the form of multiple frameworks for the browser and Node.js environments respectively. The frameworks' interoperable API abstracts the prototype's internal mechanisms which spawn and interact with actors, allowing developers to intuitively make use of the actor model in their code.
+The developed prototype takes the form of two frameworks for the browser and Node.js environments respectively. The frameworks' interoperable API abstracts the prototype's internal mechanisms which spawn and interact with actors, allowing developers to intuitively make use of the actor model in their code.
 
 \section{Objectives}\label{section:objectives}
 This dissertation will explore how to design and implement actor frameworks for the JavaScript language. The frameworks' suitability will be assessed on the basis of performance, scalibility, and intuitiveness of use. The objectives of the study are as follows:
@@ -389,7 +389,7 @@ This is done by executing Equation~\ref{eq:trapapprox} with respect to $f(x)$ us
 \int_{a}^{b}f(x)dx\approx\frac{b-a}{N}\left[ \frac{f(a)+f(b)}{2}+\sum_{k=1}^{N-1}f\left( a+k\cdot\frac{b-a}{N} \right) \right]
 \end{equation}
 \subsection{Distributed Memory Parallelism}
-The following benchmark experiments with having actors hosted across distributed memories. A Raspberry Pi 4 is used to host a WebSocket server, which handles the forwarding of messages between the connected devices. The scaling of the Mandelbrot benchmark without harvesting pixel data over Node.js and browsers has already been explored up to four worker instances over shared memory. Figure~\ref{fig:distributed_memory_speedup} shows the speedup introduced when connecting two devices to the Raspberry Pi WebSocket server. The connections are made locally using a 5GHz WiFi connection, with an observed speed of 50Mbps when transferring data to and from the server. The device that was used to execute the previous benchmarks is the first device which is connected to the device, while the second device is described as follows: 
+The following benchmark experiments with having actors hosted across distributed memories. A Raspberry Pi 4 is used to host a WebSocket server, which handles the forwarding of messages between the connected devices. The scaling of the Mandelbrot benchmark without harvesting pixel data over Node.js and browsers has already been explored up to four worker instances over shared memory. Figure~\ref{fig:distributed_memory_speedup} shows the speedup introduced when connecting two devices to the Raspberry Pi WebSocket server. The connections are made locally using a 5GHz WiFi connection, with an observed speed of 50Mbps when transferring data to and from the server. The device that was used to execute the previous benchmarks is first connected to the network, while the second connected device is described as follows: 
 \begin{itemize}
     \item OS --- Windows 10 Home (64 bit)
     \item CPU --- Intel Core i5--10500 6 cores up to 3.10GHz with hyper-threading enabled
@@ -488,12 +488,12 @@ Grounded in the actor model's theory, the prototype complements the internet's d
 \chapter{Media}\label{appendix:media}
 This dissertation's artefact can be accessed through the following means:
 \begin{itemize}
-\item GitHub Repository --- \url{https://github.com/Android2771/actors-fyp}. One may request access to the private repository by getting in contact with the author.
 \item Google Drive Link --- \url{https://drive.google.com/drive/folders/17SXGm4jH9wzs7wU5a3R5CNEewjWGqoVh?usp=sharing}
+\item GitHub Repository --- \url{https://github.com/Android2771/actors-fyp}. One may request access to the private repository by getting in contact with the author.
 \item Any provided physical media with the dissertation such as a CD
 \end{itemize}
 
-The artefact was also sent to the ICT Administrator. The artefact contains the following contents:
+The artefact was also sent to the ICT Administrator, containing the following contents:
 \begin{itemize}
 \item A soft-copy of this report
 \item README containing instructions to make use of the project

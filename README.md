@@ -1,4 +1,4 @@
-# ActorsFYP
+# JavaScript Framework for Actor-Based Programming
 This project provides two JavaScript frameworks for building actor-based systems on both the Node.js and browser environments respectively. 
 
 ## Features
