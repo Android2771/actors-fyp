@@ -215,7 +215,7 @@ The Savina benchmark suite defines parallel benchmarks where multiple actors per
     \end{centering}
 \end{figure}
 \subsection{Distributed Memory Performance}
-The following benchmark experiments with having actors hosted across distributed memories collaborating in rendering a Mandelbrot~\cite{mandelbrot} image without harvesting. A Raspberry Pi 4 is used to host a WebSocket server, which handles the forwarding of messages between the connected devices. The diagram below shows the speedup introduced when connecting a new device on the network with the following specifications.
+The following benchmark experiments with having actors hosted across distributed memories collaborating in rendering an image of the Mandelbrot set~\cite{mandelbrot} without harvesting. A Raspberry Pi 4 is used to host a WebSocket server, which handles the forwarding of messages between the connected devices. The diagram below shows the speedup introduced when connecting a new device on the network with the following specifications.
 \begin{itemize}
     \item OS --- Windows 10 Home (64 bit)
     \item CPU --- Intel Core i5--10500 6 cores up to 3.10GHz with hyper-threading enabled
@@ -229,7 +229,7 @@ In addition to the four workers and master hosted on the four-core device, new w
     \end{centering}
 \end{figure}
 \subsection{Single Instance Actor Based System Case Study}
-When making use of actors in a single instance, the developer is required to make use of three API functions taking in two parameters each. These functions allow the developer to \textbf{spawn} actors, \textbf{send} messages to them, and \textbf{terminate} them to free up memory. The example below makes use of these three API functions to build two communicating actors which will send messages to each other. The first actor outputs the values 5, 3 and 1, while the second actor will output the values 4 and 2, as they send each other decrementing values until both terminate when receiving a value of 0 or less.
+When making use of actors in a single instance, the developer is required to make use of three API functions taking in two parameters each. These functions allow the developer to \textbf{spawn} actors, \textbf{send} messages to them, and \textbf{terminate} them to free up memory. The example below makes use of these three API functions to build two communicating actors which send messages to each other. The first actor outputs the values 5, 3 and 1, while the second actor outputs the values 4 and 2, as they send each other decrementing values until both terminate when receiving a value of 0 or less.
 \begin{lstlisting}    
 import actors from 'actors.js';
 const {spawn, terminate, send} = actors
