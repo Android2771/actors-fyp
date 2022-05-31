@@ -210,7 +210,7 @@ The Savina benchmark suite defines micro-benchmarks which test specific actor ru
 The Savina benchmark suite defines parallel benchmarks where multiple actors perform computation in parallel to complete a task. Each of the explored parallel benchmarks in the dissertation benefit from master-worker parallelism, where a master actor farms tasks to worker actors which will start execution in parallel. Then, the workers report their results to the master, which aggregates the collected data, producing the final result. The framework is tested by first executing the benchmark using only one master and one worker in separate runtimes, where the worker is limited by JavaScript's single-threaded nature.  Next, two workers are spawned on separate runtimes, each of which is ideally assigned half of the computational load by the master. Since the framework is tested on a system which houses four cores, the benchmarks are scaled up to four worker runtimes running in parallel. The speedup introduced over running on one worker is tested and plotted in the figure below, where near linear results can be observed.
 \begin{figure}[H]
     \begin{centering}
-        \includegraphics[width=230px]{resources/browser_speedup.png}
+        \includegraphics[width=250px]{resources/browser_speedup.png}
         \caption{Browser Shared Memory Speedup}
     \end{centering}
 \end{figure}
