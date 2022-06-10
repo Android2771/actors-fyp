@@ -273,7 +273,7 @@ When remotely spawning actors using the \textbf{spawnRemote} function, the devel
 
 The convenience of location transparency is provided through the WebSocket server, which provides unique names to each of the connected clients. Actors on different clients in the network communicate with each other through the WebSocket server, which routes each of the messages accordingly. This comes at the cost of having each of the distributed nodes relying on a potentially failing central point.
 \chapter{Evaluation}\label{chap:evaluation}
-This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina~\cite{savina} is a benchmark suite defined for actor-based systems which is implemented using this disseration's framework. Section~\ref{section:microbenchmark} explores each of Savina's micro-benchmarks, which measure overheads introduced when using the framework's basic functionality. Section~\ref{section:parallel} explores parallel benchmarks which expect a linear increase in performance with each added working actor. Benchmark configurations as well as raw data can be found in Appendix~\ref{appendix:results}. 
+This chapter evaluates the developed prototype's performance when executing computationally intensive tasks. Savina~\cite{savina} is a benchmark suite defined for actor-based systems which is partially implemented using this disseration's Node.js and browser frameworks. This partial implementation includes each of Savina's micro-benchmarks as well as the Precise Pi Computation and Trapezoidal Approximation parallelism benchmarks. Section~\ref{section:microbenchmark} explores each of Savina's micro-benchmarks, which measure overheads introduced when using the framework's basic functionality. Section~\ref{section:parallel} explores parallel benchmarks which expect a linear increase in performance with each added working actor. Benchmark configurations as well as raw data can be found in Appendix~\ref{appendix:results}. 
 
 Measures were taken to address various threats to validity of the obtained results, mainly centered around ensuring that a stable computing environment was provided. Benchmarks were mainly run on a fresh Ubuntu install to minimise the number of running background processes. Hyper-threading was disabled to ensure that each single-threaded JavaScript instance makes use of exactly one core. Each benchmark is run multiple times to observe the variance and standard error when extracting the average result.
 
@@ -327,7 +327,7 @@ The Ping-Pong and Fork-Join-Create benchmarks were tested on a network using dif
         \caption{Comparison of Communication Links}\label{fig:link}
     \end{centering}
 \end{figure}
-Across both benchmarks, Cluster and Web Workers are nearly identical in performance. Node.js uses an npm package to interface with the WebSocket server while the browser uses the available WebSocket functionality on JavaScript. The browser is slower when communicating through the WebSocket link in both cases. 
+Across both benchmarks, Cluster and Web Workers are nearly identical in performance. The individual test results can be found in Section~\ref{section:commsdata} as well as the average results and standard errors. Node.js uses an npm package to interface with the WebSocket server while the browser uses the available WebSocket functionality on JavaScript. The browser is slower when communicating through the WebSocket link in both cases. 
 
 The WebSocket links are slower than the IPC alternative (Cluster and Web Workers) since they involve the network stack and introduce an additional network hop over the WebSocket server. Cluster and Web Workers use a direct link which is made between the spawner and the spawned worker; hence the message is not forwarded by an intermediary node. WebSocket performance would be improved if peer-to-peer connections between distributed instances were established.
 
@@ -725,7 +725,7 @@ The same analysis is carried out using the browser framework which produced the 
         \caption{Browser Micro-Benchmark Standard Errors}\label{tab:browserloadscalingsem}
     \end{center}
 \end{table}
-\section{Comparison of Communication Links}
+\section{Comparison of Communication Links}\label{section:commsdata}
 This section is concerned with the overhead introduced by using different communication links when executing the Ping-Pong (message sending) and Fork-Join-Create (remote actor creation) benchmarks. These results are presented in Figure~\ref{fig:link}.
 
 For Ping-Pong, $1\times10^5$ messages are sent between two remote actors. This is equal to the number of actors spawned in a modified version of Fork-Join-Create, which only remotely spawns actors without termination. This enables the reader to compare the execution time between remotely sending messages and remotely spawning actors.

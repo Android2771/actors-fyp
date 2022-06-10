@@ -1,4 +1,4 @@
-../../src/nodeactors.js';
+import actors from '../../src/nodeactors.js';
 const { init, spawn, spawnRemote, terminate, send} = actors
 
 const pingPongBehaviour = (state, message, self) => {
